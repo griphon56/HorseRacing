@@ -6,4 +6,27 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Common\Behaviors\" />
+    <Folder Include="Common\Interfaces\Services\" />
+    <Folder Include="Common\Mapping\" />
+    <Folder Include="Common\Interfaces\Authentication\" />
+    <Folder Include="EventHandlers\Common\" />
+    <Folder Include="RequestHandlers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Mapster" Version="7.4.0" />
+    <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HorseRacing.Common\HorseRacing.Common.csproj" />
+    <ProjectReference Include="..\HorseRacing.Contracts\HorseRacing.Contracts.csproj" />
+    <ProjectReference Include="..\HorseRacing.Domain\HorseRacing.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
