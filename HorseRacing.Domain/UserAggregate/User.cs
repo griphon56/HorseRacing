@@ -11,10 +11,6 @@ namespace HorseRacing.Domain.UserAggregate
     public partial class User : AggregateRootChangeInfoGuid<UserId>
     {
         /// <summary>
-        /// Конструктор без параметров <see cref="User"/>.
-        /// </summary>
-        private User() : base(UserId.CreateUnique(), new EntityChangeInfo(DateTime.UtcNow)) { }
-        /// <summary>
         /// Логин
         /// </summary>
         public string UserName { get; private set; } = "";
@@ -42,9 +38,33 @@ namespace HorseRacing.Domain.UserAggregate
         /// Телефон
         /// </summary>
         public string Phone { get; private set; } = "";
+
         /// <summary>
         /// Роль пользователя
         /// </summary>
         //public RoleId RoleId { get; private set; }
+
+        private User() : base(UserId.CreateUnique(), new EntityChangeInfo(DateTime.UtcNow)) { }
+
+        private User(UserId id, string userName, string password, bool isRemoved, string firstName, string lastName
+            , string email, string phone, EntityChangeInfo changeInfo) 
+            : base(id ?? UserId.CreateUnique(), changeInfo)
+        {
+            UserName = userName;
+            Password = password;
+            IsRemoved = isRemoved;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            Phone = phone;
+        }
+
+        public static User Create(UserId id, string userName, string password, bool isRemoved, string firstName
+            , string lastName, string email, string phone, EntityChangeInfo changeInfo)
+        {
+            var user = new User(id, userName, password, isRemoved, firstName, lastName, email, phone, changeInfo);
+
+            return user;
+        }
     }
 }

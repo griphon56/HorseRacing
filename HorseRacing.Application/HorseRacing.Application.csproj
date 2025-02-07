@@ -8,9 +8,7 @@
 
   <ItemGroup>
     <Folder Include="Common\Behaviors\" />
-    <Folder Include="Common\Interfaces\Services\" />
     <Folder Include="Common\Mapping\" />
-    <Folder Include="Common\Interfaces\Authentication\" />
     <Folder Include="EventHandlers\Common\" />
     <Folder Include="RequestHandlers\" />
   </ItemGroup>
