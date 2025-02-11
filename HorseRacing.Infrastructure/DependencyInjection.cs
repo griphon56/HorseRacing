@@ -1,6 +1,7 @@
 ﻿using HorseRacing.Application.Common.Interfaces.Authentication;
 using HorseRacing.Application.Common.Interfaces.Persistence;
 using HorseRacing.Application.Common.Interfaces.Persistence.Base;
+using HorseRacing.Application.Common.Interfaces.Services;
 using HorseRacing.Domain.Common.Caching.Configuration;
 using HorseRacing.Domain.Common.DependencyConfiguration;
 using HorseRacing.Domain.Common.Models.Authentication;
@@ -10,6 +11,8 @@ using HorseRacing.Infrastructure.Persistence.DbContexts;
 using HorseRacing.Infrastructure.Persistence.Interceptors;
 using HorseRacing.Infrastructure.Persistence.Repositories.Base;
 using HorseRacing.Infrastructure.Persistence.Repositories.Common;
+using HorseRacing.Infrastructure.Services;
+using HorseRacing.LoggerExtenstions.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +22,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
 using System.Collections.ObjectModel;
+using System.Data;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 
@@ -44,7 +51,7 @@ namespace HorseRacing.Infrastructure
             , out string selectedProvider)
         {
             services.AddPersistence(configuration, out selectedProvider, out selectedConnectionString);
-            //services.AddLogging(logger, selectedProvider, selectedConnectionString);
+            services.AddLogging(logger, selectedProvider, selectedConnectionString);
 
             services.AddAuth(configuration, infrastructureConfiguration);
 
@@ -84,7 +91,8 @@ namespace HorseRacing.Infrastructure
         public static IServiceCollection AddCommonServices(this IServiceCollection services)
         {
             //services.AddScoped<IUserService, UserService>();
-
+            services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+            services.AddSingleton<IHashPasswordService, HashPasswordService>();
             return services;
         }
         /// <summary>
@@ -192,54 +200,51 @@ namespace HorseRacing.Infrastructure
         /// Добавление логирования.
         /// </summary>
         /// <param name="services">Сервисы.</param>
-        /// <param name="builder">Строитель.</param>
         /// <param name="dbProvider">Провайдер базы данных.</param>
         /// <param name="connectionString">Строка подключения.</param>
-    //    private static void AddLogging(this IServiceCollection services, ILoggingBuilder logger, string dbProvider, string connectionString)
-    //    {
-    //        var assembly = Assembly.GetExecutingAssembly().GetName();
-    //        var LoggerConfiguration = new LoggerConfiguration()
-    //            .MinimumLevel.Debug().Destructure.ToMaximumDepth(10)
-    //            .Enrich.FromLogContext()
-    //            .Enrich.WithMachineName()
-    //            .Enrich.WithProperty("Assembly", $"{assembly.Version}");
+        private static void AddLogging(this IServiceCollection services, ILoggingBuilder logger, string dbProvider, string connectionString)
+        {
+            var assembly = Assembly.GetExecutingAssembly().GetName();
+            var LoggerConfiguration = new LoggerConfiguration()
+                .MinimumLevel.Debug().Destructure.ToMaximumDepth(10)
+                .Enrich.FromLogContext()
+                .Enrich.WithMachineName()
+                .Enrich.WithProperty("Assembly", $"{assembly.Version}");
 
-    //        if (dbProvider == DBProviderSettings.MSSQLServer)
-    //        {
-    //            var ColumnOptions = new Serilog.Sinks.MSSqlServer.ColumnOptions
-    //            {
-    //                AdditionalColumns = new Collection<SqlColumn>
-    //                {
-    //                    new SqlColumn {ColumnName = CustomLoggerExtensions.InitiatorInfoTextCustomColumnName, PropertyName =CustomLoggerExtensions.InitiatorInfoTextCustomColumnName, DataType = SqlDbType.NVarChar, DataLength = 500},
-    //                    new SqlColumn {ColumnName = CustomLoggerExtensions.EventTypeCustomColumnName, PropertyName =CustomLoggerExtensions.EventTypeCustomColumnName, DataType = SqlDbType.Int},
-    //                    new SqlColumn {ColumnName = CustomLoggerExtensions.SubsystemCustomColumnName, PropertyName =CustomLoggerExtensions.SubsystemCustomColumnName, DataType = SqlDbType.Int},
-    //                    new SqlColumn {ColumnName = CustomLoggerExtensions.TechProcessCustomColumnName, PropertyName =CustomLoggerExtensions.TechProcessCustomColumnName, DataType = SqlDbType.Int},
-    //                    new SqlColumn {ColumnName = CustomLoggerExtensions.EventTitleCustomColumnName, PropertyName =CustomLoggerExtensions.EventTitleCustomColumnName, DataType = SqlDbType.NVarChar, DataLength = 1000},
-    //                    new SqlColumn {ColumnName = CustomLoggerExtensions.UserIdCustomColumnName, PropertyName =CustomLoggerExtensions.UserIdCustomColumnName, DataType = SqlDbType.UniqueIdentifier},
-    //                    new SqlColumn {ColumnName = CustomLoggerExtensions.DataAreaIdCustomColumnName, PropertyName =CustomLoggerExtensions.DataAreaIdCustomColumnName, DataType = SqlDbType.UniqueIdentifier},
-    //                    new SqlColumn {ColumnName = CustomLoggerExtensions.DivisionIdCustomColumnName, PropertyName =CustomLoggerExtensions.DivisionIdCustomColumnName, DataType = SqlDbType.UniqueIdentifier},
-    //                }
-    //            };
+            if (dbProvider == DBProviderSettings.MSSQLServer)
+            {
+                var ColumnOptions = new Serilog.Sinks.MSSqlServer.ColumnOptions
+                {
+                    AdditionalColumns = new Collection<SqlColumn>
+                    {
+                        new SqlColumn {ColumnName = CustomLoggerExtensions.InitiatorInfoTextCustomColumnName, PropertyName =CustomLoggerExtensions.InitiatorInfoTextCustomColumnName, DataType = SqlDbType.NVarChar, DataLength = 500},
+                        new SqlColumn {ColumnName = CustomLoggerExtensions.EventTypeCustomColumnName, PropertyName =CustomLoggerExtensions.EventTypeCustomColumnName, DataType = SqlDbType.Int},
+                        new SqlColumn {ColumnName = CustomLoggerExtensions.SubsystemCustomColumnName, PropertyName =CustomLoggerExtensions.SubsystemCustomColumnName, DataType = SqlDbType.Int},
+                        new SqlColumn {ColumnName = CustomLoggerExtensions.TechProcessCustomColumnName, PropertyName =CustomLoggerExtensions.TechProcessCustomColumnName, DataType = SqlDbType.Int},
+                        new SqlColumn {ColumnName = CustomLoggerExtensions.EventTitleCustomColumnName, PropertyName =CustomLoggerExtensions.EventTitleCustomColumnName, DataType = SqlDbType.NVarChar, DataLength = 1000},
+                        new SqlColumn {ColumnName = CustomLoggerExtensions.UserIdCustomColumnName, PropertyName =CustomLoggerExtensions.UserIdCustomColumnName, DataType = SqlDbType.UniqueIdentifier}
+                    }
+                };
 
-    //            LoggerConfiguration.WriteTo.MSSqlServer(connectionString: connectionString,
-    //              sinkOptions: new MSSqlServerSinkOptions
-    //              {
-    //                  TableName = EventLogTableName,
-    //              },
-    //            columnOptions: ColumnOptions);
-    //        }
+                LoggerConfiguration.WriteTo.MSSqlServer(connectionString: connectionString,
+                  sinkOptions: new MSSqlServerSinkOptions
+                  {
+                      TableName = EventLogTableName,
+                  },
+                columnOptions: ColumnOptions);
+            }
 
-    //        // Закомментировал пока запись логов в файл.
-    //        Log.Logger = LoggerConfiguration/*.WriteTo.File(
-				//new CompactJsonFormatter(),
-				//Environment.CurrentDirectory + Path.Combine(Path.DirectorySeparatorChar.ToString(), "Logs", "log.json"),
-				//rollingInterval: RollingInterval.Day,
-				//restrictedToMinimumLevel: LogEventLevel.Information)*/.CreateBootstrapLogger();
+            // Закомментировал пока запись логов в файл.
+            Log.Logger = LoggerConfiguration/*.WriteTo.File(
+				new CompactJsonFormatter(),
+				Environment.CurrentDirectory + Path.Combine(Path.DirectorySeparatorChar.ToString(), "Logs", "log.json"),
+				rollingInterval: RollingInterval.Day,
+				restrictedToMinimumLevel: LogEventLevel.Information)*/.CreateBootstrapLogger();
 
-    //        Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
-    //        logger.ClearProviders();
-    //        logger.AddSerilog(Log.Logger);
-    //    }
+            Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
+            logger.ClearProviders();
+            logger.AddSerilog(Log.Logger);
+        }
 
         /// <summary>
         /// Добавление аутентификации.
@@ -260,7 +265,7 @@ namespace HorseRacing.Infrastructure
             {
                 throw new Exception($"Аутентификация с использованием Jwt обязательно должно присутствовать в appSettings.json, но параметр {JwtAuthenticationModuleOption.SectionName} не был обнаружен");
             }
-            
+
             var authBuilder = services.AddAuthentication(options =>
             {
                 options.DefaultScheme = JwtAuthenticationModuleOption.SchemeName;

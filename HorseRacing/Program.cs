@@ -1,25 +1,63 @@
+using Asp.Versioning.ApiExplorer;
+using HorseRacing.Api;
+using HorseRacing.Api.Extensions;
+using HorseRacing.Api.Middleware;
+using HorseRacing.Application;
+using HorseRacing.Infrastructure;
+using Microsoft.AspNetCore.HttpOverrides;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services
+    .AddPresentation(builder)
+    .AddApplication()
+    .AddInfrastructure(builder.Configuration, builder.Logging,
+    new HorseRacing.Domain.Common.DependencyConfiguration.InfrastructureConfiguration()
+    {
+        EnableAuthorizationConfiguration = true,
+        EnableCachingConfiguration = true
+    }, out string selectedConnectionString, out string selectedProvider);
 
 var app = builder.Build();
+
+var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
+if (app.Environment.IsProduction())
+{
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+    });
+}
+
+app.MigrateDatabase();
+
+app.UseExceptionHandler("/error");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.UseSwaggerExtension(provider);
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
+try
+{
+    app.UseStaticFiles();
+    app.MapFallbackToFile("index.html");
+}
+catch { }
+
+app.UseRouting();
+app.UseCors("CorsPolicy");
+app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<ValidateAuthentication>();
 app.MapControllers();
+
+//app.MapHub<CommonServerHub>(Deb.Infrastructure.DependencyInjection.CommonServerHub);
 
 app.Run();

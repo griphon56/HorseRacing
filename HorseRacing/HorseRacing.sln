@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HorseRacing.Application.Int
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HorseRacing.Infrastructure.UnitTests", "..\HorseRacing.Infrastructure.UnitTests\HorseRacing.Infrastructure.UnitTests.csproj", "{6CDA3302-ABB5-13C4-ED6D-4248207A590B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HorseRacing.LoggerExtenstions", "..\HorseRacing.LoggerExtenstions\HorseRacing.LoggerExtenstions.csproj", "{155C4FDE-917F-4F1C-B514-725E96A601BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,10 @@ Global
 		{6CDA3302-ABB5-13C4-ED6D-4248207A590B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CDA3302-ABB5-13C4-ED6D-4248207A590B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CDA3302-ABB5-13C4-ED6D-4248207A590B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{155C4FDE-917F-4F1C-B514-725E96A601BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{155C4FDE-917F-4F1C-B514-725E96A601BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{155C4FDE-917F-4F1C-B514-725E96A601BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{155C4FDE-917F-4F1C-B514-725E96A601BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +96,7 @@ Global
 		{2273CAD4-043D-489B-8617-2275E97748B4} = {36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}
 		{26826CAA-550F-1F72-DFDD-5FE9C1C7EC0C} = {36D591C7-65C7-A0D1-1CBC-10CDE441BDC1}
 		{6CDA3302-ABB5-13C4-ED6D-4248207A590B} = {36D591C7-65C7-A0D1-1CBC-10CDE441BDC1}
+		{155C4FDE-917F-4F1C-B514-725E96A601BE} = {4A402FA1-A084-4D7B-A97C-CB4D0CE4BE48}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {253D82D3-7D0B-47C5-8F83-FBF025B0B981}
