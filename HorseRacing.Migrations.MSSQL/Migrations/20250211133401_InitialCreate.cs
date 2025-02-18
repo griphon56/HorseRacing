@@ -75,7 +75,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "ChangedUserId", "CreatedUserId", "DateChanged", "DateCreated", "Email", "FirstName", "IsRemoved", "LastName", "Password", "Phone", "UserName" },
-                values: new object[] { new Guid("8223998a-318f-460c-9464-1164ee56cb46"), null, null, null, new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc), "admin@race.ru", "Администратор", false, "Системы", "2A9BEAAD6666982A470776F098D3D9B6C41D1AB8D3286E7DC710DC6CE7393DB15BFDF9D0CE2C153E39A64D4FD9F04DC68FE5345BFCAA4ACB3F03", "79001112233", "admin" });
+                values: new object[] { new Guid("8223998a-318f-460c-9464-1164ee56cb46"), null, null, null, new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc), "admin@race.ru", "Администратор", false, "Системы", "82E3B4B3D57F6D4112A02310EA2E8F9517BC19BD6EBF1EC95E0C7AA961B3B3F2AE24BB2CA278CB190D24B55241AC893C9E590717106F3FB18070", "79001112233", "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_EventLog_UserId",

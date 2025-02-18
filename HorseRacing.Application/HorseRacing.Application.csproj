@@ -7,9 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Common\Mapping\" />
     <Folder Include="EventHandlers\Common\" />
-    <Folder Include="RequestHandlers\AuthenticationHandlers\Queries\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +25,7 @@
     <ProjectReference Include="..\HorseRacing.Common\HorseRacing.Common.csproj" />
     <ProjectReference Include="..\HorseRacing.Contracts\HorseRacing.Contracts.csproj" />
     <ProjectReference Include="..\HorseRacing.Domain\HorseRacing.Domain.csproj" />
+    <ProjectReference Include="..\HorseRacing.LoggerExtenstions\HorseRacing.LoggerExtenstions.csproj" />
   </ItemGroup>
 
 </Project>

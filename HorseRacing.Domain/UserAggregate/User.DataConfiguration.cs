@@ -13,8 +13,8 @@ namespace HorseRacing.Domain.UserAggregate
             {
                 new { Id = UserId.Create(User.DefaultSystemAdministrator),
                     UserName = "admin",
-				    // Хэш пароля "7#v18eDq"
-				    Password = "2A9BEAAD6666982A470776F098D3D9B6C41D1AB8D3286E7DC710DC6CE7393DB15BFDF9D0CE2C153E39A64D4FD9F04DC68FE5345BFCAA4ACB3F03",
+				    // Хэш пароля "qwerty_123"
+				    Password = "82E3B4B3D57F6D4112A02310EA2E8F9517BC19BD6EBF1EC95E0C7AA961B3B3F2AE24BB2CA278CB190D24B55241AC893C9E590717106F3FB18070",
                     FirstName = "Администратор",
                     LastName = "Системы",
                     Email = "admin@race.ru",

@@ -46,8 +46,8 @@ namespace HorseRacing.Domain.UserAggregate
 
         private User() : base(UserId.CreateUnique(), new EntityChangeInfo(DateTime.UtcNow)) { }
 
-        private User(UserId id, string userName, string password, bool isRemoved, string firstName, string lastName
-            , string email, string phone, EntityChangeInfo changeInfo) 
+        private User(UserId id, string userName, string password, string firstName, string lastName
+            , string email, string phone, EntityChangeInfo changeInfo, bool isRemoved) 
             : base(id ?? UserId.CreateUnique(), changeInfo)
         {
             UserName = userName;
@@ -59,10 +59,10 @@ namespace HorseRacing.Domain.UserAggregate
             Phone = phone;
         }
 
-        public static User Create(UserId id, string userName, string password, bool isRemoved, string firstName
-            , string lastName, string email, string phone, EntityChangeInfo changeInfo)
+        public static User Create(UserId id, string userName, string password, string firstName
+            , string lastName, string email, string phone, EntityChangeInfo changeInfo, bool isRemoved = true)
         {
-            var user = new User(id, userName, password, isRemoved, firstName, lastName, email, phone, changeInfo);
+            var user = new User(id, userName, password, firstName, lastName, email, phone, changeInfo, isRemoved);
 
             return user;
         }
