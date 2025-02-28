@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 namespace HorseRacing.Domain.UserAggregate
 {
     /// <summary>
-    /// Пользователь
+    /// Агрегат "Пользователь"
     /// </summary>
     [Display(Description = "Пользователь")]
     public partial class User : AggregateRootChangeInfoGuid<UserId>

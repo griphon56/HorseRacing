@@ -16,4 +16,9 @@
     <ProjectReference Include="..\HorseRacing.Common\HorseRacing.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="GameAggregate\ReadOnlyModels\" />
+    <Folder Include="GameAggregate\Specifications\" />
+  </ItemGroup>
+
 </Project>

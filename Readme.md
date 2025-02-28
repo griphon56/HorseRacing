@@ -99,12 +99,12 @@ erDiagram
         nvarchar(100) Exception
     }
     Users {
-        int UserId PK
-        int CreateUserId
+        guid UserId PK
+		datetime DateCreate
+        guid CreateUserId
         datetime DateChange
-        int ChangeUserId
+        guid ChangeUserId
         bit IsRemoved
-        datetime DateCreate
         nvarchar(100) Username
         nvarchar(100) Password
         nvarchar(100) FirstName
@@ -114,64 +114,62 @@ erDiagram
     }
     
     Accounts {
-        int AccountId PK
-        int UserId FK
+        guid AccountId PK
+        guid UserId FK
         int Balance
     }
     Games {
-        int GameId PK
+        guid GameId PK
         int Status
         nvarchar(100) Name
         datetime DateStart
         datetime DateEnd
         datetime DateCreate
-        int CreateUserId FK
+        guid CreateUserId FK
         datetime DateChange
-        int ChangeUserId FK
+        guid ChangeUserId FK
     }
     GameResults {
-        int GameResultId PK
-        int GameId FK
-        int UserId FK
-        nvarchar(1) BetSuit
+        guid GameResultId PK
+        guid GameId FK
+        guid UserId FK
+        int BetSuit
         int Position
     }
     GamePlayers {
-        int GamePlayerId PK
-        int GameId FK
-        int UserId FK
-        nvarchar(1) BetSuit
+        guid GamePlayerId PK
+        guid GameId FK
+        guid UserId FK
+        int BetSuit
         decimal BetAmount
     }
     
     GameDeckCards {
-        int GameDeckCardId PK
-        int GameId FK
-        nvarchar(1) CardSuit
-        nvarchar(2) CardRank
+        guid GameDeckCardId PK
+        guid GameId FK
+        int CardSuit
+        int CardRank
         int CardOrder
         int Zone
     }
     
     GameHorsePositions {
-        int GameHorsePositionId PK
-        int GameId FK
-        nvarchar(1) HorseSuit
+        guid GameHorsePositionId PK
+        guid GameId FK
+        int HorseSuit
         int Position
     }
     
     GameEvents {
-        int GameEventId PK
-        int GameId FK
+        guid GameEventId PK
+        guid GameId FK
         int EventType
-        nvarchar(1) CardSuit
-        nvarchar(2) CardRank
+        int CardSuit
+        int CardRank
         int DeckCardOrder
-        nvarchar(1) HorseSuit
-        int OldPosition
-        int NewPosition
-        datetime DateCreate
-        int CreateUserId FK
+        int HorseSuit
+        int Position
+        datetime EventDate
     }
     
     Users ||--o{ Accounts : owns
