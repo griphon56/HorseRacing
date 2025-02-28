@@ -116,19 +116,18 @@ erDiagram
     Accounts {
         int AccountId PK
         int UserId FK
-        decimal Balance
-        datetime DateCreate
-        int CreateUserId FK
-        datetime DateChange
-        int ChangeUserId FK
+        int Balance
     }
     Games {
         int GameId PK
         int Status
+        nvarchar(100) Name
         datetime DateStart
         datetime DateEnd
         datetime DateCreate
         int CreateUserId FK
+        datetime DateChange
+        int ChangeUserId FK
     }
     GameResults {
         int GameResultId PK
