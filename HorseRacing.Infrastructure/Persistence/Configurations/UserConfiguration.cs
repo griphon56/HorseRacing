@@ -15,6 +15,7 @@ namespace HorseRacing.Infrastructure.Persistence.Configurations
         public void Configure(EntityTypeBuilder<User> builder)
         {
             ConfigureUserTable(builder);
+            ConfigureAccountTable(builder);
         }
 
         /// <summary>
@@ -39,6 +40,20 @@ namespace HorseRacing.Infrastructure.Persistence.Configurations
             BaseChangeInfoConfigurationUtilities.AttachChangeInfoForConfiguration<User, UserId>(builder);
 
             builder.HasData(User.GetDefaultUser());
+        }
+
+        private void ConfigureAccountTable(EntityTypeBuilder<User> builder)
+        {
+            builder.OwnsOne(u => u.Account, a =>
+            {
+                a.ToTable("Accounts");
+                a.WithOwner().HasForeignKey(m => m.UserId);
+                a.HasKey(m => m.Id);
+                a.Property(m => m.Id).ValueGeneratedNever().HasConversion(id => id.Value, value => AccountId.Create(value));
+                a.Property(m => m.UserId).HasConversion(id => id.Value, value => UserId.Create(value));
+            });
+
+            builder.Metadata.FindNavigation(nameof(User.Account))!.SetPropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using HorseRacing.Domain.Common.Models.Base;
+using HorseRacing.Domain.UserAggregate.Entities;
 using HorseRacing.Domain.UserAggregate.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 
@@ -39,6 +40,9 @@ namespace HorseRacing.Domain.UserAggregate
         /// </summary>
         public string Phone { get; private set; } = "";
 
+        private readonly Account _account;
+        public Account Account => _account;
+
         /// <summary>
         /// Роль пользователя
         /// </summary>
@@ -47,7 +51,7 @@ namespace HorseRacing.Domain.UserAggregate
         private User() : base(UserId.CreateUnique(), new EntityChangeInfo(DateTime.UtcNow)) { }
 
         private User(UserId id, string userName, string password, string firstName, string lastName
-            , string email, string phone, EntityChangeInfo changeInfo, bool isRemoved) 
+            , string email, string phone, EntityChangeInfo changeInfo, bool isRemoved, Account? account) 
             : base(id ?? UserId.CreateUnique(), changeInfo)
         {
             UserName = userName;
@@ -57,12 +61,13 @@ namespace HorseRacing.Domain.UserAggregate
             LastName = lastName;
             Email = email;
             Phone = phone;
+            _account = account;
         }
 
         public static User Create(UserId id, string userName, string password, string firstName
-            , string lastName, string email, string phone, EntityChangeInfo changeInfo, bool isRemoved = true)
+            , string lastName, string email, string phone, EntityChangeInfo changeInfo, Account? account,  bool isRemoved = true)
         {
-            var user = new User(id, userName, password, firstName, lastName, email, phone, changeInfo, isRemoved);
+            var user = new User(id, userName, password, firstName, lastName, email, phone, changeInfo, isRemoved, account);
 
             return user;
         }
