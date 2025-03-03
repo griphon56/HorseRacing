@@ -7,8 +7,7 @@ namespace HorseRacing.Domain.GameAggregate.ValueObjects
         /// <summary>
         /// Конструктор без параметров <see cref="GameResultId"/> .
         /// </summary>
-        private GameResultId() : base()
-        { }
+        private GameResultId() : base() { }
         /// <summary>
         /// Конструктор для создания на основе значения <see cref="Guid"/>
         /// </summary>

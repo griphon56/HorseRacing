@@ -5,7 +5,7 @@ using HorseRacing.Domain.UserAggregate.ValueObjects;
 namespace HorseRacing.Domain.EventLogAggregate
 {
     /// <summary>
-	/// Событие
+	/// Агрегат "События системы"
 	/// </summary>
 	public class EventLog : AggregateRootInt<EventLogId>
     {

@@ -1,11 +1,13 @@
 ﻿using HorseRacing.Domain.Common.Models.Base;
 using HorseRacing.Domain.UserAggregate.ValueObjects;
+using System.ComponentModel.DataAnnotations;
 
 namespace HorseRacing.Domain.UserAggregate.Entities
 {
     /// <summary>
     /// Сущность "Баланса пользователя"
     /// </summary>
+    [Display(Description = "Баланс пользователя")]
     public class Account : EntityGuid<AccountId>
     {
         /// <summary>

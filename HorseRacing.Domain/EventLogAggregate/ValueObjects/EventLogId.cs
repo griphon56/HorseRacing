@@ -7,15 +7,11 @@ namespace HorseRacing.Domain.EventLogAggregate.ValueObjects
         /// <summary>
         /// Конструктор без параметров <see cref="EventLogId"/> .
         /// </summary>
-        private EventLogId() : base()
-        { }
+        private EventLogId() : base() { }
         /// <summary>
         /// Конструктор для создания на основе значения <see cref="int"/>
         /// </summary>
-        public EventLogId(int value) : base(value)
-        {
-
-        }
+        public EventLogId(int value) : base(value) { }
         /// <summary>
         /// Создает уникальное значение.
         /// </summary>
@@ -34,6 +30,5 @@ namespace HorseRacing.Domain.EventLogAggregate.ValueObjects
         {
             return new(value);
         }
-
     }
 }

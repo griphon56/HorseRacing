@@ -1,12 +1,14 @@
 ﻿using HorseRacing.Domain.Common.Models.Base;
 using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
+using System.ComponentModel.DataAnnotations;
 
 namespace HorseRacing.Domain.GameAggregate
 {
     /// <summary>
     /// Агрегат "Игра"
     /// </summary>
+    [Display(Description = "Игра")]
     public class Game : AggregateRootChangeInfoGuid<GameId>
     {
         /// <summary>

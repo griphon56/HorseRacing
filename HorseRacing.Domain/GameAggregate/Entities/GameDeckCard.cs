@@ -1,12 +1,14 @@
 ﻿using HorseRacing.Domain.Common.Models.Base;
 using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
+using System.ComponentModel.DataAnnotations;
 
 namespace HorseRacing.Domain.GameAggregate.Entities
 {
     /// <summary>
-    /// Сущность "Карта в игре"
+    /// Сущность "Игровая колода"
     /// </summary>
+    [Display(Description = "Игровая колода")]
     public class GameDeckCard : EntityGuid<GameDeckCardId>
     {
         /// <summary>

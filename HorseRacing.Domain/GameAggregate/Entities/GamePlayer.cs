@@ -2,12 +2,14 @@
 using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
 using HorseRacing.Domain.UserAggregate.ValueObjects;
+using System.ComponentModel.DataAnnotations;
 
 namespace HorseRacing.Domain.GameAggregate.Entities
 {
     /// <summary>
-    /// Сущность "Участник игры"
+    /// Сущность "Игрок"
     /// </summary>
+    [Display(Description = "Игрок")]
     public class GamePlayer : EntityGuid<GamePlayerId>
     {
         /// <summary>

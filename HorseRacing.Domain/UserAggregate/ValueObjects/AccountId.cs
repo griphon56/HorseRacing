@@ -7,8 +7,7 @@ namespace HorseRacing.Domain.UserAggregate.ValueObjects
         /// <summary>
         /// Конструктор без параметров <see cref="AccountId"/>.
         /// </summary>
-        private AccountId() : base()
-        { }
+        private AccountId() : base() { }
         /// <summary>
         /// Конструктор для создания на основе значения <see cref="Guid"/>
         /// </summary>
