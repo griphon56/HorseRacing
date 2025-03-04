@@ -19,4 +19,8 @@
     <ProjectReference Include="..\HorseRacing.Infrastructure\HorseRacing.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

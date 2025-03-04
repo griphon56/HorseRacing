@@ -47,8 +47,9 @@ namespace HorseRacing.Infrastructure.Persistence.Configurations
             builder.OwnsOne(u => u.Account, a =>
             {
                 a.ToTable("Accounts");
-                a.WithOwner().HasForeignKey(m => m.UserId);
+
                 a.HasKey(m => m.Id);
+                a.WithOwner().HasForeignKey(m => m.UserId);
                 a.Property(m => m.Id).ValueGeneratedNever().HasConversion(id => id.Value, value => AccountId.Create(value));
                 a.Property(m => m.UserId).HasConversion(id => id.Value, value => UserId.Create(value));
             });

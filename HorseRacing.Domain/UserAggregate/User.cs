@@ -65,8 +65,10 @@ namespace HorseRacing.Domain.UserAggregate
         }
 
         public static User Create(UserId id, string userName, string password, string firstName
-            , string lastName, string email, string phone, EntityChangeInfo changeInfo, Account? account,  bool isRemoved = true)
+            , string lastName, string email, string phone, EntityChangeInfo changeInfo, bool isRemoved = true)
         {
+            Account account = Account.Create(AccountId.CreateUnique(), 0, id);
+
             var user = new User(id, userName, password, firstName, lastName, email, phone, changeInfo, isRemoved, account);
 
             return user;
