@@ -23,11 +23,11 @@ namespace HorseRacing.Domain.GameAggregate
         /// <summary>
         /// Дата начала игры
         /// </summary>
-        public DateTime  DateStart { get; private set; }
+        public DateTime DateStart { get; private set; }
         /// <summary>
         /// Дата окончания
         /// </summary>
-        public DateTime  DateEnd { get; private set; }
+        public DateTime? DateEnd { get; private set; }
 
         /// <summary>
         /// Результат игры
@@ -59,27 +59,22 @@ namespace HorseRacing.Domain.GameAggregate
 		private readonly List<GamePlayer> _gamePlayers = new();
         public IReadOnlyList<GamePlayer> GamePlayers => _gamePlayers.AsReadOnly();
 
-        private Game () : base(GameId.CreateUnique(), new EntityChangeInfo(DateTime.UtcNow)) { }
+        private Game() : base(GameId.CreateUnique(), new EntityChangeInfo(DateTime.UtcNow)) { }
 
-        private Game(GameId id, string name, StatusType status, DateTime dateStart, DateTime dateEnd, List<GameDeckCard> gameDeckCards
-            , List<GameHorsePosition> gameHorsePositions, List<GamePlayer> gamePlayers, EntityChangeInfo changeInfo, List<GameEvent>? gameEvents=null, GameResult? gameResult=null)
+        private Game(GameId id, string name, StatusType status, DateTime dateStart, DateTime? dateEnd
+            , EntityChangeInfo changeInfo)
             : base(id ?? GameId.CreateUnique(), changeInfo)
         {
             Name = name;
             Status = status;
             DateStart = dateStart;
             DateEnd = dateEnd;
-            _gameDeckCards = gameDeckCards;
-            _gameHorsePositions = gameHorsePositions;
-            _gamePlayers = gamePlayers;
-            _gameEvents = gameEvents ?? new();
-            _gameResult = gameResult;
         }
 
-        public static Game Create(GameId id, string name, StatusType status, DateTime dateStart, DateTime dateEnd, List<GameDeckCard> gameDeckCards
-            , List<GameHorsePosition> gameHorsePositions, List<GamePlayer> gamePlayers, EntityChangeInfo changeInfo, List<GameEvent>? gameEvents = null, GameResult? gameResult = null)
+        public static Game Create(GameId id, string name, StatusType status, DateTime dateStart, DateTime? dateEnd
+            , EntityChangeInfo changeInfo)
         {
-            return new Game(id, name, status, dateStart, dateEnd, gameDeckCards, gameHorsePositions, gamePlayers, changeInfo, gameEvents, gameResult);
+            return new Game(id, name, status, dateStart, dateEnd, changeInfo);
         }
     }
 }

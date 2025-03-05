@@ -102,6 +102,7 @@ namespace HorseRacing.Infrastructure
         public static IServiceCollection AddCommonRepositories(this IServiceCollection services)
         {
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IGameRepository, GameRepository>();
             services.AddScoped(typeof(IBaseRepository<,>), typeof(BaseRepository<,>));
 
             return services;

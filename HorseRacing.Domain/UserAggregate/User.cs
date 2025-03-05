@@ -40,7 +40,7 @@ namespace HorseRacing.Domain.UserAggregate
         /// </summary>
         public string Phone { get; private set; } = "";
 
-        private readonly Account _account;
+        private Account _account;
         public Account Account => _account;
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace HorseRacing.Domain.UserAggregate
         private User() : base(UserId.CreateUnique(), new EntityChangeInfo(DateTime.UtcNow)) { }
 
         private User(UserId id, string userName, string password, string firstName, string lastName
-            , string email, string phone, EntityChangeInfo changeInfo, bool isRemoved, Account? account) 
+            , string email, string phone, EntityChangeInfo changeInfo, bool isRemoved)
             : base(id ?? UserId.CreateUnique(), changeInfo)
         {
             UserName = userName;
@@ -61,15 +61,14 @@ namespace HorseRacing.Domain.UserAggregate
             LastName = lastName;
             Email = email;
             Phone = phone;
-            _account = account;
         }
 
         public static User Create(UserId id, string userName, string password, string firstName
-            , string lastName, string email, string phone, EntityChangeInfo changeInfo, bool isRemoved = true)
+            , string lastName, string email, string phone, EntityChangeInfo changeInfo, bool isRemoved = false)
         {
-            Account account = Account.Create(AccountId.CreateUnique(), 0, id);
+            var user = new User(id, userName, password, firstName, lastName, email, phone, changeInfo, isRemoved);
 
-            var user = new User(id, userName, password, firstName, lastName, email, phone, changeInfo, isRemoved, account);
+            user._account = Account.Create(AccountId.CreateUnique(), 10, id);
 
             return user;
         }

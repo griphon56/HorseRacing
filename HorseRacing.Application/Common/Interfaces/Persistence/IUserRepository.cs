@@ -12,7 +12,7 @@ namespace HorseRacing.Application.Common.Interfaces.Persistence
         /// </summary>
         /// <param name="userName">Логин пользователя.</param>
         /// <param name="cancellationToken">Токен отмены</param>
-        Task<Domain.UserAggregate.User?> GetUserByUserName(string userName, CancellationToken cancellationToken = default);
+        Task<User?> GetUserByUserName(string userName, CancellationToken cancellationToken = default);
         /// <summary>
         /// Метод получения представлений всех актуальных пользователей.
         /// </summary>
