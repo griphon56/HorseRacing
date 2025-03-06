@@ -31,6 +31,8 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
 
             await _gameRepository.Add(game);
 
+            _logger.Log(LogLevel.Information, $"CreateGameCommand: {game.Name} - {game.Id.Value}");
+
             return new CreateGameResult()
             {
                 GameId = game.Id,

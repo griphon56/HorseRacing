@@ -43,12 +43,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-try
-{
-    app.UseStaticFiles();
-    app.MapFallbackToFile("index.html");
-}
-catch { }
+//try
+//{
+//    app.UseStaticFiles();
+//    app.MapFallbackToFile("index.html");
+//}
+//catch { }
 
 app.UseRouting();
 app.UseCors("CorsPolicy");

@@ -49,6 +49,8 @@ namespace HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Command
             await _userRepository.Add(user);
             var token = _jwtTokenGenerator.GenerateToken(user!);
 
+            _logger.Log(LogLevel.Information, $"RegistrationCommand: {user.UserName} - {user.Id.Value}");
+
             return new AuthenticationResult() { User = user, Token = token };
         }
         /// <summary>

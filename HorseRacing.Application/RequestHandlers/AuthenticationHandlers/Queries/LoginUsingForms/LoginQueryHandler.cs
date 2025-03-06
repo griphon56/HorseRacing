@@ -6,6 +6,7 @@ using HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Common;
 using HorseRacing.Domain.Common.Errors;
 using HorseRacing.Domain.UserAggregate;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Queries.LoginUsingForms
 {
@@ -17,6 +18,7 @@ namespace HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Queries
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IUserRepository _userRepository;
         private readonly IHashPasswordService _hashPasswordService;
+        private readonly ILogger<LoginQueryHandler> _logger;
 
         /// <summary>
         /// Конструктор для обработчика команды запроса на вход <see cref="LoginQueryHandler"/> .
@@ -25,11 +27,12 @@ namespace HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Queries
         /// <param name="userRepository">Пользовательский репозиторий.</param>
         /// <param name="hashPasswordService">Сервис хэширования паролей</param>
         public LoginQueryHandler(IJwtTokenGenerator JwtTokenGenerator, IUserRepository userRepository
-            , IHashPasswordService hashPasswordService)
+            , IHashPasswordService hashPasswordService, ILogger<LoginQueryHandler> logger)
         {
             _jwtTokenGenerator = JwtTokenGenerator;
             _userRepository = userRepository;
             _hashPasswordService = hashPasswordService;
+            _logger = logger;
         }
 
         public async Task<ErrorOr<AuthenticationResult>> Handle(LoginQuery query, CancellationToken cancellationToken)
@@ -42,6 +45,8 @@ namespace HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Queries
             {
                 return Errors.Authentication.PasswordIncorrect;
             }
+
+            _logger.Log(LogLevel.Information, $"LoginQuery: {user.UserName} - {user.Id.Value}");
 
             var token = _jwtTokenGenerator.GenerateToken(user);
             return new AuthenticationResult()

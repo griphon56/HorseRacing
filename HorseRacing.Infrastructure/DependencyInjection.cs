@@ -245,6 +245,7 @@ namespace HorseRacing.Infrastructure
             Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
             logger.ClearProviders();
             logger.AddSerilog(Log.Logger);
+            logger.AddConsole();
         }
 
         /// <summary>
