@@ -1,7 +1,6 @@
 ﻿using Asp.Versioning;
 using HorseRacing.Api.Controllers.Base;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGame;
-using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGame;
 using HorseRacing.Contracts.Models.Game.Requests;
 using HorseRacing.Contracts.Models.Game.Responses;

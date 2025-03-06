@@ -1,4 +1,5 @@
 ﻿using HorseRacing.Domain.UserAggregate;
+using HorseRacing.Domain.UserAggregate.Entities;
 using HorseRacing.Domain.UserAggregate.ValueObjects;
 using HorseRacing.Infrastructure.Persistence.Configurations.Base;
 using Microsoft.EntityFrameworkCore;
@@ -39,7 +40,7 @@ namespace HorseRacing.Infrastructure.Persistence.Configurations
 
             BaseChangeInfoConfigurationUtilities.AttachChangeInfoForConfiguration<User, UserId>(builder);
 
-            builder.HasData(User.GetDefaultUser());
+            builder.HasData(User.GetDefaultUsers());
         }
 
         private void ConfigureAccountTable(EntityTypeBuilder<User> builder)
@@ -52,6 +53,7 @@ namespace HorseRacing.Infrastructure.Persistence.Configurations
                 a.WithOwner().HasForeignKey(m => m.UserId);
                 a.Property(m => m.Id).ValueGeneratedNever().HasConversion(id => id.Value, value => AccountId.Create(value));
                 a.Property(m => m.UserId).HasConversion(id => id.Value, value => UserId.Create(value));
+                a.HasData(Account.GetDefaultAccounts());
             });
 
             builder.Metadata.FindNavigation(nameof(User.Account))!.SetPropertyAccessMode(PropertyAccessMode.Field);

@@ -25,10 +25,6 @@ namespace HorseRacing.Api.Controllers.v1
             _mapper = mapper;
         }
 
-        /// <summary>
-        /// Метод регистрации пользователя
-        /// </summary>
-        /// <param name="request">Модель данных о пользователе для регистрации</param>
         [HttpPost("registration")]
         public async Task<IActionResult> Register([FromBody] RegistrationRequest request)
         {
@@ -39,10 +35,7 @@ namespace HorseRacing.Api.Controllers.v1
                 registerResult => Ok(_mapper.Map<AuthenticationResponse>(registerResult)),
                 errors => Problem(errors));
         }
-        /// <summary>
-        /// Метод авторизации пользователя
-        /// </summary>
-        /// <param name="request">Модель данных о пользователе для авторизации</param>
+        
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)

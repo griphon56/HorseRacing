@@ -8,7 +8,7 @@ namespace HorseRacing.Domain.UserAggregate.Entities
     /// Сущность "Баланса пользователя"
     /// </summary>
     [Display(Description = "Баланс пользователя")]
-    public class Account : EntityGuid<AccountId>
+    public partial class Account : EntityGuid<AccountId>
     {
         /// <summary>
         /// Баланс счета

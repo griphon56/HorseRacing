@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HorseRacing.Migrations.MSSQL.Migrations
 {
     [DbContext(typeof(HRDbContext))]
-    [Migration("20250306072628_InitialCreate")]
+    [Migration("20250306133411_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -382,8 +382,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
 
                     b.Navigation("GamePlayers");
 
-                    b.Navigation("GameResult")
-                        .IsRequired();
+                    b.Navigation("GameResult");
                 });
 
             modelBuilder.Entity("HorseRacing.Domain.UserAggregate.User", b =>
@@ -416,10 +415,17 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("UserId");
+
+                            b1.HasData(
+                                new
+                                {
+                                    Id = new Guid("1223998a-318f-460c-9464-1164ee56cb46"),
+                                    Balance = 0,
+                                    UserId = new Guid("8223998a-318f-460c-9464-1164ee56cb46")
+                                });
                         });
 
-                    b.Navigation("Account")
-                        .IsRequired();
+                    b.Navigation("Account");
                 });
 #pragma warning restore 612, 618
         }
