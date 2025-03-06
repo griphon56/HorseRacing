@@ -4,9 +4,6 @@ namespace HorseRacing.Domain.Common.Errors
 {
     public static partial class Errors
     {
-        /// <summary>
-        /// Статический класс определения ошибок касаемо пользователя.
-        /// </summary>
         public static class User
         {
             /// <summary>

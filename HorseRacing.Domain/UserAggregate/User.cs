@@ -40,8 +40,8 @@ namespace HorseRacing.Domain.UserAggregate
         /// </summary>
         public string Phone { get; private set; } = "";
 
-        private Account _account;
-        public Account Account => _account;
+        private Account? _account;
+        public Account? Account => _account;
 
         /// <summary>
         /// Роль пользователя

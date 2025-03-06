@@ -1,5 +1,6 @@
 ﻿using ErrorOr;
 using HorseRacing.Application.Common.Interfaces.Persistence;
+using HorseRacing.Application.Common.Interfaces.Services;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
 using HorseRacing.Domain.Common.Models.Base;
 using HorseRacing.Domain.GameAggregate;
@@ -13,25 +14,26 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
     {
         private readonly ILogger<CreateGameCommandHandler> _logger;
         private readonly IGameRepository _gameRepository;
+        private readonly IUserService _userService;
 
-        public CreateGameCommandHandler(IGameRepository gameRepository, ILogger<CreateGameCommandHandler> logger)
+        public CreateGameCommandHandler(IGameRepository gameRepository, ILogger<CreateGameCommandHandler> logger
+            , IUserService userService)
         {
             _logger = logger;
             _gameRepository = gameRepository;
+            _userService = userService;
         }
 
         public async Task<ErrorOr<CreateGameResult>> Handle(CreateGameCommand command, CancellationToken cancellationToken)
         {
-            var dt_now = DateTime.UtcNow;
-            Game game = Game.Create(GameId.CreateUnique(), command.Name, Domain.GameAggregate.Enums.StatusType.Wait, dt_now, null, new EntityChangeInfo(dt_now));
+            var userView = await _userService.GetWorkingUser();
+            Game game = Game.Create(GameId.CreateUnique(), command.Name, Domain.GameAggregate.Enums.StatusType.Wait, new EntityChangeInfo(DateTime.UtcNow, userView.Value!.UserId));
 
             await _gameRepository.Add(game);
 
             return new CreateGameResult()
             {
                 GameId = game.Id,
-                DateEnd = null,
-                DateStart = dt_now,
                 Name = game.Name,
                 Status = game.Status
             };

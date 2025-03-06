@@ -1,15 +1,14 @@
-﻿using HorseRacing.Application.Base;
+﻿using HorseRacing.Contracts.Base.Dto;
 using HorseRacing.Domain.GameAggregate.Enums;
-using HorseRacing.Domain.GameAggregate.ValueObjects;
 
-namespace HorseRacing.Application.RequestHandlers.GameHandlers.Common
+namespace HorseRacing.Contracts.Models.Game.Dtos
 {
-    public class CreateGameResult : BaseModelResult
+    public class GetGameResponseDto : BaseDto
     {
         /// <summary>
         /// Код игры
         /// </summary>
-        public required GameId GameId { get; set; }
+        public Guid GameId { get; set; }
         /// <summary>
         /// Статус игры
         /// </summary>
@@ -21,10 +20,11 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Common
         /// <summary>
         /// Дата начала игры
         /// </summary>
-        public DateTime? DateStart { get; set; }
+        public DateTime DateStart { get; set; }
         /// <summary>
         /// Дата окончания
         /// </summary>
         public DateTime? DateEnd { get; set; }
+
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HorseRacing.Migrations.MSSQL.Migrations
 {
     [DbContext(typeof(HRDbContext))]
-    [Migration("20250304080314_InitialCreate")]
+    [Migration("20250306072628_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -97,10 +97,10 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateEnd")
+                    b.Property<DateTime?>("DateEnd")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateStart")
+                    b.Property<DateTime?>("DateStart")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")

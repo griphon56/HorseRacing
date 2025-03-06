@@ -90,7 +90,7 @@ namespace HorseRacing.Infrastructure
         /// <param name="services"></param>
         public static IServiceCollection AddCommonServices(this IServiceCollection services)
         {
-            //services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
             services.AddSingleton<IHashPasswordService, HashPasswordService>();
             return services;

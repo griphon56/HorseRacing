@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="EventHandlers\Common\" />
-    <Folder Include="RequestHandlers\GameHandlers\Queries\" />
   </ItemGroup>
 
   <ItemGroup>

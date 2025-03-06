@@ -4,7 +4,7 @@ using HorseRacing.Domain.GameAggregate.ValueObjects;
 
 namespace HorseRacing.Application.RequestHandlers.GameHandlers.Common
 {
-    public class CreateGameResult : BaseModelResult
+    public class GetGameResult : BaseModelResult
     {
         /// <summary>
         /// Код игры

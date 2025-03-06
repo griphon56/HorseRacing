@@ -25,5 +25,11 @@ namespace HorseRacing.Application.Common.Interfaces.Persistence
         /// <param name="cancellationToken">Токен отмены</param>
         /// <returns>Возвращает список логинов пользователей (List<string>).</returns>
         Task<List<string>> GetAllUserNames(CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Метод получения информации о пользователе.
+        /// </summary>
+        /// <param name="id">Код пользователя</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        Task<UserView?> GetUserViewByUserId(UserId id, CancellationToken cancellationToken = default);
     }
 }

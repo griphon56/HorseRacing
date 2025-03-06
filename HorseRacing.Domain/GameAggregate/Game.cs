@@ -23,7 +23,7 @@ namespace HorseRacing.Domain.GameAggregate
         /// <summary>
         /// Дата начала игры
         /// </summary>
-        public DateTime DateStart { get; private set; }
+        public DateTime? DateStart { get; private set; }
         /// <summary>
         /// Дата окончания
         /// </summary>
@@ -32,8 +32,8 @@ namespace HorseRacing.Domain.GameAggregate
         /// <summary>
         /// Результат игры
         /// </summary>
-        private readonly GameResult _gameResult;
-        public GameResult GameResult => _gameResult;
+        private GameResult? _gameResult;
+        public GameResult? GameResult => _gameResult;
 
         /// <summary>
 		/// Колода карт
@@ -61,8 +61,8 @@ namespace HorseRacing.Domain.GameAggregate
 
         private Game() : base(GameId.CreateUnique(), new EntityChangeInfo(DateTime.UtcNow)) { }
 
-        private Game(GameId id, string name, StatusType status, DateTime dateStart, DateTime? dateEnd
-            , EntityChangeInfo changeInfo)
+        private Game(GameId id, string name, StatusType status, EntityChangeInfo changeInfo
+            , DateTime? dateStart = null, DateTime? dateEnd = null)
             : base(id ?? GameId.CreateUnique(), changeInfo)
         {
             Name = name;
@@ -71,10 +71,9 @@ namespace HorseRacing.Domain.GameAggregate
             DateEnd = dateEnd;
         }
 
-        public static Game Create(GameId id, string name, StatusType status, DateTime dateStart, DateTime? dateEnd
-            , EntityChangeInfo changeInfo)
+        public static Game Create(GameId id, string name, StatusType status, EntityChangeInfo changeInfo)
         {
-            return new Game(id, name, status, dateStart, dateEnd, changeInfo);
+            return new Game(id, name, status, changeInfo);
         }
     }
 }

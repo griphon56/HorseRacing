@@ -94,10 +94,10 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateEnd")
+                    b.Property<DateTime?>("DateEnd")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateStart")
+                    b.Property<DateTime?>("DateStart")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")

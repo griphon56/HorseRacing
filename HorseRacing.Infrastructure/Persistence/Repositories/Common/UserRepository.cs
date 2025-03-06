@@ -23,11 +23,12 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Common
             return await _dbContext.Users.AsNoTracking()
                 .Where(new GetUserByUserNameSpecification(userName)).FirstOrDefaultAsync(cancellationToken);
         }
-        
+
         public async Task<List<UserView>> GetAllUserViews(CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Users.AsNoTracking().Where(u => !u.IsRemoved)
-                .Select(user =>new UserView() {
+            return await _dbContext.Users.AsNoTracking().Where(new GetActualUserSpecification())
+                .Select(user => new UserView()
+                {
                     UserId = user.Id,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
@@ -37,11 +38,26 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Common
                     IsRemoved = user.IsRemoved
                 }).ToListAsync(cancellationToken);
         }
-        
+
         public async Task<List<string>> GetAllUserNames(CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Users.AsNoTracking().Where(u => !u.IsRemoved)
+            return await _dbContext.Users.AsNoTracking().Where(new GetActualUserSpecification())
                 .Select(user => user.UserName).ToListAsync(cancellationToken);
+        }
+
+        public async Task<UserView?> GetUserViewByUserId(UserId id, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Users.Where(ByKeySearchSpecification(id))
+                .Select(user => new UserView()
+                {
+                    UserId = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    UserName = user.UserName,
+                    Email = user.Email ?? "",
+                    Phone = user.Phone ?? "",
+                    IsRemoved = user.IsRemoved
+                }).FirstOrDefaultAsync(cancellationToken);
         }
     }
 }
