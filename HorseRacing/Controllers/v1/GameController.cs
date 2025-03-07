@@ -1,7 +1,12 @@
 ﻿using Asp.Versioning;
 using HorseRacing.Api.Controllers.Base;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGame;
+using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame;
+using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGame;
+using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGameResults;
+using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetWaitingGames;
+using HorseRacing.Contracts.Models.Game.Dtos;
 using HorseRacing.Contracts.Models.Game.Requests;
 using HorseRacing.Contracts.Models.Game.Responses;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
@@ -35,90 +40,61 @@ namespace HorseRacing.Api.Controllers.v1
         }
 
         [HttpPost("get-game")]
-        public async Task<IActionResult> GetGameById(Guid id)
+        public async Task<IActionResult> GetGameById([FromBody] GetGameRequest request)
         {
-            var gameResult = await _mediator.Send(new GetGameQuery() { GameId = GameId.Create(id) });
+            var gameResult = await _mediator.Send(new GetGameQuery() { GameId = GameId.Create(request.Data.Id) });
 
             return gameResult.Match(
                 res => Ok(_mapper.Map<GetGameResponse>(res)),
                 errors => Problem(errors));
         }
 
-        ///// <summary>
-        ///// Позволяет игроку присоединиться к игре.
-        ///// Данные поступают через FormBody.
-        ///// </summary>
-        ///// <param name="id">Идентификатор игры</param>
-        ///// <param name="joinGameDto">Данные игрока и его ставка</param>
-        //[HttpPost("{id}/join")]
-        //public async Task<IActionResult> JoinGame(int id, [FromForm] JoinGameDto joinGameDto)
-        //{
-        //    var game = await _gameRepository.GetByIdAsync(id);
-        //    if (game == null)
-        //        return NotFound();
+        [HttpPost("get-waiting-games")]
+        public async Task<IActionResult> GetWaitingGames()
+        {
+            var gameResult = await _mediator.Send(new GetWaitingGamesQuery());
 
-        //    // Добавляем игрока в игру (метод агрегата добавляет игрока и регистрирует доменные события)
-        //    game.AddPlayer(joinGameDto.UserId, joinGameDto.BetSuit, joinGameDto.BetAmount);
+            return gameResult.Match(
+                res => Ok(_mapper.Map<GetWaitingGamesResponseDto>(res)),
+                errors => Problem(errors));
+        }
 
-        //    // Сохраняем изменения агрегата
-        //    await _gameRepository.UpdateAsync(game);
-        //    return Ok();
-        //}
+        [HttpPost("join-game")]
+        public async Task<IActionResult> JoinGame([FromForm] JoinGameRequest request)
+        {
+            var gameResult = await _mediator.Send(new JoinGameCommand());
 
-        ///// <summary>
-        ///// Запускает игру (начало гонки).
-        ///// </summary>
-        ///// <param name="id">Идентификатор игры</param>
-        //[HttpPut("{id}/start")]
-        //public async Task<IActionResult> StartGame(int id)
-        //{
-        //    var game = await _gameRepository.GetByIdAsync(id);
-        //    if (game == null)
-        //        return NotFound();
+            return gameResult.Match(
+                res => Ok(_mapper.Map<JoinGameResponse>(res)),
+                errors => Problem(errors));
+        }
 
-        //    // В агрегате Game реализован метод Start(), который инициализирует состояние (раскладывает колоду, устанавливает позиции лошадей, регистрирует события)
-        //    game.Start();
+        [HttpPost("start-game")]
+        public async Task<IActionResult> StartGame([FromForm] StartGameRequest request)
+        {
+            // В агрегате Game реализован метод Start(), который инициализирует состояние (раскладывает колоду, устанавливает позиции лошадей, регистрирует события)
 
-        //    await _gameRepository.UpdateAsync(game);
-        //    return Ok(game);
-        //}
+            var gameResult = await _mediator.Send(new StartGameCommand()
+            {
+                GameId = GameId.Create(request.Data.GameId)
+            });
 
-        ///// <summary>
-        ///// Завершает игру, фиксируя результаты.
-        ///// </summary>
-        ///// <param name="id">Идентификатор игры</param>
-        //[HttpPut("{id}/finish")]
-        //public async Task<IActionResult> FinishGame(int id)
-        //{
-        //    var game = await _gameRepository.GetByIdAsync(id);
-        //    if (game == null)
-        //        return NotFound();
+            return gameResult.Match(
+                res => Ok(_mapper.Map<StartGameResponse>(res)),
+                errors => Problem(errors));
+        }
 
-        //    // Завершение игры – метод Finish() агрегата фиксирует результаты и генерирует доменные события для обработки результатов
-        //    game.Finish();
+        [HttpPost("get-game-result")]
+        public async Task<IActionResult> GetGameResult([FromForm] GetGameResultRequest request)
+        {
+            var gameResult = await _mediator.Send(new GetGameResultQuery()
+            {
+                GameId = GameId.Create(request.Data.GameId)
+            });
 
-        //    await _gameRepository.UpdateAsync(game);
-        //    return Ok(game);
-        //}
-
-        ///// <summary>
-        ///// Возвращает результаты игры.
-        ///// </summary>
-        ///// <param name="id">Идентификатор игры</param>
-        //[HttpGet("{id}/results")]
-        //public async Task<ActionResult<GameResultsDto>> GetGameResults(int id)
-        //{
-        //    var game = await _gameRepository.GetByIdAsync(id);
-        //    if (game == null)
-        //        return NotFound();
-
-        //    // Преобразуем результаты игры в DTO. Это может быть список результатов для каждого игрока.
-        //    var results = new GameResultsDto
-        //    {
-        //        // Пример заполнения данных из агрегата Game
-        //        // Results = game.GameResults.Select(r => new GameResultItemDto { UserId = r.UserId, BetSuit = r.BetSuit, Position = r.Position }).ToList()
-        //    };
-        //    return Ok(results);
-        //}
+            return gameResult.Match(
+                res => Ok(_mapper.Map<GetGameResultResponse>(res)),
+                errors => Problem(errors));
+        }
     }
 }
