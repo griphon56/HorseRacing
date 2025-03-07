@@ -4,6 +4,7 @@ using HorseRacing.Application.Common.Interfaces.Services;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
 using HorseRacing.Domain.Common.Models.Base;
 using HorseRacing.Domain.GameAggregate;
+using HorseRacing.Domain.GameAggregate.Entities;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -28,6 +29,10 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
         {
             var userView = await _userService.GetWorkingUser();
             Game game = Game.Create(GameId.CreateUnique(), command.Name, Domain.GameAggregate.Enums.StatusType.Wait, new EntityChangeInfo(DateTime.UtcNow, userView.Value!.UserId));
+
+            game.JoinPlayer(new List<GamePlayer>(){
+                GamePlayer.Create(GamePlayerId.CreateUnique(), 0, Domain.GameAggregate.Enums.SuitType.None, game.Id, userView.Value!.UserId)
+            });
 
             await _gameRepository.Add(game);
 

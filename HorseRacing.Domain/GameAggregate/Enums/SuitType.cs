@@ -7,6 +7,8 @@ namespace HorseRacing.Domain.GameAggregate.Enums
     /// </summary>
     public enum SuitType
     {
+        [Description("Не выбрано")]
+        None,
         [Description("Бубны")]
         Diamonds,
         [Description("Червы")]

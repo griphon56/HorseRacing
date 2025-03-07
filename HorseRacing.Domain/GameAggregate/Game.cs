@@ -33,7 +33,7 @@ namespace HorseRacing.Domain.GameAggregate
         /// Результат игры
         /// </summary>
         private GameResult? _gameResult;
-        public GameResult? GameResult => _gameResult;
+        public GameResult GameResult => _gameResult;
 
         /// <summary>
 		/// Колода карт
@@ -74,6 +74,14 @@ namespace HorseRacing.Domain.GameAggregate
         public static Game Create(GameId id, string name, StatusType status, EntityChangeInfo changeInfo)
         {
             return new Game(id, name, status, changeInfo);
+        }
+
+        public void JoinPlayer(List<GamePlayer> gamePlayers)
+        {
+            if(gamePlayers is not null && gamePlayers.Count > 0)
+            {
+                _gamePlayers.AddRange(gamePlayers);
+            }
         }
     }
 }
