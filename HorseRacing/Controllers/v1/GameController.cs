@@ -10,6 +10,7 @@ using HorseRacing.Contracts.Models.Game.Dtos;
 using HorseRacing.Contracts.Models.Game.Requests;
 using HorseRacing.Contracts.Models.Game.Responses;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
+using HorseRacing.Domain.UserAggregate.ValueObjects;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -62,7 +63,11 @@ namespace HorseRacing.Api.Controllers.v1
         [HttpPost("join-game")]
         public async Task<IActionResult> JoinGame([FromForm] JoinGameRequest request)
         {
-            var gameResult = await _mediator.Send(new JoinGameCommand());
+            var gameResult = await _mediator.Send(new JoinGameCommand()
+            {
+                GameId = GameId.Create(request.Data.GameId),
+                UserId = UserId.Create(request.Data.UserId),
+            });
 
             return gameResult.Match(
                 res => Ok(_mapper.Map<JoinGameResponse>(res)),

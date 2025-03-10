@@ -78,7 +78,7 @@ namespace HorseRacing.Domain.GameAggregate
 
         public void JoinPlayer(List<GamePlayer> gamePlayers)
         {
-            if(gamePlayers is not null && gamePlayers.Count > 0)
+            if(gamePlayers is not null && gamePlayers.Count > 0 && this._gamePlayers.Count<=4)
             {
                 _gamePlayers.AddRange(gamePlayers);
             }
