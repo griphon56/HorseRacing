@@ -36,6 +36,8 @@ namespace HorseRacing.Infrastructure.Persistence.Configurations
             builder.Property(m => m.Id).ValueGeneratedNever().HasConversion(id => id.Value,
                 value => GameId.Create(value));
 
+            builder.Property<byte[]>("_versionRow").HasColumnName("VersionRow").IsRowVersion();
+
             builder.Property(m => m.Name).HasMaxLength(100);
 
             BaseChangeInfoConfigurationUtilities.AttachChangeInfoForConfiguration<Game, GameId>(builder);
@@ -43,13 +45,13 @@ namespace HorseRacing.Infrastructure.Persistence.Configurations
 
         private void ConfigureGameResultTable(EntityTypeBuilder<Game> builder)
         {
-            builder.OwnsOne(u => u.GameResult, a =>
+            builder.OwnsMany(u => u.GameResults, a =>
             {
                 a.ToTable("GameResults");
                 a.HasKey(m => m.Id);
 
                 a.WithOwner().HasForeignKey(m => m.GameId);
-                
+
                 a.Property(m => m.Id).ValueGeneratedNever().HasConversion(id => id.Value, value => GameResultId.Create(value));
                 a.Property(m => m.UserId).HasConversion(id => id.Value, value => UserId.Create(value));
                 a.Property(m => m.GameId).HasConversion(id => id.Value, value => GameId.Create(value));
@@ -57,7 +59,7 @@ namespace HorseRacing.Infrastructure.Persistence.Configurations
                 a.HasOne<User>().WithMany().HasForeignKey(m => m.UserId);
             });
 
-            builder.Metadata.FindNavigation(nameof(Game.GameResult))!.SetPropertyAccessMode(PropertyAccessMode.Field);
+            builder.Metadata.FindNavigation(nameof(Game.GameResults))!.SetPropertyAccessMode(PropertyAccessMode.Field);
         }
 
         private void ConfigureGameDeckCardTable(EntityTypeBuilder<Game> builder)

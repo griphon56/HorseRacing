@@ -30,7 +30,7 @@ namespace HorseRacing.Application.Common.Interfaces.Persistence.Base
         /// <param name="id">Код записи</param>
         /// <param name="cancellationToken">Токен отмены</param>
         /// <param name="needAsNoTracking">Признак использования "AsNoTracking"</param>
-        Task<T?> GetById(Y id, CancellationToken cancellationToken = default, bool needAsNoTracking = true);
+        Task<T?> GetById(Y id, CancellationToken cancellationToken = default, bool needAsNoTracking = false);
         /// <summary>
         /// Метод получения списка записей по списку кодов сущности
         /// </summary>

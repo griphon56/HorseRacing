@@ -31,6 +31,8 @@ namespace HorseRacing.Infrastructure.Persistence.Configurations
             builder.Property(m => m.Id).ValueGeneratedNever().HasConversion(id => id.Value,
                 value => UserId.Create(value));
 
+            builder.Property<byte[]>("_versionRow").HasColumnName("VersionRow").IsRowVersion();
+
             builder.Property(m => m.UserName).HasMaxLength(256);
             builder.Property(m => m.FirstName).HasMaxLength(100);
             builder.Property(m => m.LastName).HasMaxLength(100);

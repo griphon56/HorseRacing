@@ -5,6 +5,26 @@ namespace HorseRacing.Domain.Common.Models.Base
     public abstract class AggregateRootChangeInfoGuid<TId> : AggregateRootGuid<TId>
           where TId : IdentityBaseGuid
     {
+        private byte[] _versionRow;
+        public byte[] VersionRow => _versionRow;
+
+        /// <summary>
+        /// Идентификатор сведений о дате создания.
+        /// </summary>
+        public DateTime DateCreated { get; private set; }
+        /// <summary>
+        /// Идентификатор сведений о созданном идентификаторе пользователя.
+        /// </summary>
+        public UserId? CreatedUserId { get; private set; }
+        /// <summary>
+        /// Идентификатор сведений о дате изменений.
+        /// </summary>
+        public DateTime? DateChanged { get; private set; }
+        /// <summary>
+        /// Идентификатор сведений о изменении идентификатора пользователя.
+        /// </summary>
+        public UserId? ChangedUserId { get; private set; }
+
         /// <summary>
         /// Конструктор без параметров <see cref="UserId"/> .
         /// </summary>
@@ -34,22 +54,6 @@ namespace HorseRacing.Domain.Common.Models.Base
         {
             return new EntityChangeInfo(this.DateCreated, this.CreatedUserId, this.DateChanged, this.ChangedUserId);
         }
-        /// <summary>
-        /// Идентификатор сведений о дате создания.
-        /// </summary>
-        public DateTime DateCreated { get; private set; }
-        /// <summary>
-        /// Идентификатор сведений о созданном идентификаторе пользователя.
-        /// </summary>
-        public UserId? CreatedUserId { get; private set; }
-        /// <summary>
-        /// Идентификатор сведений о дате изменений.
-        /// </summary>
-        public DateTime? DateChanged { get; private set; }
-        /// <summary>
-        /// Идентификатор сведений о изменении идентификатора пользователя.
-        /// </summary>
-        public UserId? ChangedUserId { get; private set; }
 
         public void SetDateChanged(DateTime? dateChanged)
         {

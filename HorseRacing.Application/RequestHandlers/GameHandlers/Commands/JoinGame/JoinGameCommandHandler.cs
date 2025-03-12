@@ -1,6 +1,11 @@
 ﻿using ErrorOr;
 using HorseRacing.Application.Common.Interfaces.Persistence;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
+using HorseRacing.Domain.Common.Errors;
+using HorseRacing.Domain.GameAggregate;
+using HorseRacing.Domain.GameAggregate.Entities;
+using HorseRacing.Domain.GameAggregate.ValueObjects;
+using HorseRacing.Domain.UserAggregate;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -18,11 +23,31 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
             _gameRepository = gameRepository;
             _userRepository = userRepository;
         }
-        public Task<ErrorOr<JoinGameResult>> Handle(JoinGameCommand command, CancellationToken cancellationToken)
-        {
-            var user = _userRepository.GetById(command.UserId);
 
-            throw new NotImplementedException();
+        public async Task<ErrorOr<JoinGameResult>> Handle(JoinGameCommand command, CancellationToken cancellationToken)
+        {
+            if (await _userRepository.GetById(command.UserId, cancellationToken) is not User user)
+            {
+                return Errors.Authentication.NotFoundUser;
+            }
+
+            if (await _gameRepository.GetById(command.GameId, cancellationToken, false) is not Game game)
+            {
+                return Errors.Game.GameNotFound;
+            }
+
+            if (game.GamePlayers.Count >= 5)
+            {
+                return Errors.Game.LimitPlayers;
+            }
+
+            game.JoinPlayer(GamePlayer.Create(GamePlayerId.CreateUnique(), 0, Domain.GameAggregate.Enums.SuitType.None, command.GameId, command.UserId));
+
+            await _gameRepository.Update(game, cancellationToken);
+
+            _logger.Log(LogLevel.Information, $"JoinGameCommand: {user.UserName} ({user.Id.Value}) to: {game.Name}");
+
+            return new JoinGameResult();
         }
     }
 }

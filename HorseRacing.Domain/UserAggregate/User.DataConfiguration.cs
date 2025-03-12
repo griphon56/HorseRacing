@@ -1,4 +1,5 @@
 ﻿using HorseRacing.Domain.UserAggregate.ValueObjects;
+using System;
 
 namespace HorseRacing.Domain.UserAggregate
 {
@@ -18,7 +19,8 @@ namespace HorseRacing.Domain.UserAggregate
                     Email = "admin@race.ru",
                     Phone = "79001112233",
                     DateCreated = new DateTime(2025,1,1).ToUniversalTime(),
-                    IsRemoved = false
+                    IsRemoved = false,
+                    _versionRow = new byte[] { 0x01 }
                 }
             };
         }

@@ -113,7 +113,7 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Base
             _dbContext.Set<T>().Entry(t).State = EntityState.Detached;
         }
 
-        public async Task<T?> GetById(Y id, CancellationToken cancellationToken = default, bool needAsNoTracking = true)
+        public async Task<T?> GetById(Y id, CancellationToken cancellationToken = default, bool needAsNoTracking = false)
         {
             var filter = ByKeySearchSpecification(id);
             return await BuildQuery(filter, needAsNoTracking: needAsNoTracking).FirstOrDefaultAsync(cancellationToken);
@@ -170,6 +170,7 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Base
             if (entity is not null)
             {
                 _dbContext.Set<T>().Update(entity);
+                var asdasd = _dbContext.Set<T>().Update(entity).DebugView;
                 await _dbContext.SaveChangesAsync(cancellationToken);
             }
         }

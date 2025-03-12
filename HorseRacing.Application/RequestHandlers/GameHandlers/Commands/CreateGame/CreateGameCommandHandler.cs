@@ -27,16 +27,14 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
 
         public async Task<ErrorOr<CreateGameResult>> Handle(CreateGameCommand command, CancellationToken cancellationToken)
         {
-            var userView = await _userService.GetWorkingUser();
+            var userView = await _userService.GetWorkingUser(cancellationToken: cancellationToken);
             Game game = Game.Create(GameId.CreateUnique(), command.Name, Domain.GameAggregate.Enums.StatusType.Wait, new EntityChangeInfo(DateTime.UtcNow, userView.Value!.UserId));
 
-            game.JoinPlayer(new List<GamePlayer>(){
-                GamePlayer.Create(GamePlayerId.CreateUnique(), 0, Domain.GameAggregate.Enums.SuitType.None, game.Id, userView.Value!.UserId)
-            });
+            game.JoinPlayer(GamePlayer.Create(GamePlayerId.CreateUnique(), 0, Domain.GameAggregate.Enums.SuitType.None, game.Id, userView.Value!.UserId));
 
-            await _gameRepository.Add(game);
+            await _gameRepository.Add(game, cancellationToken);
 
-            _logger.Log(LogLevel.Information, $"CreateGameCommand: {game.Name} - {game.Id.Value}");
+            _logger.Log(LogLevel.Information, $"CreateGameCommand: {game.Name} ({game.Id.Value})");
 
             return new CreateGameResult()
             {

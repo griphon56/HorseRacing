@@ -32,8 +32,8 @@ namespace HorseRacing.Domain.GameAggregate
         /// <summary>
         /// Результат игры
         /// </summary>
-        private GameResult? _gameResult;
-        public GameResult GameResult => _gameResult;
+        private readonly List<GameResult> _gameResults = new();
+        public IReadOnlyList<GameResult> GameResults => _gameResults.AsReadOnly();
 
         /// <summary>
 		/// Колода карт
@@ -76,11 +76,11 @@ namespace HorseRacing.Domain.GameAggregate
             return new Game(id, name, status, changeInfo);
         }
 
-        public void JoinPlayer(List<GamePlayer> gamePlayers)
+        public void JoinPlayer(GamePlayer gamePlayer)
         {
-            if(gamePlayers is not null && gamePlayers.Count > 0 && this._gamePlayers.Count<=4)
+            if(gamePlayer is not null && this._gamePlayers.Count<=4)
             {
-                _gamePlayers.AddRange(gamePlayers);
+                _gamePlayers.Add(gamePlayer);
             }
         }
     }

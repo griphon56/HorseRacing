@@ -23,6 +23,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                     LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    VersionRow = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DateChanged = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -100,6 +101,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     DateStart = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DateEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    VersionRow = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DateChanged = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -290,8 +292,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_GameResults_GameId",
                 table: "GameResults",
-                column: "GameId",
-                unique: true);
+                column: "GameId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GameResults_UserId",

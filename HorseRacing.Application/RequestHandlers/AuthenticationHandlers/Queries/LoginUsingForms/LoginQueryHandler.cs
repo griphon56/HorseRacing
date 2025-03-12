@@ -37,7 +37,7 @@ namespace HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Queries
 
         public async Task<ErrorOr<AuthenticationResult>> Handle(LoginQuery query, CancellationToken cancellationToken)
         {
-            if (await _userRepository.GetUserByUserName(query.UserName) is not User user)
+            if (await _userRepository.GetUserByUserName(query.UserName, cancellationToken) is not User user)
             {
                 return Errors.Authentication.NotFoundUser;
             }
@@ -46,7 +46,7 @@ namespace HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Queries
                 return Errors.Authentication.PasswordIncorrect;
             }
 
-            _logger.Log(LogLevel.Information, $"LoginQuery: {user.UserName} - {user.Id.Value}");
+            _logger.Log(LogLevel.Information, $"LoginQuery: {user.UserName} ({user.Id.Value})");
 
             var token = _jwtTokenGenerator.GenerateToken(user);
             return new AuthenticationResult()

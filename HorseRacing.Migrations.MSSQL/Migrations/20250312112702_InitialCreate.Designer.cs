@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HorseRacing.Migrations.MSSQL.Migrations
 {
     [DbContext(typeof(HRDbContext))]
-    [Migration("20250306133411_InitialCreate")]
+    [Migration("20250312112702_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -111,6 +111,13 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<byte[]>("_versionRow")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion")
+                        .HasColumnName("VersionRow");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ChangedUserId");
@@ -170,6 +177,13 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<byte[]>("_versionRow")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion")
+                        .HasColumnName("VersionRow");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ChangedUserId");
@@ -189,7 +203,8 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                             LastName = "Системы",
                             Password = "82E3B4B3D57F6D4112A02310EA2E8F9517BC19BD6EBF1EC95E0C7AA961B3B3F2AE24BB2CA278CB190D24B55241AC893C9E590717106F3FB18070",
                             Phone = "79001112233",
-                            UserName = "admin"
+                            UserName = "admin",
+                            _versionRow = new byte[] { 1 }
                         });
                 });
 
@@ -338,7 +353,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                                 .IsRequired();
                         });
 
-                    b.OwnsOne("HorseRacing.Domain.GameAggregate.Entities.GameResult", "GameResult", b1 =>
+                    b.OwnsMany("HorseRacing.Domain.GameAggregate.Entities.GameResult", "GameResults", b1 =>
                         {
                             b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier");
@@ -357,8 +372,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
 
                             b1.HasKey("Id");
 
-                            b1.HasIndex("GameId")
-                                .IsUnique();
+                            b1.HasIndex("GameId");
 
                             b1.HasIndex("UserId");
 
@@ -382,7 +396,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
 
                     b.Navigation("GamePlayers");
 
-                    b.Navigation("GameResult");
+                    b.Navigation("GameResults");
                 });
 
             modelBuilder.Entity("HorseRacing.Domain.UserAggregate.User", b =>

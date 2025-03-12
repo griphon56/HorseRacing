@@ -14,10 +14,10 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
         /// <summary>
         /// Код пользователя
         /// </summary>
-        public UserId UserId { get; set; }
+        public required UserId UserId { get; set; }
         /// <summary>
         /// Код игры
         /// </summary>
-        public GameId GameId { get; set; }
+        public required GameId GameId { get; set; }
     }
 }

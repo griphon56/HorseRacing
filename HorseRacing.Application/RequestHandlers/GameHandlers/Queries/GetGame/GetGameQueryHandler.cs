@@ -23,11 +23,11 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGame
 
         public async Task<ErrorOr<GetGameResult>> Handle(GetGameQuery query, CancellationToken cancellationToken)
         {
-            var game = await _gameRepository.GetById(query.GameId);
+            var game = await _gameRepository.GetById(query.GameId, cancellationToken);
             if (game is null)
                 return Errors.Game.GameNotFound;
 
-            _logger.Log(LogLevel.Information, $"GetGameQuery: {game.Name} - {game.Id.Value}");
+            _logger.Log(LogLevel.Information, $"GetGameQuery: {game.Name} ({game.Id.Value})");
 
             return _mapper.Map<GetGameResult>(game);
         }
