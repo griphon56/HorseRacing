@@ -61,7 +61,7 @@ namespace HorseRacing.Api.Controllers.v1
         }
 
         [HttpPost("join-game")]
-        public async Task<IActionResult> JoinGame([FromForm] JoinGameRequest request)
+        public async Task<IActionResult> JoinGame([FromBody] JoinGameRequest request)
         {
             var gameResult = await _mediator.Send(new JoinGameCommand()
             {
@@ -75,7 +75,7 @@ namespace HorseRacing.Api.Controllers.v1
         }
 
         [HttpPost("start-game")]
-        public async Task<IActionResult> StartGame([FromForm] StartGameRequest request)
+        public async Task<IActionResult> StartGame([FromBody] StartGameRequest request)
         {
             // В агрегате Game реализован метод Start(), который инициализирует состояние (раскладывает колоду, устанавливает позиции лошадей, регистрирует события)
 
@@ -90,7 +90,7 @@ namespace HorseRacing.Api.Controllers.v1
         }
 
         [HttpPost("get-game-result")]
-        public async Task<IActionResult> GetGameResult([FromForm] GetGameResultRequest request)
+        public async Task<IActionResult> GetGameResult([FromBody] GetGameResultRequest request)
         {
             var gameResult = await _mediator.Send(new GetGameResultQuery()
             {

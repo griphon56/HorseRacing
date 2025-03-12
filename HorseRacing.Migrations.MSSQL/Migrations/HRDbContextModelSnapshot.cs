@@ -202,6 +202,58 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                             Phone = "79001112233",
                             UserName = "admin",
                             _versionRow = new byte[] { 1 }
+                        },
+                        new
+                        {
+                            Id = new Guid("8f2facbc-2ef4-4fe1-b9e0-e3f877edb3c3"),
+                            DateCreated = new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "ivan@race.ru",
+                            FirstName = "Иван",
+                            IsRemoved = false,
+                            LastName = "Пика",
+                            Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+                            Phone = "79001112211",
+                            UserName = "ivan",
+                            _versionRow = new byte[] { 1 }
+                        },
+                        new
+                        {
+                            Id = new Guid("141fcb82-6639-4932-a68d-af84f09ef42d"),
+                            DateCreated = new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "petr@race.ru",
+                            FirstName = "Петр",
+                            IsRemoved = false,
+                            LastName = "Крести",
+                            Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+                            Phone = "79001112222",
+                            UserName = "petr",
+                            _versionRow = new byte[] { 1 }
+                        },
+                        new
+                        {
+                            Id = new Guid("a1f52f7e-6dd6-4ff9-bded-78305b42c81e"),
+                            DateCreated = new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "john@race.ru",
+                            FirstName = "Джонни",
+                            IsRemoved = false,
+                            LastName = "Черва",
+                            Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+                            Phone = "79001112233",
+                            UserName = "john",
+                            _versionRow = new byte[] { 1 }
+                        },
+                        new
+                        {
+                            Id = new Guid("17b6f19e-56b1-485c-a16a-c60cec5cdaa6"),
+                            DateCreated = new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "alex@race.ru",
+                            FirstName = "Алексей",
+                            IsRemoved = false,
+                            LastName = "Бубна",
+                            Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+                            Phone = "79001112244",
+                            UserName = "alex",
+                            _versionRow = new byte[] { 1 }
                         });
                 });
 

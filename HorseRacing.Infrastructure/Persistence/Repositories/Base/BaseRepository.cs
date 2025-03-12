@@ -170,7 +170,6 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Base
             if (entity is not null)
             {
                 _dbContext.Set<T>().Update(entity);
-                var asdasd = _dbContext.Set<T>().Update(entity).DebugView;
                 await _dbContext.SaveChangesAsync(cancellationToken);
             }
         }

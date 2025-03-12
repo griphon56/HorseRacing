@@ -36,7 +36,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
                 return Errors.Game.GameNotFound;
             }
 
-            if (game.GamePlayers.Count >= 5)
+            if (game.GamePlayers.Count >= 4)
             {
                 return Errors.Game.LimitPlayers;
             }
