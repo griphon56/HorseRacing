@@ -4,9 +4,12 @@ using HorseRacing.Domain.GameAggregate.ValueObjects;
 using HorseRacing.Domain.UserAggregate.ValueObjects;
 using MediatR;
 
-namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.PlaceBet
+namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGameWithBet
 {
-    public class PlaceBetCommand : IRequest<ErrorOr<Unit>>
+    /// <summary>
+    /// Команда подключения к игре с ставкой
+    /// </summary>
+    public class JoinGameWithBetCommand : IRequest<ErrorOr<Unit>>
     {
         /// <summary>
         /// Ставка
@@ -17,12 +20,12 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.PlaceBet
         /// </summary>
         public SuitType BetSuit { get; set; }
         /// <summary>
-        /// Код игры
-        /// </summary>
-        public required GameId GameId { get; set; }
-        /// <summary>
         /// Код пользователя
         /// </summary>
         public required UserId UserId { get; set; }
+        /// <summary>
+        /// Код игры
+        /// </summary>
+        public required GameId GameId { get; set; }
     }
 }

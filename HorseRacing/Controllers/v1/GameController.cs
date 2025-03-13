@@ -2,6 +2,7 @@
 using HorseRacing.Api.Controllers.Base;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame;
+using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGameWithBet;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.PlaceBet;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGame;
@@ -35,10 +36,14 @@ namespace HorseRacing.Api.Controllers.v1
         [HttpPost("create-game")]
         public async Task<IActionResult> CreateGame([FromBody] CreateGameRequest request)
         {
-            var createGameResult = await _mediator.Send(new CreateGameCommand() { Name = request.Data.Name });
+            var createGameResult = await _mediator.Send(new CreateGameCommand() { 
+                Name = request.Data.Name,
+                BetAmount = request.Data.BetAmount,
+                BetSuit = (SuitType)request.Data.BetSuit
+            });
 
             return createGameResult.Match(
-                registerResult => Ok(_mapper.Map<CreateGameResponse>(registerResult)),
+                res => Ok(_mapper.Map<CreateGameResponse>(res)),
                 errors => Problem(errors));
         }
 
@@ -76,6 +81,22 @@ namespace HorseRacing.Api.Controllers.v1
                 errors => Problem(errors));
         }
 
+        [HttpPost("join-game-with-bet")]
+        public async Task<IActionResult> JoinGameWithBet([FromBody] JoinGameWithBetRequest request)
+        {
+            var gameResult = await _mediator.Send(new JoinGameWithBetCommand()
+            {
+                GameId = GameId.Create(request.Data.GameId),
+                UserId = UserId.Create(request.Data.UserId),
+                BetAmount = request.Data.BetAmount,
+                BetSuit = (SuitType)request.Data.BetSuit
+            });
+
+            return gameResult.Match(
+                res => Ok(),
+                errors => Problem(errors));
+        }
+
         [HttpPost("place-bet")]
         public async Task<IActionResult> PlaceBet([FromBody] PlaceBetRequest request)
         {
@@ -103,7 +124,7 @@ namespace HorseRacing.Api.Controllers.v1
             });
 
             return gameResult.Match(
-                res => Ok(_mapper.Map<StartGameResponse>(res)),
+                res => Ok(),
                 errors => Problem(errors));
         }
 

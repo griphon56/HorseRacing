@@ -40,7 +40,7 @@ namespace HorseRacing.Infrastructure.Services
         {
             if (await _userRepository.GetUserByUserName(userName, cancellationToken) is not User user)
             {
-                return Errors.Authentication.NotFoundUser;
+                return Errors.Authentication.UserNotFound;
             }
             return await _userRepository.GetUserViewByUserId(user.Id, cancellationToken);
         }

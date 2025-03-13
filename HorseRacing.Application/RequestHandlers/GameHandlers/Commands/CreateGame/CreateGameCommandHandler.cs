@@ -16,13 +16,15 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
         private readonly ILogger<CreateGameCommandHandler> _logger;
         private readonly IGameRepository _gameRepository;
         private readonly IUserService _userService;
+        private readonly IGameService _gameService;
 
         public CreateGameCommandHandler(IGameRepository gameRepository, ILogger<CreateGameCommandHandler> logger
-            , IUserService userService)
+            , IUserService userService, IGameService gameService)
         {
             _logger = logger;
             _gameRepository = gameRepository;
             _userService = userService;
+            _gameService = gameService;
         }
 
         public async Task<ErrorOr<CreateGameResult>> Handle(CreateGameCommand command, CancellationToken cancellationToken)
@@ -30,7 +32,13 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
             var userView = await _userService.GetWorkingUser(cancellationToken: cancellationToken);
             Game game = Game.Create(GameId.CreateUnique(), command.Name, Domain.GameAggregate.Enums.StatusType.Wait, new EntityChangeInfo(DateTime.UtcNow, userView.Value!.UserId));
 
-            game.JoinPlayer(GamePlayer.Create(GamePlayerId.CreateUnique(), 0, Domain.GameAggregate.Enums.SuitType.None, game.Id, userView.Value!.UserId));
+            int bet = command.BetAmount == 0 ? 10 : command.BetAmount;
+            
+            var suit = command.BetSuit == Domain.GameAggregate.Enums.SuitType.None 
+                ? _gameService.GetRandomAvilableSuit(game).Result.Value
+                : command.BetSuit;
+
+            game.JoinPlayer(GamePlayer.Create(GamePlayerId.CreateUnique(), bet, suit, game.Id, userView.Value!.UserId));
 
             await _gameRepository.Add(game, cancellationToken);
 

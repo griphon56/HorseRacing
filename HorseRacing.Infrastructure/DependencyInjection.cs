@@ -91,6 +91,7 @@ namespace HorseRacing.Infrastructure
         public static IServiceCollection AddCommonServices(this IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IGameService, GameService>();
             services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
             services.AddSingleton<IHashPasswordService, HashPasswordService>();
             return services;
@@ -194,8 +195,12 @@ namespace HorseRacing.Infrastructure
         {
             if (provider == DBProviderSettings.MSSQLServer)
             {
-                options.UseSqlServer(connectionString!, x=> x.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+                options.UseSqlServer(connectionString!, x => x.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+
                 options.UseSqlServer(connectionString!, x => x.MigrationsAssembly("HorseRacing.Migrations.MSSQL"));
+                    //.LogTo(Console.WriteLine, LogLevel.Information)
+                    //.EnableSensitiveDataLogging();
+
             }
         }
         /// <summary>

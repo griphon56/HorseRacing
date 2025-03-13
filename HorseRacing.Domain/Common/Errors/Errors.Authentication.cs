@@ -9,7 +9,7 @@ namespace HorseRacing.Domain.Common.Errors
             /// <summary>
             /// Ошибка, возникающая, когда пользователь с указанным логином не найден. 
             /// </summary>
-            public static Error NotFoundUser => Error.Validation($"{nameof(UserAggregate.User)}.{nameof(NotFoundUser)}", "Пользователь с указанным логином не найден");
+            public static Error UserNotFound => Error.Validation($"{nameof(UserAggregate.User)}.{nameof(UserNotFound)}", "Пользователь не найден");
             /// <summary>
             /// Ошибка, возникающая, когда пароль указан неверно. 
             /// </summary>

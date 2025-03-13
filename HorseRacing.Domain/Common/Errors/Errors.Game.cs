@@ -15,6 +15,11 @@ namespace HorseRacing.Domain.Common.Errors
             /// Превышено количество игроков в комнате
             /// </summary>
             public static Error LimitPlayers => Error.Conflict($"{nameof(GameAggregate.Game)}.{nameof(LimitPlayers)}", "Превышено количество игроков в комнате");
+
+            /// <summary>
+            /// Выбранная вами масть занята. Выберите другую, пожалуйста.
+            /// </summary>
+            public static Error SuitHasAlreadyBeenChosen => Error.Conflict($"{nameof(GameAggregate.Game)}.{nameof(SuitHasAlreadyBeenChosen)}", "Выбранная Вами масть занята. Выберите другую, пожалуйста.");
         }
     }
 }

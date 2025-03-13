@@ -44,7 +44,7 @@ namespace HorseRacing.Api.Controllers.v1
             var loginResult = await _mediator.Send(loginQuery);
 
             if (loginResult.IsError && loginResult.Errors.Any(e => 
-                e == Domain.Common.Errors.Errors.Authentication.NotFoundUser ||
+                e == Domain.Common.Errors.Errors.Authentication.UserNotFound ||
                 e == Domain.Common.Errors.Errors.Authentication.PasswordIncorrect))
             {
                 return Problem(statusCode: StatusCodes.Status401Unauthorized, title: loginResult.FirstError.Description);

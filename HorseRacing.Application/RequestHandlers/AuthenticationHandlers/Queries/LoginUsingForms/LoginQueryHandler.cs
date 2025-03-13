@@ -39,7 +39,7 @@ namespace HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Queries
         {
             if (await _userRepository.GetUserByUserName(query.UserName, cancellationToken) is not User user)
             {
-                return Errors.Authentication.NotFoundUser;
+                return Errors.Authentication.UserNotFound;
             }
             if (!_hashPasswordService.VerifyPassword(query.Password, user.Password))
             {

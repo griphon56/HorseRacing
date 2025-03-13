@@ -1,6 +1,5 @@
 ﻿using ErrorOr;
 using HorseRacing.Application.Common.Interfaces.Persistence;
-using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
 using HorseRacing.Domain.Common.Errors;
 using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.GameAggregate.Entities;
@@ -11,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
 {
-    public class JoinGameCommandHandler : IRequestHandler<JoinGameCommand, ErrorOr<JoinGameResult>>
+    public class JoinGameCommandHandler : IRequestHandler<JoinGameCommand, ErrorOr<Unit>>
     {
         private readonly ILogger<JoinGameCommandHandler> _logger;
         private readonly IGameRepository _gameRepository;
@@ -24,11 +23,11 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
             _userRepository = userRepository;
         }
 
-        public async Task<ErrorOr<JoinGameResult>> Handle(JoinGameCommand command, CancellationToken cancellationToken)
+        public async Task<ErrorOr<Unit>> Handle(JoinGameCommand command, CancellationToken cancellationToken)
         {
             if (await _userRepository.GetById(command.UserId, cancellationToken) is not User user)
             {
-                return Errors.Authentication.NotFoundUser;
+                return Errors.Authentication.UserNotFound;
             }
 
             if (await _gameRepository.GetById(command.GameId, cancellationToken, false) is not Game game)
@@ -47,7 +46,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
 
             _logger.Log(LogLevel.Information, $"JoinGameCommand: {user.UserName} ({user.Id.Value}) to: {game.Name}");
 
-            return new JoinGameResult();
+            return Unit.Value;
         }
     }
 }

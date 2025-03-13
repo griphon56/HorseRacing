@@ -1,6 +1,5 @@
 ﻿using ErrorOr;
 using HorseRacing.Application.Common.Interfaces.Persistence;
-using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
 using HorseRacing.Domain.Common.Errors;
 using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.UserAggregate;
@@ -9,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.PlaceBet
 {
-    public class PlaceBetCommandHandler : IRequestHandler<PlaceBetCommand, ErrorOr<PlaceBetResult>>
+    public class PlaceBetCommandHandler : IRequestHandler<PlaceBetCommand, ErrorOr<Unit>>
     {
         private readonly ILogger<PlaceBetCommandHandler> _logger;
         private readonly IGameRepository _gameRepository;
@@ -22,11 +21,11 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.PlaceBet
             _userRepository = userRepository;
         }
 
-        public async Task<ErrorOr<PlaceBetResult>> Handle(PlaceBetCommand command, CancellationToken cancellationToken)
+        public async Task<ErrorOr<Unit>> Handle(PlaceBetCommand command, CancellationToken cancellationToken)
         {
             if (await _userRepository.GetById(command.UserId, cancellationToken) is not User user)
             {
-                return Errors.Authentication.NotFoundUser;
+                return Errors.Authentication.UserNotFound;
             }
 
             if (await _gameRepository.GetById(command.GameId, cancellationToken, false) is not Game game)
@@ -34,13 +33,18 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.PlaceBet
                 return Errors.Game.GameNotFound;
             }
 
+            if (game.GamePlayers.Where(x => x.BetSuit == command.BetSuit).Any())
+            {
+                return Errors.Game.SuitHasAlreadyBeenChosen;
+            }
+
             game.PlaceBet(command.UserId, command.BetAmount, command.BetSuit);
 
-            await _gameRepository.Update(game);
+            await _gameRepository.Update(game, cancellationToken);
 
             _logger.Log(LogLevel.Information, $"PlaceBetCommand: {user.UserName} ({user.Id.Value}) bet: {command.BetAmount} suit: {command.BetSuit}");
 
-            return new PlaceBetResult();
+            return Unit.Value;
         }
     }
 }
