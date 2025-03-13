@@ -2,6 +2,7 @@
 using HorseRacing.Api.Controllers.Base;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame;
+using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.PlaceBet;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGameResults;
@@ -9,6 +10,7 @@ using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetWaitingGam
 using HorseRacing.Contracts.Models.Game.Dtos;
 using HorseRacing.Contracts.Models.Game.Requests;
 using HorseRacing.Contracts.Models.Game.Responses;
+using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
 using HorseRacing.Domain.UserAggregate.ValueObjects;
 using MapsterMapper;
@@ -70,7 +72,23 @@ namespace HorseRacing.Api.Controllers.v1
             });
 
             return gameResult.Match(
-                res => Ok(_mapper.Map<JoinGameResponse>(res)),
+                res => Ok(),
+                errors => Problem(errors));
+        }
+
+        [HttpPost("place-bet")]
+        public async Task<IActionResult> PlaceBet([FromBody] PlaceBetRequest request)
+        {
+            var gameResult = await _mediator.Send(new PlaceBetCommand()
+            {
+                GameId = GameId.Create(request.Data.GameId),
+                UserId = UserId.Create(request.Data.UserId),
+                BetSuit = (SuitType)request.Data.BetSuit,
+                BetAmount = request.Data.BetAmount
+            });
+
+            return gameResult.Match(
+                res => Ok(),
                 errors => Problem(errors));
         }
 

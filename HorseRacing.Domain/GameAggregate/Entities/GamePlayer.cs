@@ -44,5 +44,11 @@ namespace HorseRacing.Domain.GameAggregate.Entities
         {
             return new GamePlayer(id, betAmount, betSuit, gameId, userId);
         }
+
+        public void Update(int betAmount, SuitType betSuit)
+        {
+            BetAmount = betAmount;
+            BetSuit = betSuit;
+        }
     }
 }

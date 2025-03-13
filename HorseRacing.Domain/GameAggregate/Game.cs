@@ -2,6 +2,7 @@
 using HorseRacing.Domain.GameAggregate.Entities;
 using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
+using HorseRacing.Domain.UserAggregate.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 
 namespace HorseRacing.Domain.GameAggregate
@@ -78,9 +79,18 @@ namespace HorseRacing.Domain.GameAggregate
 
         public void JoinPlayer(GamePlayer gamePlayer)
         {
-            if(gamePlayer is not null && this._gamePlayers.Count <= 4)
+            if (gamePlayer is not null && this._gamePlayers.Count <= 4)
             {
                 _gamePlayers.Add(gamePlayer);
+            }
+        }
+
+        public void PlaceBet(UserId userId, int betAmount, SuitType betSuit)
+        {
+            var bet = this._gamePlayers.Where(x => x.UserId == userId).FirstOrDefault();
+            if (bet is not null)
+            {
+                bet.Update(betAmount, betSuit);
             }
         }
     }
