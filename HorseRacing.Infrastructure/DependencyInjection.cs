@@ -176,7 +176,7 @@ namespace HorseRacing.Infrastructure
             {
                 options.EnableDetailedErrors().EnableSensitiveDataLogging();
                 options.DatabaseProviderConfiguration(dbProvider!, connectionString!);
-                options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+                //options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
             });
 
             services.AddScoped<PublishDomainEventsInterceptor>();
@@ -194,6 +194,7 @@ namespace HorseRacing.Infrastructure
         {
             if (provider == DBProviderSettings.MSSQLServer)
             {
+                options.UseSqlServer(connectionString!, x=> x.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
                 options.UseSqlServer(connectionString!, x => x.MigrationsAssembly("HorseRacing.Migrations.MSSQL"));
             }
         }
