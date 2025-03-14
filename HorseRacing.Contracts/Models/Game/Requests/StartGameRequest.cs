@@ -1,11 +1,11 @@
-﻿using HorseRacing.Contracts.Base.Requests;
-using HorseRacing.Contracts.Models.Game.Dtos;
+﻿using HorseRacing.Contracts.Base.Dto;
+using HorseRacing.Contracts.Base.Requests;
 
 namespace HorseRacing.Contracts.Models.Game.Requests
 {
-    public class StartGameRequest : BaseRequest<StartGameRequestDto>
+    public class StartGameRequest : BaseRequest<BaseModelDto>
     {
         public StartGameRequest() : base() { }
-        public StartGameRequest(StartGameRequestDto data) : base(data) { }
+        public StartGameRequest(BaseModelDto data) : base(data) { }
     }
 }

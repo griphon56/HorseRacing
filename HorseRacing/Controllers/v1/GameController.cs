@@ -134,7 +134,7 @@ namespace HorseRacing.Api.Controllers.v1
 
             var gameResult = await _mediator.Send(new StartGameCommand()
             {
-                GameId = GameId.Create(request.Data.GameId)
+                GameId = GameId.Create(request.Data.Id)
             });
 
             return gameResult.Match(
@@ -147,7 +147,7 @@ namespace HorseRacing.Api.Controllers.v1
         {
             var gameResult = await _mediator.Send(new GetGameResultQuery()
             {
-                GameId = GameId.Create(request.Data.GameId)
+                GameId = GameId.Create(request.Data.Id)
             });
 
             return gameResult.Match(
