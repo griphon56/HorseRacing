@@ -130,8 +130,6 @@ namespace HorseRacing.Api.Controllers.v1
         [HttpPost("start-game")]            
         public async Task<IActionResult> StartGame([FromBody] StartGameRequest request)
         {
-            // В агрегате Game реализован метод Start(), который инициализирует состояние (раскладывает колоду, устанавливает позиции лошадей, регистрирует события)
-
             var gameResult = await _mediator.Send(new StartGameCommand()
             {
                 GameId = GameId.Create(request.Data.Id)

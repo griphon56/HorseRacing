@@ -48,5 +48,15 @@ namespace HorseRacing.Domain.GameAggregate.Entities
         {
             return new GameDeckCard(id, gameId, cardSuit, cardRank, cardOrder, zone);
         }
+
+        public void SetCardOrder(int cardOrder)
+        {
+            CardOrder = cardOrder;
+        }
+
+        public void SetCardZone(ZoneType zone)
+        {
+            Zone = zone;
+        }
     }
 }

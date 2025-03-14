@@ -33,10 +33,24 @@ namespace HorseRacing.Domain.GameAggregate.Entities
             HorseSuit = horseSuit;
             Position = position;
         }
-
+        /// <summary>
+        /// Метод создания лошади в игре
+        /// </summary>
+        /// <param name="id">Код лошади</param>
+        /// <param name="gameId">Код игры</param>
+        /// <param name="horseSuit">Масть лошади</param>
+        /// <param name="position">Позиция</param>
         public static GameHorsePosition Create(GameHorsePositionId id, GameId gameId, SuitType horseSuit, int position)
         {
             return new GameHorsePosition(id, gameId, horseSuit, position);
+        }
+        /// <summary>
+        /// Метод установки позиции лошади
+        /// </summary>
+        /// <param name="position"></param>
+        public void SetPosition(int position)
+        {
+            Position = position;
         }
     }
 }

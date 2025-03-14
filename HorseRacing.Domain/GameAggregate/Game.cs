@@ -71,12 +71,21 @@ namespace HorseRacing.Domain.GameAggregate
             DateStart = dateStart;
             DateEnd = dateEnd;
         }
-
+        /// <summary>
+        /// Метод создания игры
+        /// </summary>
+        /// <param name="id">Код игры</param>
+        /// <param name="name">Наименование игры</param>
+        /// <param name="status">Статус</param>
+        /// <param name="changeInfo"><see cref="EntityChangeInfo"/></param>
         public static Game Create(GameId id, string name, StatusType status, EntityChangeInfo changeInfo)
         {
             return new Game(id, name, status, changeInfo);
         }
-
+        /// <summary>
+        /// Метод подключения игрока
+        /// </summary>
+        /// <param name="gamePlayer">Игрок</param>
         public void JoinPlayer(GamePlayer gamePlayer)
         {
             if (gamePlayer is not null && this._gamePlayers.Count <= 4)
@@ -84,7 +93,12 @@ namespace HorseRacing.Domain.GameAggregate
                 _gamePlayers.Add(gamePlayer);
             }
         }
-
+        /// <summary>
+        /// Метод добавления ставки
+        /// </summary>
+        /// <param name="userId">Код пользователя</param>
+        /// <param name="betAmount">Ставка</param>
+        /// <param name="betSuit">Масть</param>
         public void PlaceBet(UserId userId, int betAmount, SuitType betSuit)
         {
             var bet = this._gamePlayers.Where(x => x.UserId == userId).FirstOrDefault();
@@ -92,6 +106,104 @@ namespace HorseRacing.Domain.GameAggregate
             {
                 bet.Update(betAmount, betSuit);
             }
+        }
+        /// <summary>
+        /// Метод создания и перемешивания колоды
+        /// </summary>
+        public void InitializeDeck()
+        {
+            _gameDeckCards.Clear();
+
+            var suits = Enum.GetValues(typeof(SuitType)).Cast<SuitType>()
+                .Where(x => x != SuitType.None);
+            var ranks = Enum.GetValues(typeof(RankType)).Cast<RankType>()
+                .Where(x => x != RankType.Ace);
+
+            var deck = new List<GameDeckCard>();
+            foreach (var suit in suits)
+            {
+                foreach (var rank in ranks)
+                {
+                    deck.Add(GameDeckCard.Create(GameDeckCardId.CreateUnique(), this.Id, suit, rank
+                        , 0, ZoneType.Deck));
+                }
+            }
+
+            var rnd = new Random();
+            for (int i = deck.Count - 1; i > 0; i--)
+            {
+                int j = rnd.Next(i + 1);
+                var temp = deck[i];
+                deck[i] = deck[j];
+                deck[j] = temp;
+            }
+
+            for (int i = 0; i < deck.Count; i++)
+            {
+                if (i < 6)
+                {
+                    deck[i].SetCardZone(ZoneType.Table);
+                }
+
+                deck[i].SetCardOrder(i + 1);
+            }
+
+            _gameDeckCards.AddRange(deck);
+        }
+        /// <summary>
+        /// Метод инициализации позиций лошадей
+        /// </summary>
+        public void InitializeHorsePositions()
+        {
+            _gameHorsePositions.Clear();
+
+            var suits = Enum.GetValues(typeof(SuitType)).Cast<SuitType>()
+                .Where(x => x != SuitType.None);
+
+            var horsePositions = new List<GameHorsePosition>();
+            foreach (var suit in suits)
+            {
+                horsePositions.Add(GameHorsePosition.Create(GameHorsePositionId.CreateUnique(), this.Id, suit, 0));
+            }
+
+            _gameHorsePositions.AddRange(horsePositions);
+        }
+        /// <summary>
+        /// Метод извлечения карты из колоды
+        /// </summary>
+        public GameDeckCard GetCardFromDeck()
+        {
+            var card = _gameDeckCards.Where(card => card.Zone == ZoneType.Deck)
+                .OrderBy(x => x.CardOrder).FirstOrDefault();
+            if (card is not null)
+            {
+                card.SetCardZone(ZoneType.Discarded);
+            }
+
+            return card;
+        }
+
+        /// <summary>
+        /// Метод обновления положения лошади на основе масти карты
+        /// </summary>
+        public void UpdateHorsePosition(GameDeckCard card)
+        {
+            if (card is null) return;
+
+            var horsePosition = _gameHorsePositions
+                .Where(horse => horse.HorseSuit == card.CardSuit).FirstOrDefault();
+            if (horsePosition is not null)
+            {
+                horsePosition.SetPosition(horsePosition.Position + 1);
+            }
+        }
+        /// <summary>
+        /// Метод проверки завершения игры
+        /// </summary>
+        /// <returns>Возвращает true, если одна из лошадей пересекла финишную линию</returns>
+        public bool IsGameFinished()
+        {
+            return _gameHorsePositions.Select(x=> x.Position).Max() == 7;
         }
     }
 }

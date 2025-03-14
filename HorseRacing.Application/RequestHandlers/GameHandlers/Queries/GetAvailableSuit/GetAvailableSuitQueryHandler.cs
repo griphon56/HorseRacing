@@ -3,6 +3,7 @@ using HorseRacing.Application.Common.Interfaces.Persistence;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
 using HorseRacing.Common;
 using HorseRacing.Domain.Common.Errors;
+using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.ReadOnlyModels;
 using MediatR;
@@ -23,9 +24,10 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetAvaila
 
         public async Task<ErrorOr<GetAvailableSuitResult>> Handle(GetAvailableSuitQuery query, CancellationToken cancellationToken)
         {
-            var game = await _gameRepository.GetById(query.GameId, cancellationToken);
-            if (game is null)
+            if (await _gameRepository.GetById(query.GameId, cancellationToken, true) is not Game game)
+            {
                 return Errors.Game.GameNotFound;
+            }
 
             List<SuitType> exclude = new List<SuitType>() { SuitType.None };
             exclude.AddRange(game.GamePlayers.Select(x => x.BetSuit).ToList());
