@@ -5,6 +5,7 @@ using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGameWithBet;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.PlaceBet;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGame;
+using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetAvailableSuit;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGameResults;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetWaitingGames;
@@ -63,7 +64,7 @@ namespace HorseRacing.Api.Controllers.v1
             var gameResult = await _mediator.Send(new GetWaitingGamesQuery());
 
             return gameResult.Match(
-                res => Ok(_mapper.Map<GetWaitingGamesResponseDto>(res)),
+                res => Ok(new GetWaitingGamesResponse(_mapper.Map<GetWaitingGamesResponseDto>(res))),
                 errors => Problem(errors));
         }
 
@@ -113,7 +114,20 @@ namespace HorseRacing.Api.Controllers.v1
                 errors => Problem(errors));
         }
 
-        [HttpPost("start-game")]
+        [HttpPost("get-available-suit")]
+        public async Task<IActionResult> GetAvailableSuit([FromBody] GetAvailableSuitRequest request)
+        {
+            var gameResult = await _mediator.Send(new GetAvailableSuitQuery()
+            {
+                GameId = GameId.Create(request.Data.Id)
+            });
+
+            return gameResult.Match(
+                res => Ok(_mapper.Map<GetAvailableSuitResponse>(res)),
+                errors => Problem(errors));
+        }
+
+        [HttpPost("start-game")]            
         public async Task<IActionResult> StartGame([FromBody] StartGameRequest request)
         {
             // В агрегате Game реализован метод Start(), который инициализирует состояние (раскладывает колоду, устанавливает позиции лошадей, регистрирует события)
