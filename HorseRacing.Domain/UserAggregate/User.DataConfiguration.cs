@@ -23,7 +23,7 @@ namespace HorseRacing.Domain.UserAggregate
                     _versionRow = new byte[] { 0x01 }
                 },
                 new {
-                    Id = UserId.Create(new Guid("8F2FACBC-2EF4-4FE1-B9E0-E3F877EDB3C3")),
+                    Id = UserId.Create(User.TestUserIvan),
                     UserName = "ivan",
 				    // Хэш пароля "1"
 				    Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
@@ -36,7 +36,7 @@ namespace HorseRacing.Domain.UserAggregate
                     _versionRow = new byte[] { 0x01 }
                 },
                 new {
-                    Id = UserId.Create(new Guid("141FCB82-6639-4932-A68D-AF84F09EF42D")),
+                    Id = UserId.Create(User.TestUserPetr),
                     UserName = "petr",
 				    // Хэш пароля "1"
 				    Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
@@ -49,7 +49,7 @@ namespace HorseRacing.Domain.UserAggregate
                     _versionRow = new byte[] { 0x01 }
                 },
                 new {
-                    Id = UserId.Create(new Guid("A1F52F7E-6DD6-4FF9-BDED-78305B42C81E")),
+                    Id = UserId.Create(User.TestUserJohn),
                     UserName = "john",
 				    // Хэш пароля "1"
 				    Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
@@ -62,7 +62,7 @@ namespace HorseRacing.Domain.UserAggregate
                     _versionRow = new byte[] { 0x01 }
                 },
                 new {
-                    Id = UserId.Create(new Guid("17B6F19E-56B1-485C-A16A-C60CEC5CDAA6")),
+                    Id = UserId.Create(User.TestUserAlex),
                     UserName = "alex",
 				    // Хэш пароля "1"
 				    Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
@@ -81,5 +81,10 @@ namespace HorseRacing.Domain.UserAggregate
         /// Код пользователя "Системный администратор"
         /// </summary>
         public static Guid DefaultSystemAdministrator { get; } = new Guid("8223998A-318F-460C-9464-1164EE56CB46");
+
+        public static Guid TestUserIvan { get; } = new Guid("8F2FACBC-2EF4-4FE1-B9E0-E3F877EDB3C3");
+        public static Guid TestUserPetr { get; } = new Guid("141FCB82-6639-4932-A68D-AF84F09EF42D");
+        public static Guid TestUserJohn { get; } = new Guid("A1F52F7E-6DD6-4FF9-BDED-78305B42C81E");
+        public static Guid TestUserAlex { get; } = new Guid("17B6F19E-56B1-485C-A16A-C60CEC5CDAA6");
     }
 }

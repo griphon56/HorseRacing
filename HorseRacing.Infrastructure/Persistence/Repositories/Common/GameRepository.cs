@@ -24,5 +24,22 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Common
             return await BuildQuery(new GetGameByStatusWaitSpecification())
                 .Select(GameSelectorSpecification.GameViewSelectorSpecification()).ToListAsync(cancellationToken);
         }
+
+        public async Task<List<GameResultView>> GetGameResults(GameId id, CancellationToken cancellationToken = default)
+        {
+            return await BuildQuery(ByKeySearchSpecification(id))
+                .SelectMany(game => game.GameResults
+                    .Join(_dbContext.Users, result => result.UserId, user => user.Id
+                        , (result, user) => new { result, user }))
+                .Select(x => new GameResultView()
+                {
+                    GameId = id,
+                    UserId = x.result.UserId,
+                    BetSuit = x.result.BetSuit,
+                    FullName = $"{x.user.FirstName} {x.user.LastName} ({x.user.UserName})",
+                    Position = x.result.Position
+                })
+                .ToListAsync(cancellationToken);
+        }
     }
 }

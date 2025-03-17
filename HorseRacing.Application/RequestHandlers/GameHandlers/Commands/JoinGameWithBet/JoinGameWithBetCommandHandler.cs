@@ -45,6 +45,11 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
 
             int bet = command.BetAmount == 0 ? 10 : command.BetAmount;
 
+            if (user!.Account!.Balance - bet < 0)
+            {
+                return Errors.Game.NotEnoughFundsToPlaceBet;
+            }
+
             var suit = command.BetSuit == Domain.GameAggregate.Enums.SuitType.None
                 ? _gameService.GetRandomAvilableSuit(game).Result.Value
                 : command.BetSuit;
@@ -54,6 +59,10 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
             await _gameRepository.Update(game, cancellationToken);
 
             _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: JoinGameWithBetCommand: {user.UserName} ({user.Id.Value}) to: {game.Name}, bet: {bet}, suit: {suit}");
+
+            user.Account!.DebitBalance(bet);
+            await _userRepository.Update(user, cancellationToken);
+            _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: JoinGameWithBetCommand: {user.UserName} ({user.Id.Value}) debit {bet}");
 
             return Unit.Value;
         }

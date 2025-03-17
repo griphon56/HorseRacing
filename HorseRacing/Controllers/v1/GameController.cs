@@ -37,7 +37,8 @@ namespace HorseRacing.Api.Controllers.v1
         [HttpPost("create-game")]
         public async Task<IActionResult> CreateGame([FromBody] CreateGameRequest request)
         {
-            var createGameResult = await _mediator.Send(new CreateGameCommand() { 
+            var createGameResult = await _mediator.Send(new CreateGameCommand() {
+                UserId = UserId.Create(request.Data.UserId),
                 Name = request.Data.Name,
                 BetAmount = request.Data.BetAmount,
                 BetSuit = (SuitType)request.Data.BetSuit
@@ -68,19 +69,19 @@ namespace HorseRacing.Api.Controllers.v1
                 errors => Problem(errors));
         }
 
-        [HttpPost("join-game")]
-        public async Task<IActionResult> JoinGame([FromBody] JoinGameRequest request)
-        {
-            var gameResult = await _mediator.Send(new JoinGameCommand()
-            {
-                GameId = GameId.Create(request.Data.GameId),
-                UserId = UserId.Create(request.Data.UserId),
-            });
+        //[HttpPost("join-game")]
+        //public async Task<IActionResult> JoinGame([FromBody] JoinGameRequest request)
+        //{
+        //    var gameResult = await _mediator.Send(new JoinGameCommand()
+        //    {
+        //        GameId = GameId.Create(request.Data.GameId),
+        //        UserId = UserId.Create(request.Data.UserId),
+        //    });
 
-            return gameResult.Match(
-                res => Ok(),
-                errors => Problem(errors));
-        }
+        //    return gameResult.Match(
+        //        res => Ok(),
+        //        errors => Problem(errors));
+        //}
 
         [HttpPost("join-game-with-bet")]
         public async Task<IActionResult> JoinGameWithBet([FromBody] JoinGameWithBetRequest request)
@@ -98,21 +99,21 @@ namespace HorseRacing.Api.Controllers.v1
                 errors => Problem(errors));
         }
 
-        [HttpPost("place-bet")]
-        public async Task<IActionResult> PlaceBet([FromBody] PlaceBetRequest request)
-        {
-            var gameResult = await _mediator.Send(new PlaceBetCommand()
-            {
-                GameId = GameId.Create(request.Data.GameId),
-                UserId = UserId.Create(request.Data.UserId),
-                BetSuit = (SuitType)request.Data.BetSuit,
-                BetAmount = request.Data.BetAmount
-            });
+        //[HttpPost("place-bet")]
+        //public async Task<IActionResult> PlaceBet([FromBody] PlaceBetRequest request)
+        //{
+        //    var gameResult = await _mediator.Send(new PlaceBetCommand()
+        //    {
+        //        GameId = GameId.Create(request.Data.GameId),
+        //        UserId = UserId.Create(request.Data.UserId),
+        //        BetSuit = (SuitType)request.Data.BetSuit,
+        //        BetAmount = request.Data.BetAmount
+        //    });
 
-            return gameResult.Match(
-                res => Ok(),
-                errors => Problem(errors));
-        }
+        //    return gameResult.Match(
+        //        res => Ok(),
+        //        errors => Problem(errors));
+        //}
 
         [HttpPost("get-available-suit")]
         public async Task<IActionResult> GetAvailableSuit([FromBody] GetAvailableSuitRequest request)

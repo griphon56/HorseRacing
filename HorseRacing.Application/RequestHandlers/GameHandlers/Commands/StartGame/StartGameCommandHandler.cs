@@ -3,6 +3,7 @@ using HorseRacing.Application.Common.Interfaces.Persistence;
 using HorseRacing.Domain.Common.Errors;
 using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.GameAggregate.Enums;
+using HorseRacing.Domain.GameAggregate.Events;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -40,7 +41,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGam
             int i_block = 1;
             while (!game.IsGameFinished())
             {
-                if (game.GameHorsePositions.Where(x=> x.Position>=i_block).Count() == 4)
+                if (game.GameHorsePositions.Where(x => x.Position >= i_block).Count() == 4)
                 {
                     var cardBlock = game.GetCardFromTable();
                     _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) got card block {cardBlock.CardRank} {cardBlock.CardSuit}");
@@ -60,8 +61,10 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGam
                 await _gameRepository.Update(game, cancellationToken);
             }
 
-            game.Update(game.Name, StatusType.Complete, game.DateEnd, DateTime.UtcNow);
+            game.Update(game.Name, StatusType.Complete, game.DateStart, DateTime.UtcNow);
             _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) is over");
+
+            game.AddDomainEvent(new GameOverEvent(game));
 
             await _gameRepository.Update(game, cancellationToken);
 

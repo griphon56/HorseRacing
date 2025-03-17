@@ -8,6 +8,8 @@ using HorseRacing.Domain.GameAggregate.Entities;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using HorseRacing.Domain.Common.Errors;
+using HorseRacing.Domain.UserAggregate;
 
 namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGame
 {
@@ -15,34 +17,49 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
     {
         private readonly ILogger<CreateGameCommandHandler> _logger;
         private readonly IGameRepository _gameRepository;
-        private readonly IUserService _userService;
+        private readonly IUserRepository _userRepository;
         private readonly IGameService _gameService;
 
         public CreateGameCommandHandler(IGameRepository gameRepository, ILogger<CreateGameCommandHandler> logger
-            , IUserService userService, IGameService gameService)
+            , IUserRepository userRepository, IGameService gameService)
         {
             _logger = logger;
             _gameRepository = gameRepository;
-            _userService = userService;
+            _userRepository = userRepository;
             _gameService = gameService;
         }
 
         public async Task<ErrorOr<CreateGameResult>> Handle(CreateGameCommand command, CancellationToken cancellationToken)
         {
-            var userView = await _userService.GetWorkingUser(cancellationToken: cancellationToken);
-            Game game = Game.Create(GameId.CreateUnique(), command.Name, Domain.GameAggregate.Enums.StatusType.Wait, new EntityChangeInfo(DateTime.UtcNow, userView.Value!.UserId));
+            if (await _userRepository.GetById(command.UserId, cancellationToken) is not User user)
+            {
+                return Errors.Authentication.UserNotFound;
+            }
+
+            Game game = Game.Create(GameId.CreateUnique(), command.Name, Domain.GameAggregate.Enums.StatusType.Wait, new EntityChangeInfo(DateTime.UtcNow, user.Id));
 
             int bet = command.BetAmount == 0 ? 10 : command.BetAmount;
-            
+
+            if (user!.Account!.Balance - bet < 0)
+            {
+                return Errors.Game.NotEnoughFundsToPlaceBet;
+            }
+
             var suit = command.BetSuit == Domain.GameAggregate.Enums.SuitType.None 
                 ? _gameService.GetRandomAvilableSuit(game).Result.Value
                 : command.BetSuit;
 
-            game.JoinPlayer(GamePlayer.Create(GamePlayerId.CreateUnique(), bet, suit, game.Id, userView.Value!.UserId));
+            game.JoinPlayer(GamePlayer.Create(GamePlayerId.CreateUnique(), bet, suit, game.Id, user.Id));
 
             await _gameRepository.Add(game, cancellationToken);
 
             _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: CreateGameCommand: {game.Name} ({game.Id.Value})");
+
+            user.Account!.DebitBalance(bet);
+
+            await _userRepository.Update(user, cancellationToken);
+
+            _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: CreateGameCommand: {user.UserName} ({user.Id.Value}) debit {bet}");
 
             return new CreateGameResult()
             {

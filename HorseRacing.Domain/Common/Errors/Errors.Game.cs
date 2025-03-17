@@ -20,6 +20,11 @@ namespace HorseRacing.Domain.Common.Errors
             /// Выбранная вами масть занята. Выберите другую, пожалуйста.
             /// </summary>
             public static Error SuitHasAlreadyBeenChosen => Error.Conflict($"{nameof(GameAggregate.Game)}.{nameof(SuitHasAlreadyBeenChosen)}", "Выбранная Вами масть занята. Выберите другую, пожалуйста.");
+
+            /// <summary>
+            /// Недостаточно средств для ставки
+            /// </summary>
+            public static Error NotEnoughFundsToPlaceBet => Error.Conflict($"{nameof(GameAggregate.Game)}.{nameof(NotEnoughFundsToPlaceBet)}", "Недостаточно средств для ставки.");
         }
     }
 }

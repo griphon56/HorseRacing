@@ -1,6 +1,7 @@
 ﻿using ErrorOr;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
 using HorseRacing.Domain.GameAggregate.Enums;
+using HorseRacing.Domain.UserAggregate.ValueObjects;
 using MediatR;
 
 namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGame
@@ -10,6 +11,10 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
     /// </summary>
     public class CreateGameCommand : IRequest<ErrorOr<CreateGameResult>>
     {
+        /// <summary>
+        /// Код пользователя создавшего игру
+        /// </summary>
+        public required UserId UserId { get; set; }
         /// <summary>
         /// Название игры
         /// </summary>

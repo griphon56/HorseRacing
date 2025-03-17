@@ -6,7 +6,7 @@ namespace HorseRacing.Domain.GameAggregate.Specifications.Selectors
     public static class GameSelectorSpecification
     {
         /// <summary>
-        /// Спецификация выборки модели представления подразделения
+        /// Спецификация выборки модели игры
         /// </summary>
         public static Expression<Func<Game, GameView>> GameViewSelectorSpecification()
         {

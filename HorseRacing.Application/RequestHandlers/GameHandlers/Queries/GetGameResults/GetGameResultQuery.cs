@@ -7,6 +7,6 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGameRe
 {
     public class GetGameResultQuery : IRequest<ErrorOr<GetGameResultsResult>>
     {
-        public GameId GameId { get; set; }
+        public required GameId GameId { get; set; }
     }
 }

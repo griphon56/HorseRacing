@@ -5,6 +5,10 @@ namespace HorseRacing.Contracts.Models.Game.Dtos
     public class CreateGameRequestDto : BaseDto
     {
         /// <summary>
+        /// Идентификатор пользователя создавшего игру
+        /// </summary>
+        public Guid UserId { get; set; }
+        /// <summary>
         /// Название игры
         /// </summary>
         public string Name { get; set; } = string.Empty;

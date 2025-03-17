@@ -248,7 +248,19 @@ namespace HorseRacing.Domain.GameAggregate
         /// <returns>Возвращает true, если одна из лошадей пересекла финишную линию</returns>
         public bool IsGameFinished()
         {
-            return _gameHorsePositions.Select(x=> x.Position).Max() == 7;
+            return _gameHorsePositions.Select(x => x.Position).Max() == 7;
+        }
+
+        /// <summary>
+        /// Метод добавления результата игры
+        /// </summary>
+        /// <param name="gameResult"></param>
+        public void AddGameResult(List<GameResult> gameResults)
+        {
+            if (gameResults is not null && gameResults.Count > 0)
+            {
+                _gameResults.AddRange(gameResults);
+            }
         }
     }
 }

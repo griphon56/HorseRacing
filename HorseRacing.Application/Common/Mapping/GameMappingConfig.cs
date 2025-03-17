@@ -37,6 +37,12 @@ namespace HorseRacing.Application.Common.Mapping
 
             config.NewConfig<GetAvailableSuitResult, GetAvailableSuitResponse>()
                 .Map(dest => dest.DataValues, src => src.AvailableSuits);
+
+            config.NewConfig<GameResultView, GameResultDto>()
+                .Map(dest => dest, src => src);
+
+            config.NewConfig<GetGameResultsResult, GetGameResultResponse>()
+                .Map(dest => dest.DataValues, src => src.GameResults);
         }
     }
 }

@@ -18,11 +18,11 @@ namespace HorseRacing.Contracts.Models.Game.Dtos
         /// <summary>
         /// Код игры
         /// </summary>
-        public required GameId GameId { get; set; }
+        public GameId GameId { get; set; }
         /// <summary>
         /// Код пользователя
         /// </summary>
-        public required UserId UserId { get; set; }
+        public UserId UserId { get; set; }
         /// <summary>
         /// Полное имя пользователя
         /// </summary>
