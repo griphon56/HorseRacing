@@ -43,7 +43,7 @@ namespace HorseRacing.Api.Controllers.Base
                 return;
             }
 
-            _logger.LogError($"Ошибки на уровне BaseApiController.Problem = {string.Join("; ", errors.Select(m => $"Код ошибки - {m.Code}, Описание - {m.Description} "))} ");
+            _logger.LogError($"[{DateTime.UtcNow}]: Ошибки на уровне BaseApiController.Problem = {string.Join("; ", errors.Select(m => $"Код ошибки - {m.Code}, Описание - {m.Description} "))} ");
         }
 
         /// <summary>

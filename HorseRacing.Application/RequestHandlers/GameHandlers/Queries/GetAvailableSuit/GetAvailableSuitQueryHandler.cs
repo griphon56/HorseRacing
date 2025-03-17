@@ -36,7 +36,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetAvaila
             var availableSuits = values.Except(exclude)
                 .Select(x => new GameAvailableSuitView() { Name = x.GetDescription(), Suit = x }).ToList();
 
-            _logger.Log(LogLevel.Information, $"GetAvailableSuitQuery: items:{availableSuits.Count}");
+            _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: GetAvailableSuitQuery: items:{availableSuits.Count}");
 
             return new GetAvailableSuitResult() { AvailableSuits = availableSuits };
         }

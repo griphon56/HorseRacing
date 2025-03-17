@@ -46,7 +46,7 @@ namespace HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Queries
                 return Errors.Authentication.PasswordIncorrect;
             }
 
-            _logger.Log(LogLevel.Information, $"LoginQuery: {user.UserName} ({user.Id.Value})");
+            _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: LoginQuery: {user.UserName} ({user.Id.Value})");
 
             var token = _jwtTokenGenerator.GenerateToken(user);
             return new AuthenticationResult()

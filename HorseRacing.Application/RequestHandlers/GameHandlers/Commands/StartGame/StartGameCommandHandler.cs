@@ -2,6 +2,7 @@
 using HorseRacing.Application.Common.Interfaces.Persistence;
 using HorseRacing.Domain.Common.Errors;
 using HorseRacing.Domain.GameAggregate;
+using HorseRacing.Domain.GameAggregate.Enums;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -26,24 +27,43 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGam
             }
 
             game.InitializeDeck();
-            _logger.LogInformation($"Game {game.Name} ({game.Id.Value}) deck initialized");
+            _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) deck initialized");
 
             game.InitializeHorsePositions();
-            _logger.LogInformation($"Game {game.Name} ({game.Id.Value}) horse positions initialized");
+            _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) horse positions initialized");
+
+            game.Update(game.Name, StatusType.InProgress, DateTime.UtcNow);
 
             await _gameRepository.Update(game, cancellationToken);
-            _logger.LogInformation($"Game {game.Name} ({game.Id.Value}) started");
+            _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) started");
 
-            while(!game.IsGameFinished())
+            int i_block = 1;
+            while (!game.IsGameFinished())
             {
+                if (game.GameHorsePositions.Where(x=> x.Position>=i_block).Count() == 4)
+                {
+                    var cardBlock = game.GetCardFromTable();
+                    _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) got card block {cardBlock.CardRank} {cardBlock.CardSuit}");
+
+                    game.UpdateHorsePositionWithBlock(cardBlock);
+                    _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) updated horse position with block");
+
+                    i_block++;
+                }
+
                 var card = game.GetCardFromDeck();
-                _logger.LogInformation($"Game {game.Name} ({game.Id.Value}) got card {card.CardRank} {card.CardSuit}");
+                _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) got card {card.CardRank} {card.CardSuit}");
 
                 game.UpdateHorsePosition(card);
-                _logger.LogInformation($"Game {game.Name} ({game.Id.Value}) updated horse position");
+                _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) updated horse position");
 
                 await _gameRepository.Update(game, cancellationToken);
             }
+
+            game.Update(game.Name, StatusType.Complete, game.DateEnd, DateTime.UtcNow);
+            _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) is over");
+
+            await _gameRepository.Update(game, cancellationToken);
 
             return Unit.Value;
         }

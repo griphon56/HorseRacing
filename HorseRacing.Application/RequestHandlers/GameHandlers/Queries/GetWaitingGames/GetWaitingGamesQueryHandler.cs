@@ -21,7 +21,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetWaitin
         {
             var games = await _gameRepository.GetWaitingGames(cancellationToken);
 
-            _logger.Log(LogLevel.Information, $"GetWaitingGamesQuery: get {games.Count} item(s))");
+            _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: GetWaitingGamesQuery: get {games.Count} item(s))");
 
             return new GetWaitingGamesResult()
             {

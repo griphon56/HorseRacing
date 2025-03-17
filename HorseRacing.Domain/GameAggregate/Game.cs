@@ -82,6 +82,22 @@ namespace HorseRacing.Domain.GameAggregate
         {
             return new Game(id, name, status, changeInfo);
         }
+
+        /// <summary>
+        /// Метод обновления информации о игре
+        /// </summary>
+        /// <param name="name">Наименоване</param>
+        /// <param name="status">Статус игры</param>
+        /// <param name="dt_start">Дата начала</param>
+        /// <param name="dt_end">Дата окончания</param>
+        public void Update(string name, StatusType status, DateTime? dt_start = null, DateTime? dt_end = null)
+        {
+            Name = name;
+            Status = status;
+            DateStart = dt_start;
+            DateEnd = dt_end;
+        }
+
         /// <summary>
         /// Метод подключения игрока
         /// </summary>
@@ -182,6 +198,20 @@ namespace HorseRacing.Domain.GameAggregate
 
             return card;
         }
+        /// <summary>
+        /// Метод открытия карты на столе
+        /// </summary>
+        public GameDeckCard GetCardFromTable()
+        {
+            var card = _gameDeckCards.Where(card => card.Zone == ZoneType.Table)
+                .OrderBy(x => x.CardOrder).FirstOrDefault();
+            if (card is not null)
+            {
+                card.SetCardZone(ZoneType.Discarded);
+            }
+
+            return card;
+        }
 
         /// <summary>
         /// Метод обновления положения лошади на основе масти карты
@@ -195,6 +225,21 @@ namespace HorseRacing.Domain.GameAggregate
             if (horsePosition is not null)
             {
                 horsePosition.SetPosition(horsePosition.Position + 1);
+            }
+        }
+
+        /// <summary>
+        /// Метод обновления положения лошади на основе масти карты преграды
+        /// </summary>
+        public void UpdateHorsePositionWithBlock(GameDeckCard card)
+        {
+            if (card is null) return;
+
+            var horsePosition = _gameHorsePositions
+                .Where(horse => horse.HorseSuit == card.CardSuit).FirstOrDefault();
+            if (horsePosition is not null)
+            {
+                horsePosition.SetPosition(horsePosition.Position - 1);
             }
         }
         /// <summary>

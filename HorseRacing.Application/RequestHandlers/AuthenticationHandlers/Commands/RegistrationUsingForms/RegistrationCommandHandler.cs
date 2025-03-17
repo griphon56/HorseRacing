@@ -39,7 +39,7 @@ namespace HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Command
             {
                 _logger.LogWithInitiatorInfoText(new LoggerExtenstions.Common.EventInfo(
                     "Ошибка регистрации", EventType.RegistrationError
-                    , $"В процессе регистрации Пользователя {command.UserName} возникла ошибка {Errors.User.DuplicateUserName.Description}"
+                    , $"[{DateTime.UtcNow}]: В процессе регистрации Пользователя {command.UserName} возникла ошибка {Errors.User.DuplicateUserName.Description}"
                     , LogLevel.Warning, SubsystemType.UsersControlSubSys, TechProcessType.WorkUsers, null, null, null));
 
                 return Errors.User.DuplicateUserName;
@@ -49,7 +49,7 @@ namespace HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Command
             await _userRepository.Add(user);
             var token = _jwtTokenGenerator.GenerateToken(user!);
 
-            _logger.Log(LogLevel.Information, $"RegistrationCommand: {user.UserName} ({user.Id.Value})");
+            _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: RegistrationCommand: {user.UserName} ({user.Id.Value})");
 
             return new AuthenticationResult() { User = user, Token = token };
         }

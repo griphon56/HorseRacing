@@ -44,7 +44,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
 
             await _gameRepository.Update(game, cancellationToken);
 
-            _logger.Log(LogLevel.Information, $"JoinGameCommand: {user.UserName} ({user.Id.Value}) to: {game.Name}");
+            _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: JoinGameCommand: {user.UserName} ({user.Id.Value}) to: {game.Name}");
 
             return Unit.Value;
         }

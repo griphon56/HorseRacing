@@ -27,7 +27,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGame
             if (game is null)
                 return Errors.Game.GameNotFound;
 
-            _logger.Log(LogLevel.Information, $"GetGameQuery: {game.Name} ({game.Id.Value})");
+            _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: GetGameQuery: {game.Name} ({game.Id.Value})");
 
             return _mapper.Map<GetGameResult>(game);
         }

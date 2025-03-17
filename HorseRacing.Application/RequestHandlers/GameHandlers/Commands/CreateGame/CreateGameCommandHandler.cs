@@ -42,7 +42,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
 
             await _gameRepository.Add(game, cancellationToken);
 
-            _logger.Log(LogLevel.Information, $"CreateGameCommand: {game.Name} ({game.Id.Value})");
+            _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: CreateGameCommand: {game.Name} ({game.Id.Value})");
 
             return new CreateGameResult()
             {

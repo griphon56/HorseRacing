@@ -42,7 +42,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.PlaceBet
 
             await _gameRepository.Update(game, cancellationToken);
 
-            _logger.Log(LogLevel.Information, $"PlaceBetCommand: {user.UserName} ({user.Id.Value}) bet: {command.BetAmount} suit: {command.BetSuit}");
+            _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: PlaceBetCommand: {user.UserName} ({user.Id.Value}) bet: {command.BetAmount} suit: {command.BetSuit}");
 
             return Unit.Value;
         }
