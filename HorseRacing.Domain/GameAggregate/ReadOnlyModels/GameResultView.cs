@@ -26,5 +26,9 @@ namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
         /// Полное имя пользователя
         /// </summary>
         public string FullName { get; set; } = string.Empty;
+        /// <summary>
+        /// Победитель
+        /// </summary>
+        public bool IsWinner { get; set; } = false;
     }
 }

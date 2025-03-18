@@ -1,4 +1,5 @@
-﻿using HorseRacing.Domain.Common.Models.Base;
+﻿using HorseRacing.Common;
+using HorseRacing.Domain.Common.Models.Base;
 using HorseRacing.Domain.GameAggregate.Entities;
 using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
@@ -104,7 +105,7 @@ namespace HorseRacing.Domain.GameAggregate
         /// <param name="gamePlayer">Игрок</param>
         public void JoinPlayer(GamePlayer gamePlayer)
         {
-            if (gamePlayer is not null && this._gamePlayers.Count <= 4)
+            if (gamePlayer is not null && this._gamePlayers.Count <= CommonSystemValues.NumberOfPlayers)
             {
                 _gamePlayers.Add(gamePlayer);
             }
@@ -156,7 +157,7 @@ namespace HorseRacing.Domain.GameAggregate
 
             for (int i = 0; i < deck.Count; i++)
             {
-                if (i < 6)
+                if (i < CommonSystemValues.NumberOfObstacles)
                 {
                     deck[i].SetCardZone(ZoneType.Table);
                 }
@@ -248,7 +249,7 @@ namespace HorseRacing.Domain.GameAggregate
         /// <returns>Возвращает true, если одна из лошадей пересекла финишную линию</returns>
         public bool IsGameFinished()
         {
-            return _gameHorsePositions.Select(x => x.Position).Max() == 7;
+            return _gameHorsePositions.Select(x => x.Position).Max() == CommonSystemValues.NumberOfObstacles + 1;
         }
 
         /// <summary>

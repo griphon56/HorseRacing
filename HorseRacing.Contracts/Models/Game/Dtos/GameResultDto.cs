@@ -27,5 +27,9 @@ namespace HorseRacing.Contracts.Models.Game.Dtos
         /// Полное имя пользователя
         /// </summary>
         public string FullName { get; set; } = string.Empty;
+        /// <summary>
+        /// Победитель
+        /// </summary>
+        public bool IsWinner { get; set; }
     }
 }

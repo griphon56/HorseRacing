@@ -9,6 +9,14 @@
         /// Название системы по умолчанию.
         /// </summary>
         public const string DefaultSystemUserName = "Система";
+        /// <summary>
+        /// Количество преград
+        /// </summary>
+        public const int NumberOfObstacles = 6;
+        /// <summary>
+        /// Количество игроков
+        /// </summary>
+        public const int NumberOfPlayers = 4;
 
         public static class CommonRepositoryValues
         {

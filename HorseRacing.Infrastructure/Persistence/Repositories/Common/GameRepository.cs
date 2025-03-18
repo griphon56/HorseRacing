@@ -1,4 +1,5 @@
 ﻿using HorseRacing.Application.Common.Interfaces.Persistence;
+using HorseRacing.Common;
 using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.GameAggregate.ReadOnlyModels;
 using HorseRacing.Domain.GameAggregate.Specifications.Queries;
@@ -37,7 +38,8 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Common
                     UserId = x.result.UserId,
                     BetSuit = x.result.BetSuit,
                     FullName = $"{x.user.FirstName} {x.user.LastName} ({x.user.UserName})",
-                    Position = x.result.Position
+                    Position = x.result.Position,
+                    IsWinner = x.result.Position == CommonSystemValues.NumberOfObstacles + 1
                 })
                 .ToListAsync(cancellationToken);
         }
