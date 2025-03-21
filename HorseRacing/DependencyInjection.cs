@@ -30,7 +30,13 @@ namespace HorseRacing.Api
                 });
             }
 
-            services.AddControllers();
+            //services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(options => {
+                    // Отключает преобразование PascaleCase свойств сущностей в camelCase
+                    // при получении запросов и отправке ответов
+                    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                });
             services.AddEndpointsApiExplorer()
                 .AddApiVersioningExtension()
                 .AddSwaggerGenExtension();
@@ -49,22 +55,24 @@ namespace HorseRacing.Api
 
             builder.Services.AddHttpContextAccessor();
 
-            services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
-            {
-                builder
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials()
 
-                .WithOrigins("https://127.0.0.1:8989",
-                    "http://127.0.0.1:5173",
-                    "https://127.0.0.1:5173",
-                    "http://127.0.0.1:5000",
-                    "https://127.0.0.1:5000",
-                    "http://127.0.0.1",
-                    "https://127.0.0.1")
-                .SetIsOriginAllowed((host) => true);
-            }));
+            
+            //services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
+            //{
+            //    builder
+            //        .AllowAnyMethod()
+            //        .AllowAnyHeader()
+            //        .AllowCredentials()
+
+            //    .WithOrigins(
+            //        "http://127.0.0.1:5172",
+            //        "https://127.0.0.1:5172",
+            //        "http://127.0.0.1:5000",
+            //        "https://127.0.0.1:5000",
+            //        "http://127.0.0.1",
+            //        "https://127.0.0.1")
+            //    .SetIsOriginAllowed((host) => true);
+            //}));
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
             services.AddSingleton<ProblemDetailsFactory, HorseRacingProblemDetailsFactory>();
 
