@@ -7,7 +7,7 @@ const router = createRouter({
         {
             path: '/auth',
             name: 'auth',
-            component: () => import('~/pages/auth-page.vue'),
+            component: () => import('~/pages/auth/auth-page.vue'),
         },
         {
             path: '/',
@@ -21,7 +21,7 @@ const router = createRouter({
                 {
                     path: '/games',
                     name: 'aaa',
-                    component: () => import('~/pages/games-page.vue'),
+                    component: () => import('~/pages/game/games-page.vue'),
                 },
                 {
                     path: '/play',

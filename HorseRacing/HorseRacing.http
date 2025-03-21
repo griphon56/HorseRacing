@@ -1,4 +1,4 @@
-@HorseRacing_HostAddress = http://localhost:5172
+@HorseRacing_HostAddress = http://localhost:5173
 
 GET {{HorseRacing_HostAddress}}/weatherforecast/
 Accept: application/json

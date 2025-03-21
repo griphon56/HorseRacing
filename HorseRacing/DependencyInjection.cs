@@ -55,24 +55,15 @@ namespace HorseRacing.Api
 
             builder.Services.AddHttpContextAccessor();
 
+            services.AddCors(o => o.AddPolicy("AllowFrontend", builder =>
+            {
+                builder
+                    .WithOrigins("http://127.0.0.1:5173")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+            }));
 
-            
-            //services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
-            //{
-            //    builder
-            //        .AllowAnyMethod()
-            //        .AllowAnyHeader()
-            //        .AllowCredentials()
-
-            //    .WithOrigins(
-            //        "http://127.0.0.1:5172",
-            //        "https://127.0.0.1:5172",
-            //        "http://127.0.0.1:5000",
-            //        "https://127.0.0.1:5000",
-            //        "http://127.0.0.1",
-            //        "https://127.0.0.1")
-            //    .SetIsOriginAllowed((host) => true);
-            //}));
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
             services.AddSingleton<ProblemDetailsFactory, HorseRacingProblemDetailsFactory>();
 

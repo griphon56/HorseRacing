@@ -51,15 +51,14 @@ app.UseHttpsRedirection();
 //catch { }
 
 app.UseRouting();
-//app.UseCors("CorsPolicy");
-// отключение cors
-app.UseCors(x => {
-    x.AllowAnyMethod()
-    .AllowAnyHeader()
-    .WithExposedHeaders(new string[] { "Content-Disposition" })
-    .SetIsOriginAllowed(origin => true) // allow any origin
-    .AllowCredentials(); // allow credentials
-});
+app.UseCors("AllowFrontend");
+// Отключение cors
+//app.UseCors(x => { x.AllowAnyMethod().AllowAnyHeader()
+//    .WithExposedHeaders(new string[] { "Content-Disposition" })
+//    .SetIsOriginAllowed(origin => true) // allow any origin
+//    .AllowCredentials(); // allow credentials
+//});
+
 app.UseAuthentication();
 app.UseAuthorization();
 
