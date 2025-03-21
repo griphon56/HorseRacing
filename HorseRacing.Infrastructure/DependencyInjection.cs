@@ -12,6 +12,7 @@ using HorseRacing.Infrastructure.Persistence.Interceptors;
 using HorseRacing.Infrastructure.Persistence.Repositories.Base;
 using HorseRacing.Infrastructure.Persistence.Repositories.Common;
 using HorseRacing.Infrastructure.Services;
+using HorseRacing.Infrastructure.Services.RedisCache;
 using HorseRacing.LoggerExtenstions.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -76,8 +77,9 @@ namespace HorseRacing.Infrastructure
             , Microsoft.Extensions.Configuration.IConfiguration configuration)
         {
             services.AddCacheConfigurationSettings(configuration);
-            //services.AddSingleton<IRedisCacheService, RedisCacheService>();
-            //services.AddSingleton<IMemoryCacheService, MemoryCacheService>();
+            services.AddSingleton<ICacheService, CacheService>();
+            services.AddSingleton<IRedisCacheService, RedisCacheService>();
+            services.AddSingleton<IExtendedCacheService, ExtendedCacheService>();
             services.AddMemoryCache();
 
             //внимание! на момент вызова этого метода - обычные репозитории уже должны быть внедрены
