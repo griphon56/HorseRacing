@@ -30,13 +30,13 @@ namespace HorseRacing.Api
                 });
             }
 
-            //services.AddControllers();
             services.AddControllers()
                 .AddJsonOptions(options => {
                     // Отключает преобразование PascaleCase свойств сущностей в camelCase
                     // при получении запросов и отправке ответов
                     options.JsonSerializerOptions.PropertyNamingPolicy = null;
                 });
+
             services.AddEndpointsApiExplorer()
                 .AddApiVersioningExtension()
                 .AddSwaggerGenExtension();

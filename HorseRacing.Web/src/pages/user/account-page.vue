@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>Games Page</h1>
+        <h1>Account Page</h1>
     </div>
 </template>
 
