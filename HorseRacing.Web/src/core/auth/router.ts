@@ -1,4 +1,4 @@
-import { NavigationGuard } from "vue-router";
+import type { NavigationGuard } from "vue-router";
 import { RouteName } from '~/interfaces';
 import { useAuthStore } from "./auth-store";
 
@@ -13,9 +13,5 @@ export const routerAuthGuard: NavigationGuard = async (to) => {
         return;
     }
 
-    const receivedUser = await authStore.loadUserOrTryLogIn();
-    if (receivedUser == null) {
-        authStore.afterAuthRedirectPath = to.fullPath;
-        return { name: RouteName.Auth };
-    }
+    await authStore.checkAuthAndRedirect();
 };

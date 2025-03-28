@@ -1,47 +1,40 @@
 import { StorageSerializers, useLocalStorage, useSessionStorage } from '@vueuse/core';
-import { decodeJwt } from "jose";
+import { decodeJwt } from 'jose';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { AuthMode, config } from '~/config';
-import { makeBaseController } from '~/core/api';
-import { EntityRequestDto, EntityResponseDto, LoginRequestDto, TokensDto, UserAuthProfileDto, UserProfileDto } from '~/interfaces';
+import { useRouter } from 'vue-router';
+import type { LoginDto } from '~/interfaces/api/contracts/model/auth/dto/login-dto';
+import type { TokensDto } from '~/interfaces/api/contracts/model/auth/dto/tokens-dto';
+import { LoginRequest } from '~/interfaces/api/contracts/model/auth/requests/login-request';
+import type { AuthenticationResponse } from '~/interfaces/api/contracts/model/responses/authentication-response';
+import type { UserProfileDto } from '~/interfaces/api/contracts/model/user/dto/user-profile-dto';
+import { makeApiWrapper } from '~/utils/api-wrapper';
 
-export interface IAuthResult {
-    tokens: TokensDto;
-    user: UserProfileDto;
-}
+const api = makeApiWrapper({ baseUrl: 'api/v1/Authentication' });
 
-const { api } = makeBaseController({ controllerRoute: 'api/account' });
+async function fetchAuthByForm(login: string, password: string): Promise<AuthenticationResponse> {
+    const loginDto: LoginDto = {
+        UserName: login,
+        Password: password,
+    };
+    const request = new LoginRequest(loginDto);
 
-async function fetchAuthByForm(login: string, password: string): Promise<IAuthResult> {
-    const response = await api.postJson<LoginRequestDto>('login-form', {
-        body: { Login: login, Password: password }
+    const response = await api.postJson('login', {
+        body: request
     });
-    const { Data } = await response.json() as EntityResponseDto<UserAuthProfileDto>;
-    const { Tokens, ...UserProfile } = Data;
-    return { tokens: Tokens, user: UserProfile };
+
+    const result = await response.json();
+    return result as AuthenticationResponse;
 }
 
-async function fetchRefreshTokens(data: EntityRequestDto<string>): Promise<TokensDto> {
-    const response = await api.postJson('refresh-tokens', {
-        body: data,
-    });
-    const { Data: tokens } = await response.json() as EntityResponseDto<TokensDto>;
-    return tokens;
-}
-
-async function fetchGetUserByToken(accessToken: string): Promise<UserProfileDto> {
-    const response = await api.postJson('get-current-user', {
-        headers: { 'Authorization': `Bearer ${accessToken}` }
-    });
-    const { Data } = await response.json() as EntityResponseDto<UserProfileDto>;
-    return Data;
-}
-
-function shouldRefreshToken(token: string) {
-    const tokenData = decodeJwt(token);
-    const tokenExpiration = tokenData.exp! * 1000;
-    return tokenExpiration - Date.now() < 60 * 1000;
+function isTokenValid(token: string): boolean {
+    try {
+        const tokenData = decodeJwt(token);
+        const tokenExpiration = tokenData.exp! * 1000;
+        return tokenExpiration > Date.now();
+    } catch {
+        return false;
+    }
 }
 
 const usePrivateAuthStore = defineStore('private-auth', () => {
@@ -52,74 +45,81 @@ const usePrivateAuthStore = defineStore('private-auth', () => {
 export const useAuthStore = defineStore('auth', () => {
     const auth = usePrivateAuthStore();
     const user = ref<UserProfileDto | undefined>();
-    const afterAuthRedirectPath = useSessionStorage<string | undefined>('after-auth-redirect-path', undefined, { serializer: StorageSerializers.string });
+    const afterAuthRedirectPath = useSessionStorage<string | undefined>(
+        'after-auth-redirect-path',
+        undefined,
+        { serializer: StorageSerializers.string }
+    );
+    const router = useRouter();
 
-    async function authByForm(login: string, password: string): Promise<IAuthResult> {
+    // Авторизация по форме, сохранение токена и пользователя в стор и перенаправление на страницу игр.
+    async function authByForm(login: string, password: string): Promise<AuthenticationResponse> {
         const result = await fetchAuthByForm(login, password);
-        auth.tokens = result.tokens;
-        user.value = result.user;
+
+        // Сохраняем токен в стор
+        if (auth.tokens) {
+            auth.tokens.AccessToken = result.Data.Token;
+        } else {
+            auth.tokens = { AccessToken: result.Data.Token };
+        }
+
+        // Сохраняем данные пользователя в стор
+        if (user.value) {
+            user.value.Id = result.Data.Id;
+            user.value.Username = result.Data.Username;
+            user.value.FirstName = result.Data.FirstName;
+            user.value.LastName = result.Data.LastName;
+            user.value.Email = result.Data.Email;
+        } else {
+            user.value = {
+                Id: result.Data.Id,
+                Username: result.Data.Username,
+                FirstName: result.Data.FirstName,
+                LastName: result.Data.LastName,
+                Email: result.Data.Email
+            } as UserProfileDto;
+        }
+
+        // Перенаправляем на страницу игр после успешной авторизации
+        router.push('/games');
         return result;
     }
 
-    let activeTokenLock: Promise<TokensDto> | undefined;
-    async function receiveTokens() {
-        if (auth.tokens && shouldRefreshToken(auth.tokens.AccessToken)) {
-            auth.tokens = await fetchRefreshTokens({ Data: auth.tokens.RefreshToken })
-                .catch(() => null);
+    // Если токен присутствует и годен перенаправляем на игры, иначе на страницу авторизации.
+    function checkAuthAndRedirect() {
+        if (auth.tokens && isTokenValid(auth.tokens.AccessToken)) {
+            router.push('/games');
+        } else {
+            router.push('/auth');
         }
+    }
 
-        // Выполнится, если непросроченный токен уже был в наличии или если рефреш прошёл успешно
+    // Примерная функция для получения токенов (с логикой обновления, если потребуется)
+    let activeTokenLock: Promise<TokensDto | null>;
+    async function receiveTokens(): Promise<TokensDto | null> {
+        if (auth.tokens && !isTokenValid(auth.tokens.AccessToken)) {
+            // Здесь можно реализовать логику обновления токена,
+            // если refreshToken доступен.
+            // Примерно: auth.tokens = await fetchRefreshTokens(...).catch(() => null);
+            auth.tokens = null;
+        }
         if (auth.tokens) {
             return auth.tokens;
         }
-
-        // Выполнится если токенов не было изначально
-        // или если рефреш прошёл неудачно
-        if (config.authMode == AuthMode.OnlyForm) {
-            throw new Error('Требуется авторизация');
-        }
+        return null;
     }
 
     async function getTokens(): Promise<TokensDto | null> {
-        if (activeTokenLock) {
-            return activeTokenLock;
-        }
         try {
+            if (activeTokenLock) {
+                return activeTokenLock;
+            }
             activeTokenLock = receiveTokens();
             const tokens = await activeTokenLock;
-            return tokens;
-        } catch (err) {
+            return tokens || null;
+        } catch {
             auth.tokens = null;
             user.value = undefined;
-            return null;
-        } finally {
-            activeTokenLock = undefined;
-        }
-    }
-
-    // async function logOut(): Promise<void> {
-    //   if (!auth.tokens) {
-    //     console.warn('logOut without tokens');
-    //     return;
-    //   }
-    //   await fetchLogOut(auth.tokens);
-    //   auth.tokens = null;
-    //   user.value = undefined;
-    // }
-
-    async function loadUserOrTryLogIn(): Promise<UserProfileDto | null> {
-        const tokens = await getTokens();
-        if (tokens == null) {
-            return null;
-        }
-        if (user.value) {
-            return user.value;
-        }
-        try {
-            user.value = await fetchGetUserByToken(tokens.AccessToken);
-            return user.value;
-        } catch {
-            console.log('unable to load user data');
             return null;
         }
     }
@@ -130,8 +130,8 @@ export const useAuthStore = defineStore('auth', () => {
      * Петров -> Петров
      */
     const userFormattedName = computed(() => {
-        const FI = user.value?.Name;
-        if (!FI) {
+        const FI = user.value?.LastName + ' ' + user.value?.FirstName;
+        if (!FI.trim()) {
             return '';
         }
         const [F, I] = FI.split(' ').filter(Boolean);
@@ -147,7 +147,6 @@ export const useAuthStore = defineStore('auth', () => {
         afterAuthRedirectPath,
         authByForm,
         getTokens,
-        // logOut,
-        loadUserOrTryLogIn,
+        checkAuthAndRedirect,
     };
 });
