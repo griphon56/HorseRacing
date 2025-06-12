@@ -1,7 +1,7 @@
 export enum RouteName {
-    Auth = 'Auth',
-    Profile = 'Profile',
-    Account = 'Account',
-    Games = 'Games',
-    Lobby = 'Lobby',
+    Auth = 'auth',
+    Profile = 'pofile',
+    Account = 'account',
+    Games = 'games',
+    Lobby = 'lobby',
 }

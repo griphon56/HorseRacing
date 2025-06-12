@@ -5,6 +5,6 @@ export class LoginRequest implements BaseRequest<LoginDto> {
     Data: LoginDto;
 
     constructor(data?: LoginDto) {
-        this.Data = data || { Username: '', Password: '' };
+        this.Data = data || { UserName: '', Password: '' };
     }
 }
