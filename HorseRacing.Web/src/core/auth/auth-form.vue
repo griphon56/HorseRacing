@@ -1,79 +1,87 @@
 <template>
-    <div class="container mt-5">
-      <div class="row justify-content-center">
-        <div class="col-4">
-          <div class="card p-4">
-            <h3 class="card-title mb-4 text-center">Вход</h3>
-            <form @submit.prevent="onSubmit">
-              <div class="mb-3">
-                <label for="username" class="form-label">Логин</label>
-                <input
-                  id="username"
-                  v-model="username"
-                  type="text"
-                  class="form-control"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label for="password" class="form-label">Пароль</label>
-                <input
-                  id="password"
-                  v-model="password"
-                  type="password"
-                  class="form-control"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                class="btn btn-primary w-100"
-                :disabled="loading"
-              >
-                {{ loading ? 'Входим...' : 'Войти' }}
-              </button>
-              <p v-if="error" class="text-danger mt-2">{{ error }}</p>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </template>
+  <n-card title="Авторизация" class="max-w-md mx-auto mt-10">
+    <n-form
+      ref="formRef"
+      :model="form"
+      :rules="rules"
+      label-placement="top"
+    >
+      <n-form-item label="Логин" path="username">
+        <n-input v-model:value="form.username" placeholder="Логин" />
+      </n-form-item>
 
-  <script setup lang="ts">
-  import { ref } from 'vue'
-  import { useRouter } from 'vue-router'
-  import { useAuthStore } from '~/stores/auth-store'
+      <n-form-item label="Пароль" path="password">
+        <n-input
+          v-model:value="form.password"
+          type="password"
+          placeholder="Пароль"
+        />
+      </n-form-item>
 
-  const router = useRouter()
-  const authStore = useAuthStore()
+      <n-space justify="end" class="mt-4">
+        <n-button type="primary" @click="onSubmit" :loading="loading">
+          Войти
+        </n-button>
+      </n-space>
 
-  const username = ref('')
-  const password = ref('')
-  const loading = ref(false)
-  const error = ref<string | null>(null)
+      <p v-if="error" class="text-error mt-2">{{ error }}</p>
+    </n-form>
+  </n-card>
+</template>
 
-  async function onSubmit() {
-    loading.value = true
-    error.value = null
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '~/stores/auth-store'
+import type { FormInst } from 'naive-ui'
 
-    try {
-      await authStore.authByForm(username.value, password.value)
+const router = useRouter()
+const authStore = useAuthStore()
 
-      // после успешного логина
-      const redirect = authStore.afterAuthRedirectPath || '/'
-      authStore.afterAuthRedirectPath = undefined
-      await router.replace(redirect)
-    } catch (e: any) {
-      error.value = e?.message || 'Ошибка входа'
-    } finally {
-      loading.value = false
+const formRef = ref<FormInst | null>(null)
+const loading = ref(false)
+const error = ref<string | null>(null)
+
+const form = ref({
+  username: '',
+  password: ''
+})
+
+const rules = {
+  username: { required: true, message: 'Введите логин', trigger: ['input'] },
+  password: { required: true, message: 'Введите пароль', trigger: ['input'] }
+}
+
+async function onSubmit() {
+  if (!formRef.value) return
+  loading.value = true
+  error.value = null
+
+  try {
+    await formRef.value.validate()
+    await authStore.authByForm(form.value.username, form.value.password)
+
+    // редирект после успешного логина
+    const redirect = authStore.afterAuthRedirectPath || '/'
+    authStore.afterAuthRedirectPath = undefined
+    await router.replace(redirect)
+  } catch (err: any) {
+    if (Array.isArray(err)) {
+      error.value = 'Проверьте правильность введённых данных'
+    } else {
+      error.value = err.message || 'Ошибка входа'
     }
+  } finally {
+    loading.value = false
   }
-  </script>
+}
+</script>
 
-  <style scoped>
-  .card {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-  </style>
+<style scoped>
+.max-w-md {
+  max-width: 400px;
+}
+.text-error {
+  color: var(--n-error-color);
+}
+</style>
