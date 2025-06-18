@@ -1,18 +1,17 @@
 <template>
   <n-layout-header class="main-menu" bordered>
     <n-space justify="space-between" align="center" class="w-full px-4">
-      <div class="logo" @click="goHome">🐎 Horse Racing</div>
       <n-menu
         mode="horizontal"
         :options="menuOptions"
         :value="selectedKey"
         @update:value="handleSelect"
       />
-      <div>
+      <!-- <div>
         <n-button quaternary size="small" @click="logout">
           Выйти
         </n-button>
-      </div>
+      </div> -->
     </n-space>
   </n-layout-header>
 </template>
@@ -22,6 +21,7 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { NLayoutHeader, NMenu, NButton, NSpace } from 'naive-ui'
 import { useAuthStore } from '~/stores/auth-store'
+import { RouteName } from '~/interfaces'
 
 const router = useRouter()
 const route = useRoute()
@@ -30,23 +30,18 @@ const authStore = useAuthStore()
 const selectedKey = computed(() => route.name as string)
 
 const menuOptions = [
-  { label: 'Игры', key: 'Games' },
-  { label: 'Создать', key: 'Lobby' },
-  { label: 'Аккаунт', key: 'Account' },
-  { label: 'Профиль', key: 'Profile' }
+  { label: 'Игры', key: RouteName.Games },
+  { label: 'Профиль', key: RouteName.Profile },
+  { label: 'Аккаунт', key: RouteName.Account }
 ]
 
 function handleSelect(key: string) {
   router.push({ name: key })
 }
 
-function goHome() {
-  router.push({ name: 'Games' })
-}
-
 function logout() {
   authStore.logout()
-  router.push({ name: 'Auth' })
+  router.push({ name: RouteName.Auth })
 }
 </script>
 

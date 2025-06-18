@@ -1,37 +1,31 @@
 <template>
-    <div class="main-layout">
-      <div class="header">
-        <RouterLink :to="{ name: RouteName.Account }">Аккаунт</RouterLink>
-        <RouterLink :to="{ name: RouteName.Games }">Список игр</RouterLink>
-        <RouterLink :to="{ name: RouteName.Profile }">Профиль</RouterLink>
-        <RouterLink :to="{ name: RouteName.Lobby }">Лобби</RouterLink>
-      </div>
+  <div class="main-layout">
+    <!-- Основной контент -->
+    <div class="main-content">
       <RouterView />
     </div>
-  </template>
 
-  <script setup lang="ts">
-  import { RouterView, RouterLink } from 'vue-router'
-  import { RouteName } from '~/interfaces'
+    <!-- Нижнее меню -->
+   <main-menu />
+  </div>
+</template>
 
-  /**
-   * Главный layout приложения. Рендерит шапку с навигацией
-   * и <RouterView> для вложенных страниц.
-   */
-  </script>
+<script setup lang="ts">
+import { RouterView } from 'vue-router'
+import MainMenu from './main-menu.vue'
+</script>
 
-  <style scoped>
-  .main-layout {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
+<style scoped>
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 
-  .header {
-    display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    background-color: #f5f5f5;
-  }
-  </style>
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 56px; /* чтобы контент не перекрывался меню */
+}
+
+</style>

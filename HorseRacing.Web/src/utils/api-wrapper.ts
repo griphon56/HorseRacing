@@ -160,3 +160,5 @@ export function makeApiWrapper(
 
     return { postJson, postOnce, postForm, extend };
 }
+
+export const apiWrapper = makeApiWrapper({ baseUrl: '/api' });
