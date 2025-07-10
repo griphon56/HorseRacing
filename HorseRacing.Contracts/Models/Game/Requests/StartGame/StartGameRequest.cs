@@ -1,7 +1,7 @@
 ﻿using HorseRacing.Contracts.Base.Dto;
 using HorseRacing.Contracts.Base.Requests;
 
-namespace HorseRacing.Contracts.Models.Game.Requests
+namespace HorseRacing.Contracts.Models.Game.Requests.StartGame
 {
     public class StartGameRequest : BaseRequest<BaseModelDto>
     {

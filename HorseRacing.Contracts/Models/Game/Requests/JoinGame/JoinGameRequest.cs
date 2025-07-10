@@ -1,7 +1,6 @@
 ﻿using HorseRacing.Contracts.Base.Requests;
-using HorseRacing.Contracts.Models.Game.Dtos;
 
-namespace HorseRacing.Contracts.Models.Game.Requests
+namespace HorseRacing.Contracts.Models.Game.Requests.JoinGame
 {
     public class JoinGameRequest : BaseRequest<JoinGameRequestDto>
     {

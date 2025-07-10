@@ -1,6 +1,6 @@
 ﻿using HorseRacing.Contracts.Base.Dto;
 
-namespace HorseRacing.Contracts.Models.Game.Dtos
+namespace HorseRacing.Contracts.Models.Game.Requests.CreateGame
 {
     public class CreateGameRequestDto : BaseDto
     {

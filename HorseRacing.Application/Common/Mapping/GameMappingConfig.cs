@@ -1,6 +1,11 @@
 ﻿using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
 using HorseRacing.Contracts.Models.Game.Dtos;
 using HorseRacing.Contracts.Models.Game.Responses;
+using HorseRacing.Contracts.Models.Game.Responses.CreateGame;
+using HorseRacing.Contracts.Models.Game.Responses.GetAvailableSuit;
+using HorseRacing.Contracts.Models.Game.Responses.GetGame;
+using HorseRacing.Contracts.Models.Game.Responses.GetGameResult;
+using HorseRacing.Contracts.Models.Game.Responses.GetWaitingGames;
 using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.GameAggregate.ReadOnlyModels;
 using Mapster;
@@ -38,7 +43,7 @@ namespace HorseRacing.Application.Common.Mapping
             config.NewConfig<GetAvailableSuitResult, GetAvailableSuitResponse>()
                 .Map(dest => dest.DataValues, src => src.AvailableSuits);
 
-            config.NewConfig<GameResultView, GameResultDto>()
+            config.NewConfig<GameResultView, GameResultResponseDto>()
                 .Map(dest => dest, src => src);
 
             config.NewConfig<GetGameResultsResult, GetGameResultResponse>()

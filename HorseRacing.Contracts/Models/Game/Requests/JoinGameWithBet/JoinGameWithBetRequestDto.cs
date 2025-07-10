@@ -1,8 +1,8 @@
 ﻿using HorseRacing.Contracts.Base.Dto;
 
-namespace HorseRacing.Contracts.Models.Game.Dtos
+namespace HorseRacing.Contracts.Models.Game.Requests.JoinGameWithBet
 {
-    public class PlaceBetRequestDto : BaseDto
+    public class JoinGameWithBetRequestDto : BaseDto
     {
         /// <summary>
         /// Код пользователя

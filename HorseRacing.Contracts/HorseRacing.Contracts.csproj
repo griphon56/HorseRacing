@@ -10,4 +10,8 @@
     <ProjectReference Include="..\HorseRacing.Domain\HorseRacing.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Game\Dtos\" />
+  </ItemGroup>
+
 </Project>

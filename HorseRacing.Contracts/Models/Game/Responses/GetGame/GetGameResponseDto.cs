@@ -1,7 +1,7 @@
 ﻿using HorseRacing.Contracts.Base.Dto;
 using HorseRacing.Domain.GameAggregate.Enums;
 
-namespace HorseRacing.Contracts.Models.Game.Dtos
+namespace HorseRacing.Contracts.Models.Game.Responses.GetGame
 {
     public class GetGameResponseDto : BaseDto
     {

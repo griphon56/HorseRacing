@@ -1,11 +1,9 @@
 ﻿using HorseRacing.Contracts.Base.Dto;
 using HorseRacing.Domain.GameAggregate.Enums;
-using HorseRacing.Domain.GameAggregate.ValueObjects;
-using HorseRacing.Domain.UserAggregate.ValueObjects;
 
-namespace HorseRacing.Contracts.Models.Game.Dtos
+namespace HorseRacing.Contracts.Models.Game.Responses.GetGameResult
 {
-    public class GameResultDto : BaseDto
+    public class GetGameResultResponseDto : BaseDto
     {
         /// <summary>
         /// Место, позиция
@@ -18,11 +16,11 @@ namespace HorseRacing.Contracts.Models.Game.Dtos
         /// <summary>
         /// Код игры
         /// </summary>
-        public GameId GameId { get; set; }
+        public Guid GameId { get; set; }
         /// <summary>
         /// Код пользователя
         /// </summary>
-        public UserId UserId { get; set; }
+        public Guid UserId { get; set; }
         /// <summary>
         /// Полное имя пользователя
         /// </summary>
