@@ -2,8 +2,9 @@
 using HorseRacing.Api.Controllers.Base;
 using HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Commands.RegistrationUsingForms;
 using HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Queries.LoginUsingForms;
-using HorseRacing.Contracts.Models.Authentication.Requests;
-using HorseRacing.Contracts.Models.Authentication.Responses;
+using HorseRacing.Contracts.Models.Authentication.Requests.Login;
+using HorseRacing.Contracts.Models.Authentication.Requests.Registration;
+using HorseRacing.Contracts.Models.Authentication.Responses.Authentication;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

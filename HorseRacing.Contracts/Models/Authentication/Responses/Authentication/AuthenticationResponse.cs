@@ -1,7 +1,6 @@
 ﻿using HorseRacing.Contracts.Base.Responses;
-using HorseRacing.Contracts.Models.Authentication.Dtos;
 
-namespace HorseRacing.Contracts.Models.Authentication.Responses
+namespace HorseRacing.Contracts.Models.Authentication.Responses.Authentication
 {
     /// <summary>
     /// Модель ответа при авторизации

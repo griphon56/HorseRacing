@@ -1,14 +1,17 @@
 ﻿using HorseRacing.Contracts.Base.Dto;
 
-namespace HorseRacing.Contracts.Models.Authentication.Dtos
+namespace HorseRacing.Contracts.Models.Authentication.Requests.Registration
 {
-    public class AuthenticationResponseDto : BaseDto
+    public class RegistrationRequestDto : BaseDto
     {
-        public Guid Id { get; set; }
         /// <summary>
         /// Логин
         /// </summary>
         public string UserName { get; set; } = string.Empty;
+        /// <summary>
+        /// Пароль
+        /// </summary>
+        public string Password { get; set; } = string.Empty;
         /// <summary>
         /// Имя
         /// </summary>
@@ -18,12 +21,12 @@ namespace HorseRacing.Contracts.Models.Authentication.Dtos
         /// </summary>
         public string LastName { get; set; } = string.Empty;
         /// <summary>
-        /// Почтовый ящик
+        /// Почта
         /// </summary>
         public string Email { get; set; } = string.Empty;
         /// <summary>
-        /// Токен авторизации
+        /// Телефон
         /// </summary>
-        public string Token { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
     }
 }

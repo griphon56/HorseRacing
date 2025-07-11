@@ -1,11 +1,11 @@
 ﻿using HorseRacing.Contracts.Base.Dto;
 
-namespace HorseRacing.Contracts.Models.Authentication.Dtos
+namespace HorseRacing.Contracts.Models.Authentication.Requests.Login
 {
     /// <summary>
     /// Модель запроса для авторизации
     /// </summary>
-    public class LoginDto : BaseDto
+    public class LoginRequestDto : BaseDto
     {
         /// <summary>
         /// Логин

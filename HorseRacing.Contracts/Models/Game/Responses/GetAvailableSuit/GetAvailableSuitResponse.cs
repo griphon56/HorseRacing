@@ -1,12 +1,10 @@
-﻿using HorseRacing.Contracts.Base.Dto;
-using HorseRacing.Contracts.Base.Responses;
-using HorseRacing.Contracts.Models.Game.Dtos;
+﻿using HorseRacing.Contracts.Base.Responses;
 
 namespace HorseRacing.Contracts.Models.Game.Responses.GetAvailableSuit
 {
-    public class GetAvailableSuitResponse : BaseListResponse<GameAvailableSuitResponseDto>
+    public class GetAvailableSuitResponse : BaseListResponse<GetAvailableSuitResponseDto>
     {
         public GetAvailableSuitResponse() { }
-        public GetAvailableSuitResponse(List<GameAvailableSuitResponseDto> data) : base(data) { }
+        public GetAvailableSuitResponse(List<GetAvailableSuitResponseDto> data) : base(data) { }
     }
 }

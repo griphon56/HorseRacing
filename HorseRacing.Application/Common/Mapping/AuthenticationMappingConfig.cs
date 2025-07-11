@@ -1,8 +1,9 @@
 ﻿using HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Commands.RegistrationUsingForms;
 using HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Common;
 using HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Queries.LoginUsingForms;
-using HorseRacing.Contracts.Models.Authentication.Dtos;
-using HorseRacing.Contracts.Models.Authentication.Responses;
+using HorseRacing.Contracts.Models.Authentication.Requests.Login;
+using HorseRacing.Contracts.Models.Authentication.Requests.Registration;
+using HorseRacing.Contracts.Models.Authentication.Responses.Authentication;
 using Mapster;
 
 namespace HorseRacing.Application.Common.Mapping
@@ -15,7 +16,7 @@ namespace HorseRacing.Application.Common.Mapping
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<RegistrationRequestDto, RegistrationCommand>();
-            config.NewConfig<LoginDto, LoginQuery>();
+            config.NewConfig<LoginRequestDto, LoginQuery>();
 
             config.NewConfig<AuthenticationResult, AuthenticationResponse>()
                 .Map(dest => dest.Data.Token, src => src.Token)

@@ -1,7 +1,6 @@
 ﻿using HorseRacing.Contracts.Base.Requests;
-using HorseRacing.Contracts.Models.Authentication.Dtos;
 
-namespace HorseRacing.Contracts.Models.Authentication.Requests
+namespace HorseRacing.Contracts.Models.Authentication.Requests.Registration
 {
     public class RegistrationRequest : BaseRequest<RegistrationRequestDto>
     {

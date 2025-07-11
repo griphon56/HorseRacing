@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\Authentication\Dtos\" />
     <Folder Include="Models\Game\Dtos\" />
   </ItemGroup>
 

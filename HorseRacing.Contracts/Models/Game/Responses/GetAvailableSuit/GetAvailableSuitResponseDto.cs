@@ -3,7 +3,7 @@ using HorseRacing.Domain.GameAggregate.Enums;
 
 namespace HorseRacing.Contracts.Models.Game.Responses.GetAvailableSuit
 {
-    public class GameAvailableSuitResponseDto : BaseDto
+    public class GetAvailableSuitResponseDto : BaseDto
     {
         /// <summary>
         /// Код масти
