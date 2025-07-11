@@ -9,8 +9,6 @@ using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetAvailableS
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGameResults;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetWaitingGames;
-using HorseRacing.Contracts.Models.Game.Dtos;
-using HorseRacing.Contracts.Models.Game.Requests;
 using HorseRacing.Contracts.Models.Game.Requests.CreateGame;
 using HorseRacing.Contracts.Models.Game.Requests.GetAvailableSuit;
 using HorseRacing.Contracts.Models.Game.Requests.GetGame;
