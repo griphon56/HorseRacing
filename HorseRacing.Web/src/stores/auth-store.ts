@@ -7,7 +7,7 @@ import type { LoginDto } from '~/interfaces/api/contracts/model/auth/dto/login-d
 import type { TokensDto } from '~/interfaces/api/contracts/model/auth/dto/tokens-dto'
 import type { UserProfileDto } from '~/interfaces/api/contracts/model/user/dto/user-profile-dto'
 import type { AuthenticationResponse } from '~/interfaces/api/contracts/model/responses/authentication-response'
-import { LoginRequest } from '~/interfaces/api/contracts/model/auth/requests/login-request'
+import { LoginRequest } from '~/interfaces/api/contracts/model/auth/requests/login/login-request'
 import { makeApiWrapper } from '~/utils/api-wrapper'
 
 const api = makeApiWrapper({ baseUrl: 'api/v1/Authentication' })

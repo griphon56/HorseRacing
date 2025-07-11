@@ -1,5 +1,5 @@
-import type { BaseResponse } from "../../base/responses/base-response";
-import type { AuthenticationResponseDto } from "../auth/dto/authentication-response-dto";
+import type { BaseResponse } from "~/interfaces/api/contracts/base/responses/base-response";
+import type { AuthenticationResponseDto } from "./authentication-response-dto";
 
 export class AuthenticationResponse implements BaseResponse<AuthenticationResponseDto> {
     Data: AuthenticationResponseDto;
