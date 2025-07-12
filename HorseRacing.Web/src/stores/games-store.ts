@@ -21,7 +21,7 @@ export const useGamesStore = defineStore('games', () => {
       ? { Authorization: `Bearer ${tokens.AccessToken}` }
       : {};
     const response = await api.postJson('create-game', { body: request, headers });
-    return await response.json();
+    return await response.json() as CreateGameResponse;
   }
 
   async function getGameById(request: GetGameRequest) {
@@ -30,7 +30,7 @@ export const useGamesStore = defineStore('games', () => {
       ? { Authorization: `Bearer ${tokens.AccessToken}` }
       : {};
     const response = await api.postJson('get-game', { body: request, headers });
-    return await response.json();
+    return await response.json() as GetGameResponse;
   }
 
   async function getWaitingGames() {
@@ -39,7 +39,7 @@ export const useGamesStore = defineStore('games', () => {
       ? { Authorization: `Bearer ${tokens.AccessToken}` }
       : {};
     const response = await api.postJson('get-waiting-games', { headers });
-    return await response.json();
+    return await response.json() as GetWaitingGamesResponse;
   }
 
   async function joinGameWithBet(request: JoinGameWithBetRequest) {
@@ -57,7 +57,7 @@ export const useGamesStore = defineStore('games', () => {
       ? { Authorization: `Bearer ${tokens.AccessToken}` }
       : {};
     const response = await api.postJson('get-available-suit', { body: request, headers });
-    return await response.json();
+    return await response.json() as GetAvailableSuitResponse;
   }
 
   async function startGame(request: StartGameRequest) {
