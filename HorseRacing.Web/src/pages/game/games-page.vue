@@ -2,8 +2,6 @@
   <div class="games-page">
     <n-h1>Игры</n-h1>
     <n-button type="primary" @click="showModal = true" class="mb-4">Создать игру</n-button>
-    <GameList @selectGame="onSelectGame" />
-    <GameDetails v-if="selectedGame" :game="selectedGame" class="mt-4" />
     <n-modal v-model:show="showModal" preset="dialog" title="Создание игры">
       <n-form ref="formRef" :model="form" :rules="rules" label-placement="top">
         <n-form-item label="Название игры" path="name">
@@ -28,15 +26,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { NH1, NButton, NModal, NForm, NFormItem, NInput, NInputNumber, NSelect, NSpace, type FormInst } from 'naive-ui';
-import GameList from '~/core/games/GameList.vue';
-import GameDetails from '~/core/games/GameDetails.vue';
+import { NH1, NButton, NModal, NForm, NFormItem, NInput, NInputNumber, NSelect, NSpace, type FormInst, type FormRules } from 'naive-ui';
 import { useGamesStore } from '~/stores/games-store';
 import { useAuthStore } from '~/stores/auth-store';
 
 const gamesStore = useGamesStore();
 const authStore = useAuthStore();
-const selectedGame = ref(null);
 const showModal = ref(false);
 const loading = ref(false);
 const formRef = ref<FormInst | null>(null);
@@ -44,25 +39,21 @@ const formRef = ref<FormInst | null>(null);
 const form = ref({
   name: '',
   betAmount: 1,
-  betSuit: '',
+  betSuit: 1,
 });
 
-const rules = {
+const rules: FormRules = {
   name: { required: true, message: 'Введите название', trigger: ['input'] },
   betAmount: { required: true, type: 'number', message: 'Введите ставку', trigger: ['input'] },
-  betSuit: { required: true, message: 'Выберите масть', trigger: ['change'] },
+  betSuit: { required: true, type: 'number', message: 'Выберите масть', trigger: ['change'] },
 };
 
 const suitOptions = [
-  { label: 'Черви', value: 'hearts' },
-  { label: 'Бубны', value: 'diamonds' },
-  { label: 'Трефы', value: 'clubs' },
-  { label: 'Пики', value: 'spades' },
+    { label: 'Бубны', value: 1 },
+    { label: 'Черви', value: 2 },
+    { label: 'Пики', value: 3 },
+    { label: 'Трефы', value: 4 },
 ];
-
-function onSelectGame(game: any) {
-  selectedGame.value = game;
-}
 
 async function onCreateGame() {
   if (!formRef.value) return;
@@ -70,14 +61,16 @@ async function onCreateGame() {
   try {
     await formRef.value.validate();
     await gamesStore.createGame({
-      userId: authStore.user?.id || '',
-      name: form.value.name,
-      betAmount: form.value.betAmount,
-      betSuit: form.value.betSuit,
+      Data: {
+        UserId: authStore.user?.Id || '',
+        Name: form.value.name,
+        BetAmount: form.value.betAmount,
+        BetSuit: form.value.betSuit,
+      }
     });
     showModal.value = false;
     // Очистить форму
-    form.value = { name: '', betAmount: 1, betSuit: '' };
+    form.value = { name: '', betAmount: 1, betSuit: 1 };
     await gamesStore.getWaitingGames();
   } finally {
     loading.value = false;
@@ -94,5 +87,17 @@ async function onCreateGame() {
 }
 .mb-4 {
   margin-bottom: 20px;
+}
+.game-list-item {
+  cursor: pointer;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s;
+}
+.game-list-item:hover {
+  background: #f5f5f5;
+}
+.game-details {
+  margin-top: 20px;
 }
 </style>

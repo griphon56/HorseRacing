@@ -1,56 +1,75 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type {
-  CreateGameRequest,
-  GetGameRequest,
-  JoinGameWithBetRequest,
-  GetAvailableSuitRequest,
-} from '~/interfaces/api/contracts/games';
-import { apiWrapper } from '~/utils/api-wrapper';
-
-// Определяем интерфейс Game для типизации массива games
-export interface Game {
-  id: string;
-  name: string;
-  betAmount: number;
-  betSuit: string;
-}
+import { makeApiWrapper } from '~/utils/api-wrapper'
+import { useAuthStore } from './auth-store'
+import type { CreateGameRequest } from '~/interfaces/api/contracts/model/game/requests/create-game/create-game-request';
+import type { CreateGameResponse } from '~/interfaces/api/contracts/model/game/responses/create-game/create-game-response';
+import type { GetGameRequest } from '~/interfaces/api/contracts/model/game/requests/get-game/get-game-request';
+import type { GetGameResponse } from '~/interfaces/api/contracts/model/game/responses/get-game/get-game-response';
+import type { GetWaitingGamesResponse } from '~/interfaces/api/contracts/model/game/responses/get-waiting-games/get-waiting-games-response';
+import type { JoinGameWithBetRequest } from '~/interfaces/api/contracts/model/game/requests/join-game-with-bet/join-game-with-bet-request';
+import type { GetAvailableSuitRequest } from '~/interfaces/api/contracts/model/game/requests/get-available-suit/get-available-suit-request';
+import type { GetAvailableSuitResponse } from '~/interfaces/api/contracts/model/game/responses/get-available-suit/get-available-suit-response';
+import type { StartGameRequest } from '~/interfaces/api/contracts/model/game/requests/start-game/start-game-request';
 
 export const useGamesStore = defineStore('games', () => {
-  const games = ref<Game[]>([]);
+  const api = makeApiWrapper({ baseUrl: 'api/v1/Game' });
 
   async function createGame(request: CreateGameRequest) {
-    const response = await apiWrapper.postJson('/create-game', request);
-    games.value.push(response.data);
+    const { tokens } = useAuthStore();
+    const headers: Record<string, string> = tokens?.AccessToken
+      ? { Authorization: `Bearer ${tokens.AccessToken}` }
+      : {};
+    const response = await api.postJson('create-game', { body: request, headers });
+    return await response.json();
   }
 
   async function getGameById(request: GetGameRequest) {
-    const response = await apiWrapper.postJson('/get-game', request);
-    return response.data;
+    const { tokens } = useAuthStore();
+    const headers: Record<string, string> = tokens?.AccessToken
+      ? { Authorization: `Bearer ${tokens.AccessToken}` }
+      : {};
+    const response = await api.postJson('get-game', { body: request, headers });
+    return await response.json();
   }
 
   async function getWaitingGames() {
-    const response = await apiWrapper.postJson('/get-waiting-games');
-    games.value = response.data.games;
+    const { tokens } = useAuthStore();
+    const headers: Record<string, string> = tokens?.AccessToken
+      ? { Authorization: `Bearer ${tokens.AccessToken}` }
+      : {};
+    const response = await api.postJson('get-waiting-games', { headers });
+    return await response.json();
   }
 
   async function joinGameWithBet(request: JoinGameWithBetRequest) {
-    await apiWrapper.postJson('/join-game-with-bet', request);
-    await getWaitingGames();
+    const { tokens } = useAuthStore();
+    const headers: Record<string, string> = tokens?.AccessToken
+      ? { Authorization: `Bearer ${tokens.AccessToken}` }
+      : {};
+    const response = await api.postJson('join-game-with-bet', { body: request, headers });
+    return await response.json();
   }
 
   async function getAvailableSuit(request: GetAvailableSuitRequest) {
-    const response = await apiWrapper.postJson('/get-available-suit', request);
-    return response.data.suits;
+    const { tokens } = useAuthStore();
+    const headers: Record<string, string> = tokens?.AccessToken
+      ? { Authorization: `Bearer ${tokens.AccessToken}` }
+      : {};
+    const response = await api.postJson('get-available-suit', { body: request, headers });
+    return await response.json();
   }
 
-  async function startGame(request: { id: string }) {
-    await apiWrapper.postJson('/start-game', request);
-    await getWaitingGames();
+  async function startGame(request: StartGameRequest) {
+    const { tokens } = useAuthStore();
+    const headers: Record<string, string> = tokens?.AccessToken
+      ? { Authorization: `Bearer ${tokens.AccessToken}` }
+      : {};
+    const response = await api.postJson('start-game', { body: request, headers });
+    return await response.json();
   }
 
   return {
-    games,
     createGame,
     getGameById,
     getWaitingGames,

@@ -3,12 +3,12 @@ import { ref, computed } from 'vue'
 import { useLocalStorage, useSessionStorage, StorageSerializers } from '@vueuse/core'
 import { decodeJwt } from 'jose'
 import { useRouter } from 'vue-router'
-import type { LoginDto } from '~/interfaces/api/contracts/model/auth/dto/login-dto'
 import type { TokensDto } from '~/interfaces/api/contracts/model/auth/dto/tokens-dto'
 import type { UserProfileDto } from '~/interfaces/api/contracts/model/user/dto/user-profile-dto'
-import type { AuthenticationResponse } from '~/interfaces/api/contracts/model/responses/authentication-response'
 import { LoginRequest } from '~/interfaces/api/contracts/model/auth/requests/login/login-request'
 import { makeApiWrapper } from '~/utils/api-wrapper'
+import type { LoginRequestDto } from '~/interfaces/api/contracts/model/auth/requests/login/login-request-dto'
+import type { AuthenticationResponse } from '~/interfaces/api/contracts/model/auth/responses/authentication/authentication-response'
 
 const api = makeApiWrapper({ baseUrl: 'api/v1/Authentication' })
 
@@ -44,7 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   // 4. Запрос на логин к API
   async function fetchAuthByForm(login: string, pwd: string): Promise<AuthenticationResponse> {
-    const dto: LoginDto = { UserName: login, Password: pwd }
+    const dto: LoginRequestDto = { UserName: login, Password: pwd }
     const req = new LoginRequest(dto)
     const resp = await api.postJson('login', { body: req })
     return (await resp.json()) as AuthenticationResponse
