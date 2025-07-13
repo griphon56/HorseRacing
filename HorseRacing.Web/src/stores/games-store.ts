@@ -13,7 +13,7 @@ import type { GetAvailableSuitResponse } from '~/interfaces/api/contracts/model/
 import type { StartGameRequest } from '~/interfaces/api/contracts/model/game/requests/start-game/start-game-request';
 
 export const useGamesStore = defineStore('games', () => {
-  const api = makeApiWrapper({ baseUrl: 'api/v1/Game' });
+  const api = makeApiWrapper({ baseUrl: '/api/v1/Game' });
 
   async function createGame(request: CreateGameRequest) {
     const { tokens } = useAuthStore();

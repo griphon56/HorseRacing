@@ -39,6 +39,11 @@ export const router = createRouter({
           name: RouteName.Lobby,
           component: () => import('~/pages/game/lobby-page.vue'),
           meta: { requiresAuth: true }
+        },
+        {
+          path: '/games/create',
+          name: RouteName.CreateRoom,
+          component: () => import('~/pages/game/create-room.vue')
         }
       ]
     },
