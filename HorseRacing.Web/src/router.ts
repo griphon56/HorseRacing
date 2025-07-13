@@ -44,6 +44,12 @@ export const router = createRouter({
           path: '/games/create',
           name: RouteName.CreateRoom,
           component: () => import('~/pages/game/create-room.vue')
+        },
+        {
+            path: '/games/join/:id',
+            name: RouteName.JoinGame,
+            component: () => import('~/pages/game/join-game.vue'),
+            props: true
         }
       ]
     },

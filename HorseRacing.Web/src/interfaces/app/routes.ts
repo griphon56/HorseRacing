@@ -5,4 +5,5 @@ export enum RouteName {
     Games = 'games',
     CreateRoom = 'create-room',
     Lobby = 'lobby',
+    JoinGame = 'join-game',
 }

@@ -3,97 +3,33 @@
     <n-h1>Игры</n-h1>
     <n-button type="primary" @click="goToCreateRoom" class="mb-4">Создать игру</n-button>
     <GameList :games="games" @selectGame="onSelectGame" />
-    <n-modal v-model:show="showJoinModal" preset="dialog" title="Присоединиться к игре">
-      <n-form ref="joinFormRef" :model="joinForm" :rules="joinRules" label-placement="top">
-        <n-form-item label="Ставка" path="betAmount">
-          <n-input-number v-model:value="joinForm.betAmount" :min="1" placeholder="Введите ставку" />
-        </n-form-item>
-        <n-form-item label="Масть" path="betSuit">
-          <n-select v-model:value="joinForm.betSuit" :options="availableSuits" placeholder="Выберите масть" />
-        </n-form-item>
-      </n-form>
-      <template #action>
-        <n-space>
-          <n-button @click="showJoinModal = false">Отмена</n-button>
-          <n-button type="primary" :loading="joinLoading" @click="onJoinGame">Присоединиться</n-button>
-        </n-space>
-      </template>
-    </n-modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { NH1, NButton, NModal, NForm, NFormItem, NInputNumber, NSelect, NSpace, type FormInst, type FormRules } from 'naive-ui';
+import { NH1, NButton } from 'naive-ui';
 import { useGamesStore } from '~/stores/games-store';
-import { useAuthStore } from '~/stores/auth-store';
 import GameList from '~/core/games/game-list.vue';
 import { useRouter } from 'vue-router';
+import { RouteName } from '~/interfaces';
 
 const router = useRouter();
 const gamesStore = useGamesStore();
-const authStore = useAuthStore();
 const games = ref<any[]>([]);
-const selectedGame = ref<any | null>(null);
-const showJoinModal = ref(false);
-const joinFormRef = ref<FormInst | null>(null);
-const joinLoading = ref(false);
-const joinForm = ref({ betAmount: 1, betSuit: 1 });
-const availableSuits = ref<{ label: string; value: number }[]>([]);
-
-const joinRules: FormRules = {
-  betAmount: { required: true, type: 'number', message: 'Введите ставку', trigger: ['input'] },
-  betSuit: { required: true, type: 'number', message: 'Выберите масть', trigger: ['change'] },
-};
-
-enum SuitType {
-  Diamonds = 1,
-  Hearts = 2,
-  Spades = 3,
-  Clubs = 4,
-}
 
 async function loadGames() {
   const response = await gamesStore.getWaitingGames();
   games.value = response?.Data?.Games || [];
 }
 
-async function onSelectGame(game: any) {
-  selectedGame.value = game;
-  // Получить доступные масти для выбранной игры
-  const response = await gamesStore.getAvailableSuit({ Data: { Id: game.GameId } });
-
-  const suits = response?.DataValues || [];
-  availableSuits.value = suits.map((suit: any) => ({
-    label: suit.name ?? suit.Name,
-    value: suit.value ?? suit.Value
-  }));
-  joinForm.value = { betAmount: 1, betSuit: availableSuits.value[0]?.value ?? SuitType.Diamonds };
-  showJoinModal.value = true;
-}
-
-async function onJoinGame() {
-  if (!joinFormRef.value || !selectedGame.value) return;
-  joinLoading.value = true;
-  try {
-    await joinFormRef.value.validate();
-    await gamesStore.joinGameWithBet({
-      Data: {
-        GameId: selectedGame.value.GameId,
-        UserId: authStore.user?.Id || '',
-        BetAmount: joinForm.value.betAmount,
-        BetSuit: joinForm.value.betSuit as SuitType,
-      }
-    });
-    showJoinModal.value = false;
-    await loadGames();
-  } finally {
-    joinLoading.value = false;
-  }
+function onSelectGame(game: any) {
+  // Перенаправление на страницу join-game с передачей id игры
+  router.push({ name: RouteName.JoinGame, params: { id: game.GameId } });
 }
 
 function goToCreateRoom() {
-  router.push({ name: 'create-room' }); // Имя маршрута для страницы создания игры
+  router.push({ name: RouteName.Games }); // Имя маршрута для страницы создания игры
 }
 
 loadGames();
