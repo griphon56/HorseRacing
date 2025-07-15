@@ -8,11 +8,13 @@ using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetAvailableSuit;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGameResults;
+using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetLobbyUsersWithBets;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetWaitingGames;
 using HorseRacing.Contracts.Models.Game.Requests.CreateGame;
 using HorseRacing.Contracts.Models.Game.Requests.GetAvailableSuit;
 using HorseRacing.Contracts.Models.Game.Requests.GetGame;
 using HorseRacing.Contracts.Models.Game.Requests.GetGameResult;
+using HorseRacing.Contracts.Models.Game.Requests.GetLobbyUsersWithBets;
 using HorseRacing.Contracts.Models.Game.Requests.JoinGameWithBet;
 using HorseRacing.Contracts.Models.Game.Requests.StartGame;
 using HorseRacing.Contracts.Models.Game.Responses;
@@ -20,6 +22,7 @@ using HorseRacing.Contracts.Models.Game.Responses.CreateGame;
 using HorseRacing.Contracts.Models.Game.Responses.GetAvailableSuit;
 using HorseRacing.Contracts.Models.Game.Responses.GetGame;
 using HorseRacing.Contracts.Models.Game.Responses.GetGameResult;
+using HorseRacing.Contracts.Models.Game.Responses.GetLobbyUsersWithBets;
 using HorseRacing.Contracts.Models.Game.Responses.GetWaitingGames;
 using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
@@ -46,7 +49,8 @@ namespace HorseRacing.Api.Controllers.v1
         [HttpPost("create-game")]
         public async Task<IActionResult> CreateGame([FromBody] CreateGameRequest request)
         {
-            var createGameResult = await _mediator.Send(new CreateGameCommand() {
+            var createGameResult = await _mediator.Send(new CreateGameCommand()
+            {
                 UserId = UserId.Create(request.Data.UserId),
                 Name = request.Data.Name,
                 BetAmount = request.Data.BetAmount,
@@ -137,7 +141,7 @@ namespace HorseRacing.Api.Controllers.v1
                 errors => Problem(errors));
         }
 
-        [HttpPost("start-game")]            
+        [HttpPost("start-game")]
         public async Task<IActionResult> StartGame([FromBody] StartGameRequest request)
         {
             var gameResult = await _mediator.Send(new StartGameCommand()
@@ -160,6 +164,15 @@ namespace HorseRacing.Api.Controllers.v1
 
             return gameResult.Match(
                 res => Ok(_mapper.Map<GetGameResultResponse>(res)),
+                errors => Problem(errors));
+        }
+        [HttpPost("get-lobby-users-with-bets")]
+        public async Task<IActionResult> GetLobbyUsersWithBets([FromBody] GetLobbyUsersWithBetsRequest request)
+        {
+            var gameResult = await _mediator.Send(new GetLobbyUsersWithBetsQuery(GameId.Create(request.Data.Id)));
+
+            return gameResult.Match(
+                res => Ok(_mapper.Map<GetLobbyUsersWithBetsResponse>(res)),
                 errors => Problem(errors));
         }
     }

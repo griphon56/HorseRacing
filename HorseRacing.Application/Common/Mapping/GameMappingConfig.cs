@@ -4,6 +4,7 @@ using HorseRacing.Contracts.Models.Game.Responses.CreateGame;
 using HorseRacing.Contracts.Models.Game.Responses.GetAvailableSuit;
 using HorseRacing.Contracts.Models.Game.Responses.GetGame;
 using HorseRacing.Contracts.Models.Game.Responses.GetGameResult;
+using HorseRacing.Contracts.Models.Game.Responses.GetLobbyUsersWithBets;
 using HorseRacing.Contracts.Models.Game.Responses.GetWaitingGames;
 using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.GameAggregate.ReadOnlyModels;
@@ -47,6 +48,19 @@ namespace HorseRacing.Application.Common.Mapping
 
             config.NewConfig<GetGameResultsResult, GetGameResultResponse>()
                 .Map(dest => dest.DataValues, src => src.GameResults);
+
+            config.NewConfig<GameUserView, GameUserDto>()
+                .Map(dest => dest, src => src)
+                .Map(dest => dest.UserId, src => src.UserId.Value)
+                .Map(dest => dest.BetSuit, src => (int)src.BetSuit);
+
+            config.NewConfig<LobbyUsersWithBetsView, GetLobbyUsersWithBetsResponseDto>()
+                .Map(dest => dest, src => src)
+                .Map(dest => dest.GameId, src => src.GameId.Value)
+                .Map(dest => dest.Players, src => src.Players);
+
+            config.NewConfig<GetLobbyUsersWithBetsResult, GetLobbyUsersWithBetsResponse>()
+                .Map(dest => dest.Data, src => src.Data);
         }
     }
 }

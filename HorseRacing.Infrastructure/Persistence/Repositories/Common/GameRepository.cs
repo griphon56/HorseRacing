@@ -43,5 +43,23 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Common
                 })
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<LobbyUsersWithBetsView> GetLobbyUsersWithBets(GameId id, CancellationToken cancellationToken = default)
+        {
+            return await BuildQuery(ByKeySearchSpecification(id))
+                .Select(x => new LobbyUsersWithBetsView()
+                {
+                    GameId = x.Id,
+                    GameName = x.Name,
+                    Players = x.GamePlayers.Join(_dbContext.Users, gp => gp.UserId, u => u.Id
+                        , (gp, u) => new GameUserView
+                        {
+                            UserId = gp.UserId,
+                            FullName = $"{u.FirstName} {u.LastName} ({u.UserName})",
+                            BetAmount = gp.BetAmount,
+                            BetSuit = gp.BetSuit
+                        }).ToList()
+                }).FirstOrDefaultAsync(cancellationToken);
+        }
     }
 }

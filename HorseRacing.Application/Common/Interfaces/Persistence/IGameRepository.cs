@@ -18,5 +18,11 @@ namespace HorseRacing.Application.Common.Interfaces.Persistence
         /// <param name="id">Код игры</param>
         /// <param name="cancellationToken">Токен отмены</param>
         Task<List<GameResultView>> GetGameResults(GameId id, CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Метод получения пользоватлей в лобби с их ставками
+        /// </summary>
+        /// <param name="id">Код игры</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        Task<LobbyUsersWithBetsView> GetLobbyUsersWithBets(GameId id, CancellationToken cancellationToken = default);
     }
 }

@@ -3,8 +3,8 @@ using HorseRacing.Domain.GameAggregate.ReadOnlyModels;
 
 namespace HorseRacing.Application.RequestHandlers.GameHandlers.Common
 {
-    public class GetAvailableSuitResult: BaseModelResult
+    public class GetLobbyUsersWithBetsResult : BaseModelResult
     {
-        public required List<GameAvailableSuitView> AvailableSuits { get; set; }
+        public LobbyUsersWithBetsView Data { get; set; } = new();
     }
 }
