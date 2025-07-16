@@ -11,6 +11,8 @@ import type { JoinGameWithBetRequest } from '~/interfaces/api/contracts/model/ga
 import type { GetAvailableSuitRequest } from '~/interfaces/api/contracts/model/game/requests/get-available-suit/get-available-suit-request';
 import type { GetAvailableSuitResponse } from '~/interfaces/api/contracts/model/game/responses/get-available-suit/get-available-suit-response';
 import type { StartGameRequest } from '~/interfaces/api/contracts/model/game/requests/start-game/start-game-request';
+import type { GetLobbyUsersWithBetsRequest } from '~/interfaces/api/contracts/model/game/requests/get-lobby-users-with-bets/get-lobby-users-with-bets-request';
+import type { GetLobbyUsersWithBetsResponse } from '~/interfaces/api/contracts/model/game/responses/get-lobby-users-with-bets/get-lobby-users-with-bets-response';
 
 export const useGamesStore = defineStore('games', () => {
   const api = makeApiWrapper({ baseUrl: '/api/v1/Game' });
@@ -69,6 +71,15 @@ export const useGamesStore = defineStore('games', () => {
     return await response.json();
   }
 
+  async function getLobbyUsersWithBets(request: GetLobbyUsersWithBetsRequest) {
+    const { tokens } = useAuthStore();
+    const headers: Record<string, string> = tokens?.AccessToken
+      ? { Authorization: `Bearer ${tokens.AccessToken}` }
+      : {};
+    const response = await api.postJson('get-lobby-users-with-bets', { body: request, headers });
+    return await response.json() as GetLobbyUsersWithBetsResponse;
+  }
+
   return {
     createGame,
     getGameById,
@@ -76,5 +87,6 @@ export const useGamesStore = defineStore('games', () => {
     joinGameWithBet,
     getAvailableSuit,
     startGame,
+    getLobbyUsersWithBets
   };
 });

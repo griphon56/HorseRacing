@@ -10,7 +10,7 @@ export const router = createRouter({
       path: '/auth',
       name: RouteName.Auth,
       component: () => import('~/pages/auth/auth-page.vue'),
-      meta: { guest: true }        // гостевой маршрут
+      meta: { guest: true }
     },
     {
       path: '/',
@@ -35,25 +35,27 @@ export const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
-          path: 'lobby',
+          path: '/games/lobby/:id',
           name: RouteName.Lobby,
           component: () => import('~/pages/game/lobby-page.vue'),
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true },
+          props: true
         },
         {
           path: '/games/create',
           name: RouteName.CreateRoom,
-          component: () => import('~/pages/game/create-room.vue')
+          component: () => import('~/pages/game/create-room.vue'),
+          meta: { requiresAuth: true }
         },
         {
             path: '/games/join/:id',
             name: RouteName.JoinGame,
             component: () => import('~/pages/game/join-game.vue'),
+            meta: { requiresAuth: true },
             props: true
         }
       ]
     },
-    // fallback
     { path: '/:pathMatch(.*)*', redirect: '/' }
   ]
 })
