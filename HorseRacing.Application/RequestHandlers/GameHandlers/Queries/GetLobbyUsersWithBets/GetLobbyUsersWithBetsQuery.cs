@@ -5,6 +5,9 @@ using MediatR;
 
 namespace HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetLobbyUsersWithBets
 {
+    /// <summary>
+    /// Команда полкучения списка пользователей в лобби с их ставками.
+    /// </summary>
     public class GetLobbyUsersWithBetsQuery : IRequest<ErrorOr<GetLobbyUsersWithBetsResult>>
     {
         /// <summary>

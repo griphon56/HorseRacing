@@ -166,6 +166,7 @@ namespace HorseRacing.Api.Controllers.v1
                 res => Ok(_mapper.Map<GetGameResultResponse>(res)),
                 errors => Problem(errors));
         }
+
         [HttpPost("get-lobby-users-with-bets")]
         public async Task<IActionResult> GetLobbyUsersWithBets([FromBody] GetLobbyUsersWithBetsRequest request)
         {
@@ -173,6 +174,16 @@ namespace HorseRacing.Api.Controllers.v1
 
             return gameResult.Match(
                 res => Ok(_mapper.Map<GetLobbyUsersWithBetsResponse>(res)),
+                errors => Problem(errors));
+        }
+
+        [HttpPost("check-player-connected-to-game")]
+        public async Task<IActionResult> CheckPlayerConnectedToGame([FromBody] CheckPlayerConnectedToGameRequest request)
+        {
+            var result = await _mediator.Send(new CheckPlayerConnectedToGameQuery(GameId.Create(request.GameId), UserId.Create(request.UserId)));
+
+            return result.Match(
+                res => Ok(_mapper.Map<CheckPlayerConnectedToGameResponse>(res)),
                 errors => Problem(errors));
         }
     }
