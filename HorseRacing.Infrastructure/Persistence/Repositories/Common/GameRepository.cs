@@ -5,6 +5,7 @@ using HorseRacing.Domain.GameAggregate.ReadOnlyModels;
 using HorseRacing.Domain.GameAggregate.Specifications.Queries;
 using HorseRacing.Domain.GameAggregate.Specifications.Selectors;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
+using HorseRacing.Domain.UserAggregate.ValueObjects;
 using HorseRacing.Infrastructure.Persistence.DbContexts;
 using HorseRacing.Infrastructure.Persistence.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
@@ -60,6 +61,13 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Common
                             BetSuit = gp.BetSuit
                         }).ToList()
                 }).FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<bool> CheckPlayerConnectedToGame(GameId gameId, UserId userId, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Games
+                .Where(new CheckPlayerConnectedToGameSpecification(gameId, userId))
+                .AnyAsync(cancellationToken);
         }
     }
 }

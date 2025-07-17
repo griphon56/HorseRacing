@@ -1,5 +1,6 @@
 ﻿using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
 using HorseRacing.Contracts.Models.Game.Dtos;
+using HorseRacing.Contracts.Models.Game.Responses.CheckPlayerConnectedToGame;
 using HorseRacing.Contracts.Models.Game.Responses.CreateGame;
 using HorseRacing.Contracts.Models.Game.Responses.GetAvailableSuit;
 using HorseRacing.Contracts.Models.Game.Responses.GetGame;
@@ -61,6 +62,9 @@ namespace HorseRacing.Application.Common.Mapping
 
             config.NewConfig<GetLobbyUsersWithBetsResult, GetLobbyUsersWithBetsResponse>()
                 .Map(dest => dest.Data, src => src.Data);
+
+            config.NewConfig<CheckPlayerConnectedToGameResult, CheckPlayerConnectedToGameResponse>()
+                .Map(dest => dest.Data.IsConnected, src => src.IsConnected);
         }
     }
 }

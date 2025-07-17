@@ -5,11 +5,13 @@ using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGameWithBet;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.PlaceBet;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGame;
+using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.CheckPlayerConnectedToGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetAvailableSuit;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetGameResults;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetLobbyUsersWithBets;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetWaitingGames;
+using HorseRacing.Contracts.Models.Game.Requests.CheckPlayerConnectedToGame;
 using HorseRacing.Contracts.Models.Game.Requests.CreateGame;
 using HorseRacing.Contracts.Models.Game.Requests.GetAvailableSuit;
 using HorseRacing.Contracts.Models.Game.Requests.GetGame;
@@ -18,6 +20,7 @@ using HorseRacing.Contracts.Models.Game.Requests.GetLobbyUsersWithBets;
 using HorseRacing.Contracts.Models.Game.Requests.JoinGameWithBet;
 using HorseRacing.Contracts.Models.Game.Requests.StartGame;
 using HorseRacing.Contracts.Models.Game.Responses;
+using HorseRacing.Contracts.Models.Game.Responses.CheckPlayerConnectedToGame;
 using HorseRacing.Contracts.Models.Game.Responses.CreateGame;
 using HorseRacing.Contracts.Models.Game.Responses.GetAvailableSuit;
 using HorseRacing.Contracts.Models.Game.Responses.GetGame;
@@ -180,7 +183,7 @@ namespace HorseRacing.Api.Controllers.v1
         [HttpPost("check-player-connected-to-game")]
         public async Task<IActionResult> CheckPlayerConnectedToGame([FromBody] CheckPlayerConnectedToGameRequest request)
         {
-            var result = await _mediator.Send(new CheckPlayerConnectedToGameQuery(GameId.Create(request.GameId), UserId.Create(request.UserId)));
+            var result = await _mediator.Send(new CheckPlayerConnectedToGameQuery(GameId.Create(request.Data.GameId), UserId.Create(request.Data.UserId)));
 
             return result.Match(
                 res => Ok(_mapper.Map<CheckPlayerConnectedToGameResponse>(res)),
