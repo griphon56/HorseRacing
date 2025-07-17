@@ -1,4 +1,6 @@
-export interface GameDto {
+import type { BaseDto } from "../../../base/dto/base-dto";
+
+export interface GameDto extends BaseDto {
     /** Код игры */
     GameId: string;
     /** Статус игры */

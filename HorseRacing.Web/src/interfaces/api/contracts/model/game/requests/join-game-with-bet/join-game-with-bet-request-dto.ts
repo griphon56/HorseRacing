@@ -1,4 +1,6 @@
-export interface JoinGameWithBetRequestDto {
+import type { BaseDto } from "~/interfaces/api/contracts/base/dto/base-dto";
+
+export interface JoinGameWithBetRequestDto extends BaseDto {
     /** Идентификатор игры */
     GameId: string;
     /** Идентификатор пользователя */

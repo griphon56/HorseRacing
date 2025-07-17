@@ -1,8 +1,8 @@
 import type { BaseDto } from "~/interfaces/api/contracts/base/dto/base-dto";
 
-export interface JoinGameRequestDto extends BaseDto {
-    /** Идентификатор игры */
-    GameId: string;
+export interface CheckPlayerConnectedToGameRequestDto extends BaseDto  {
     /** Идентификатор пользователя */
     UserId: string;
+    /** Код игры */
+    GameId: string;
 }

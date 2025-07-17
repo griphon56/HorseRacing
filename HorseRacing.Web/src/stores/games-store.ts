@@ -13,6 +13,8 @@ import type { GetAvailableSuitResponse } from '~/interfaces/api/contracts/model/
 import type { StartGameRequest } from '~/interfaces/api/contracts/model/game/requests/start-game/start-game-request';
 import type { GetLobbyUsersWithBetsRequest } from '~/interfaces/api/contracts/model/game/requests/get-lobby-users-with-bets/get-lobby-users-with-bets-request';
 import type { GetLobbyUsersWithBetsResponse } from '~/interfaces/api/contracts/model/game/responses/get-lobby-users-with-bets/get-lobby-users-with-bets-response';
+import type { CheckPlayerConnectedToGameRequest } from '~/interfaces/api/contracts/model/game/requests/check-player-connected-to-game/check-player-connected-to-game-request';
+import type { CheckPlayerConnectedToGameResponse } from '~/interfaces/api/contracts/model/game/responses/check-player-connected-to-game/check-player-connected-to-game-response';
 
 export const useGamesStore = defineStore('games', () => {
   const api = makeApiWrapper({ baseUrl: '/api/v1/Game' });
@@ -80,6 +82,15 @@ export const useGamesStore = defineStore('games', () => {
     return await response.json() as GetLobbyUsersWithBetsResponse;
   }
 
+  async function checkPlayerConnectedToGame(request: CheckPlayerConnectedToGameRequest) {
+    const { tokens } = useAuthStore();
+    const headers: Record<string, string> = tokens?.AccessToken
+      ? { Authorization: `Bearer ${tokens.AccessToken}` }
+      : {};
+    const response = await api.postJson('check-player-connected-to-game', { body: request, headers });
+    return await response.json() as CheckPlayerConnectedToGameResponse;
+  }
+
   return {
     createGame,
     getGameById,
@@ -87,6 +98,7 @@ export const useGamesStore = defineStore('games', () => {
     joinGameWithBet,
     getAvailableSuit,
     startGame,
-    getLobbyUsersWithBets
+    getLobbyUsersWithBets,
+    checkPlayerConnectedToGame
   };
 });

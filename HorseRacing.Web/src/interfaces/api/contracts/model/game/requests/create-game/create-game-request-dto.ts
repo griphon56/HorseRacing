@@ -1,4 +1,6 @@
-export interface CreateGameRequestDto {
+import type { BaseDto } from "~/interfaces/api/contracts/base/dto/base-dto";
+
+export interface CreateGameRequestDto extends BaseDto{
     /** Идентификатор пользователя создавшего игру */
     UserId: string;
     /** Название игры */

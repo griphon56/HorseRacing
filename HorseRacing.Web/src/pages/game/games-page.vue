@@ -8,28 +8,46 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { NH1, NButton } from 'naive-ui';
+
+import { useAuthStore } from '~/stores/auth-store';
 import { useGamesStore } from '~/stores/games-store';
 import GameList from '~/core/games/game-list.vue';
-import { useRouter } from 'vue-router';
 import { RouteName } from '~/interfaces';
+
+import type { GameDto } from '~/interfaces/api/contracts/model/game/dto/game-dto';
 
 const router = useRouter();
 const gamesStore = useGamesStore();
-const games = ref<any[]>([]);
+const authStore = useAuthStore();
+const games = ref<GameDto[]>([]);
 
 async function loadGames() {
   const response = await gamesStore.getWaitingGames();
   games.value = response?.Data?.Games || [];
 }
 
-function onSelectGame(game: any) {
-  // Перенаправление на страницу join-game с передачей id игры
-  router.push({ name: RouteName.JoinGame, params: { id: game.GameId } });
+async function onSelectGame(game: GameDto) {
+  try {
+    const checkResponse = await gamesStore.checkPlayerConnectedToGame({
+         Data: {
+            GameId: game.GameId,
+            UserId: authStore.user?.Id ?? ''
+        }});
+
+    if (checkResponse?.Data?.IsConnected) {
+      router.push({ name: RouteName.Lobby, params: { id: game.GameId } });
+    } else {
+      router.push({ name: RouteName.JoinGame, params: { id: game.GameId } });
+    }
+  } catch {
+    router.push({ name: RouteName.JoinGame, params: { id: game.GameId } });
+  }
 }
 
 function goToCreateRoom() {
-  router.push({ name: RouteName.Games }); // Имя маршрута для страницы создания игры
+  router.push({ name: RouteName.Games });
 }
 
 loadGames();

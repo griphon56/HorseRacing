@@ -1,4 +1,6 @@
-export interface GetGameResponseDto {
+import type { BaseDto } from "~/interfaces/api/contracts/base/dto/base-dto";
+
+export interface GetGameResponseDto extends BaseDto {
     /** Код игры */
     GameId: string;
     /** Статус игры */
