@@ -1,6 +1,7 @@
 using Asp.Versioning.ApiExplorer;
 using HorseRacing.Api;
 using HorseRacing.Api.Extensions;
+using HorseRacing.Api.Hubs;
 using HorseRacing.Api.Middleware;
 using HorseRacing.Application;
 using HorseRacing.Infrastructure;
@@ -65,6 +66,6 @@ app.UseAuthorization();
 app.UseMiddleware<ValidateAuthentication>();
 app.MapControllers();
 
-//app.MapHub<CommonServerHub>(Deb.Infrastructure.DependencyInjection.CommonServerHub);
+app.MapHub<CommonServerHub>(HorseRacing.Infrastructure.DependencyInjection.CommonServerHub);
 
 app.Run();

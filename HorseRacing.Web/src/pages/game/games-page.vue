@@ -47,7 +47,7 @@ async function onSelectGame(game: GameDto) {
 }
 
 function goToCreateRoom() {
-  router.push({ name: RouteName.Games });
+  router.push({ name: RouteName.CreateRoom });
 }
 
 loadGames();

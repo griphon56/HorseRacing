@@ -1,18 +1,19 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
+﻿using HorseRacing.Api.AuthorizationPolicy;
+using HorseRacing.Api.Common.Errors;
+using HorseRacing.Api.Extensions;
+using HorseRacing.Api.Helpers;
+using HorseRacing.Api.Hubs;
+using HorseRacing.Api.Services;
+using HorseRacing.Application.Common.Interfaces.Services;
+using HorseRacing.Infrastructure.Persistence.DbContexts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Net;
 using System.Text.Json.Serialization;
-using HorseRacing.Infrastructure.Persistence.DbContexts;
-using Microsoft.EntityFrameworkCore;
-using HorseRacing.Api.Extensions;
-using HorseRacing.Api.Helpers;
-using HorseRacing.Api.Common.Errors;
-using HorseRacing.Api.AuthorizationPolicy;
-using HorseRacing.Api.Services;
-using HorseRacing.Application.Common.Interfaces.Services;
 
 namespace HorseRacing.Api
 {
@@ -67,11 +68,12 @@ namespace HorseRacing.Api
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
             services.AddSingleton<ProblemDetailsFactory, HorseRacingProblemDetailsFactory>();
 
-            //services.AddSignalR(options => options.EnableDetailedErrors = true);
+            services.AddSignalR(options => options.EnableDetailedErrors = true);
 
             #region Внедрение сервиса определения пользователя
             services.AddTransient<IHttpContextUserService, HttpContextUserService>();
-            //services.AddScoped<IOuterCommonHubCallService, OuterCommonHubCallService>();
+            services.AddScoped<IOuterCommonHubCallService, OuterCommonHubCallService>();
+            builder.Services.AddSingleton(typeof(CustomConnectionMapping<Guid>));
             #endregion
 
             services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);

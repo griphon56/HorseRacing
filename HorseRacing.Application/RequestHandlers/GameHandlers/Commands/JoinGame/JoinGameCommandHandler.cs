@@ -1,5 +1,7 @@
 ﻿using ErrorOr;
 using HorseRacing.Application.Common.Interfaces.Persistence;
+using HorseRacing.Application.Common.Interfaces.Services;
+using HorseRacing.Common;
 using HorseRacing.Domain.Common.Errors;
 using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.GameAggregate.Entities;
@@ -15,12 +17,14 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
         private readonly ILogger<JoinGameCommandHandler> _logger;
         private readonly IGameRepository _gameRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IOuterCommonHubCallService _outerHubService;
 
-        public JoinGameCommandHandler(ILogger<JoinGameCommandHandler> logger, IGameRepository gameRepository, IUserRepository userRepository)
+        public JoinGameCommandHandler(ILogger<JoinGameCommandHandler> logger, IGameRepository gameRepository, IUserRepository userRepository, IOuterCommonHubCallService outerHubService)
         {
             _logger = logger;
             _gameRepository = gameRepository;
             _userRepository = userRepository;
+            _outerHubService = outerHubService;
         }
 
         public async Task<ErrorOr<Unit>> Handle(JoinGameCommand command, CancellationToken cancellationToken)
@@ -35,7 +39,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
                 return Errors.Game.GameNotFound;
             }
 
-            if (game.GamePlayers.Count >= 4)
+            if (game.GamePlayers.Count >= CommonSystemValues.NumberOfPlayers)
             {
                 return Errors.Game.LimitPlayers;
             }
@@ -45,6 +49,11 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
             await _gameRepository.Update(game, cancellationToken);
 
             _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: JoinGameCommand: {user.UserName} ({user.Id.Value}) to: {game.Name}");
+
+            if (game.GamePlayers.Count == CommonSystemValues.NumberOfPlayers)
+            {
+                await _outerHubService.AllPlayersJoinToGame(command.GameId.Value);
+            }
 
             return Unit.Value;
         }
