@@ -24,7 +24,7 @@ import { useGamesStore } from '~/stores/games-store';
 import { useAuthStore } from '~/stores/auth-store';
 import { RouteName } from '~/interfaces';
 import { SuitType } from '~/interfaces/api/contracts/model/game/enums/suit-type-enum';
-import * as signalR from '@microsoft/signalr';
+import { signalRService } from '~/core/signalr/signalr-service';
 
 const suitOptions = ref([
   { label: 'Бубны', value: SuitType.Diamonds },
@@ -51,48 +51,22 @@ const rules: FormRules = {
   betSuit: { required: true, type: 'number', message: 'Выберите масть', trigger: ['change'] },
 };
 
-let connection: signalR.HubConnection | null = null;
-
 onMounted(async () => {
   if (route.params.id) {
     form.value.gameId = String(route.params.id);
     await fetchAvailableSuits(form.value.gameId);
-    await connectToHubAndJoinGame(form.value.gameId);
+    await signalRService.connectToHub(form.value.gameId);
   }
 });
-
-async function connectToHubAndJoinGame(gameId: string) {
-  const token = authStore.tokens?.AccessToken;
-  const userId = authStore.user?.Id;
-  if (!token || !userId || !gameId) return;
-
-  connection = new signalR.HubConnectionBuilder()
-    .withUrl(`/hubs/commonHub`, {
-      accessTokenFactory: () => token
-    })
-    .withAutomaticReconnect()
-    .build();
-
-  connection.onclose(() => {
-    // Можно обработать отключение
-  });
-
-  try {
-    await connection.start();
-    await connection.invoke('JoinToGame', gameId);
-  } catch (err) {
-    // Можно обработать ошибку подключения
-  }
-}
 
 async function fetchAvailableSuits(gameId: string) {
   const response = await gamesStore.getAvailableSuit({ Data: { Id: gameId } });
   const availableSuits = response?.DataValues || [];
 
-  const availableSuitKeys = availableSuits.map((suit: any) => suit.Suit);
+  const availableSuitKeys = availableSuits.map((suit: { Suit: SuitType }) => suit.Suit);
 
   suitOptions.value = suitOptions.value.filter(opt =>
-    availableSuitKeys.includes(SuitType[opt.value])
+    availableSuitKeys.includes(opt.value as SuitType)
   );
 
   if (suitOptions.value.length > 0) {

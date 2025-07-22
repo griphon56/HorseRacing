@@ -27,6 +27,7 @@ import { useGamesStore } from '~/stores/games-store';
 import { useAuthStore } from '~/stores/auth-store';
 import { RouteName } from '~/interfaces';
 import { SuitType } from '~/interfaces/api/contracts/model/game/enums/suit-type-enum';
+import { signalRService } from '~/core/signalr/signalr-service';
 
 const suitOptions = [
   { label: 'Бубны', value: SuitType.Diamonds },
@@ -62,7 +63,7 @@ async function onCreateGame() {
   loading.value = true;
   try {
     await formRef.value.validate();
-    await gamesStore.createGame({
+    const response = await gamesStore.createGame({
       Data: {
         UserId: authStore.user?.Id || '',
         Name: form.value.name,
@@ -70,6 +71,12 @@ async function onCreateGame() {
         BetSuit: form.value.betSuit as SuitType,
       }
     });
+
+    const gameId = response?.Data?.GameId;
+    if (gameId) {
+      await signalRService.connectToHub(gameId);
+    }
+
     router.push({ name: RouteName.Games });
   } finally {
     loading.value = false;

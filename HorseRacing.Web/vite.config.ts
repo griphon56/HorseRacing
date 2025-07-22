@@ -40,6 +40,28 @@ export default defineConfig({
           })
         }
       },
+       '/hubs': {
+        target: 'https://localhost:7101',
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+        agent: new Agent({
+          maxSockets: 100,
+          keepAlive: true,
+          maxFreeSockets: 10,
+          keepAliveMsecs: 10000,
+          timeout: 60000
+        }),
+        auth: 'LOGIN:PASS',
+        rewrite: (path) => path.replace(/^\/hubs/, '/hubs'),
+        configure: (proxy, options) => {
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            const key: string = 'www-authenticate'
+            proxyRes.headers[key] =
+              proxyRes.headers[key] && proxyRes.headers[key]?.toString().split(',')
+          })
+        }
+      }
     }
   }
 });
