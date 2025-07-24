@@ -2,9 +2,9 @@ import * as signalR from '@microsoft/signalr';
 import { useAuthStore } from '~/stores/auth-store';
 
 class SignalRService {
-  private connection: signalR.HubConnection | null = null;
+  private connections: Record<string, signalR.HubConnection> = {};
 
-  async connectToHub(gameId: string): Promise<void> {
+  async connectToHub(hubName: string, gameId: string): Promise<void> {
     const authStore = useAuthStore();
     const token = authStore.tokens?.AccessToken;
     const userId = authStore.user?.Id;
@@ -13,45 +13,66 @@ class SignalRService {
       throw new Error('Missing required parameters for SignalR connection');
     }
 
-    this.connection = new signalR.HubConnectionBuilder()
-      .withUrl('/hubs/commonHub', {
+    const hubUrl = `/hubs/${hubName}`;
+    if (this.connections[hubName]) {
+      console.log(`Already connected to hub: ${hubName}`);
+      return;
+    }
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(hubUrl, {
         accessTokenFactory: () => token
       })
       .withAutomaticReconnect()
       .build();
 
-    this.connection.onclose(() => {
-      console.log('SignalR connection closed');
+    connection.onclose(() => {
+      console.log(`SignalR connection to ${hubName} closed`);
+      delete this.connections[hubName];
     });
 
     try {
-      await this.connection.start();
-      console.log('SignalR connection established');
+      await connection.start();
+      console.log(`SignalR connection to ${hubName} established`);
+      this.connections[hubName] = connection;
     } catch (err) {
-      console.error('Error starting SignalR connection:', err);
+      console.error(`Error starting SignalR connection to ${hubName}:`, err);
       throw err;
     }
   }
 
-  async invokeMethod(methodName: string, ...args: any[]): Promise<void> {
-    if (!this.connection) {
-      throw new Error('SignalR connection is not established');
+  async invokeMethod<T>(hubName: string, methodName: string, ...args: unknown[]): Promise<T> {
+    const connection = this.connections[hubName];
+    if (!connection) {
+      throw new Error(`SignalR connection to hub ${hubName} is not established`);
     }
 
     try {
-      await this.connection.invoke(methodName, ...args);
-      console.log(`SignalR method ${methodName} invoked successfully`);
+      const result = await connection.invoke<T>(methodName, ...args);
+      console.log(`SignalR method ${methodName} invoked successfully on hub ${hubName}`);
+      return result;
     } catch (err) {
-      console.error(`Error invoking SignalR method ${methodName}:`, err);
+      console.error(`Error invoking SignalR method ${methodName} on hub ${hubName}:`, err);
       throw err;
     }
   }
 
-  disconnect(): void {
-    if (this.connection) {
-      this.connection.stop();
-      this.connection = null;
-      console.log('SignalR connection stopped');
+  onEvent(hubName: string, eventName: string, callback: (...args: unknown[]) => void): void {
+    const connection = this.connections[hubName];
+    if (!connection) {
+      throw new Error(`SignalR connection to hub ${hubName} is not established`);
+    }
+
+    connection.on(eventName, callback);
+    console.log(`Subscribed to event ${eventName} on hub ${hubName}`);
+  }
+
+  disconnect(hubName: string): void {
+    const connection = this.connections[hubName];
+    if (connection) {
+      connection.stop();
+      delete this.connections[hubName];
+      console.log(`SignalR connection to ${hubName} stopped`);
     }
   }
 }
