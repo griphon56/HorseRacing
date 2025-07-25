@@ -75,19 +75,19 @@ onMounted(async () => {
     if (route.params.id) {
         form.value.gameId = String(route.params.id)
         await fetchAvailableSuits(form.value.gameId)
-        await signalRService.connectToHub(form.value.gameId)
+        await signalRService.connectToHub('commonHub')
     }
 })
 
 async function fetchAvailableSuits(gameId: string) {
-    const response = await gamesStore.getAvailableSuit({ Data: { Id: gameId } })
-    const availableSuits = response?.DataValues || []
+  const response = await gamesStore.getAvailableSuit({ Data: { Id: gameId } });
+  const availableSuits = response?.DataValues || [];
 
-    const availableSuitKeys = availableSuits.map((suit: { Suit: SuitType }) => suit.Suit)
+  const availableSuitKeys = availableSuits.map((suit: any) => suit.Suit);
 
-    suitOptions.value = suitOptions.value.filter((opt) =>
-        availableSuitKeys.includes(opt.value as SuitType),
-    )
+  suitOptions.value = suitOptions.value.filter(opt =>
+    availableSuitKeys.includes(SuitType[opt.value])
+  );
 
     if (suitOptions.value.length > 0) {
         form.value.betSuit = suitOptions.value[0].value
@@ -112,9 +112,8 @@ async function onJoinGame() {
             },
         })
 
-        // Подписка на игру через SignalR
         await signalRService.joinToGame('commonHub', form.value.gameId)
-
+        console.log('Joined game! Redirecting to lobby...')
         router.push({ name: RouteName.Lobby })
     } finally {
         loading.value = false

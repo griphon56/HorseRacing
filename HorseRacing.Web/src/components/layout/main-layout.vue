@@ -1,5 +1,7 @@
 <template>
   <div class="main-layout">
+    <!-- Header -->
+    <Header />
     <!-- Основной контент -->
     <div class="main-content">
       <RouterView />
@@ -12,7 +14,8 @@
 
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import MainMenu from './main-menu.vue'
+import MainMenu from '~/components/common/main-menu.vue';
+import Header from '~/components/common/header.vue';
 </script>
 
 <style scoped>

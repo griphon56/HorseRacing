@@ -3,7 +3,7 @@
         <n-list-item
             v-for="game in games"
             :key="game.GameId"
-            @click="$emit('selectGame', game)"
+            @click="onSelectGame(game)"
             class="game-list-item"
         >
             <div>
@@ -20,7 +20,10 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useGamesStore } from '~/stores/games-store'
 import { NList, NListItem } from 'naive-ui'
 import { signalRService } from '~/core/signalr/signalr-service'
+import { useRouter } from 'vue-router'
+import { RouteName } from '~/interfaces'
 
+const router = useRouter()
 const gamesStore = useGamesStore()
 const games = ref<{ GameId: string; Name: string; Status?: string; BetAmount?: number }[]>([])
 
@@ -29,6 +32,15 @@ const updateGameList = async () => {
     // Ожидается, что response.Data.Games — массив игр
     games.value = response?.Data?.Games || []
     console.log('Game list updated:', games.value)
+}
+
+const onSelectGame = async (game: { GameId: string }) => {
+  try {
+    await signalRService.joinToGame('commonHub', game.GameId);
+    router.push({ name: RouteName.Lobby, params: { id: game.GameId } });
+  } catch (err) {
+    console.error('Error joining game:', err);
+  }
 }
 
 onMounted(async () => {
@@ -45,14 +57,14 @@ onMounted(async () => {
 })
 
 onUnmounted(async () => {
-    const hubName = 'commonHub'
-    try {
-        await signalRService.unsubscribeFromLobby(hubName)
-        signalRService.disconnect(hubName)
-    } catch (err) {
-        console.error('Error cleaning up SignalR for game list updates:', err)
-    }
-})
+  const hubName = 'commonHub';
+  try {
+    await signalRService.unsubscribeFromLobby(hubName);
+    await signalRService.disconnect(hubName);
+  } catch (err) {
+    console.error('Error cleaning up SignalR for game list updates:', err);
+  }
+});
 </script>
 
 <style scoped>
