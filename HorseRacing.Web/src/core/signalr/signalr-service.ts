@@ -90,6 +90,16 @@ class SignalRService {
     this.onEvent(hubName, 'UpdateListLobby', callback);
     console.log(`Subscribed to UpdateListLobby event on hub ${hubName}`);
   }
+
+  async joinToGame(hubName: string, gameId: string): Promise<void> {
+    await this.invokeMethod<void>(hubName, 'JoinToGame', gameId);
+    console.log(`Joined game group ${gameId} on hub ${hubName}`);
+  }
+
+  onStartGame(hubName: string, callback: () => void): void {
+    this.onEvent(hubName, 'StartGame', callback);
+    console.log(`Subscribed to StartGame event on hub ${hubName}`);
+  }
 }
 
 export const signalRService = new SignalRService();

@@ -1,6 +1,7 @@
 ﻿using ErrorOr;
 using HorseRacing.Application.Common.Interfaces.Persistence;
 using HorseRacing.Application.Common.Interfaces.Services;
+using HorseRacing.Common;
 using HorseRacing.Domain.Common.Errors;
 using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.GameAggregate.Entities;
@@ -17,13 +18,15 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
         private readonly IGameRepository _gameRepository;
         private readonly IUserRepository _userRepository;
         private readonly IGameService _gameService;
+        private readonly IOuterCommonHubCallService _hubCalls;
 
-        public JoinGameWithBetCommandHandler(ILogger<JoinGameWithBetCommandHandler> logger, IGameRepository gameRepository, IUserRepository userRepository, IGameService gameService)
+        public JoinGameWithBetCommandHandler(ILogger<JoinGameWithBetCommandHandler> logger, IGameRepository gameRepository, IUserRepository userRepository, IGameService gameService, IOuterCommonHubCallService hubCalls)
         {
             _logger = logger;
             _gameRepository = gameRepository;
             _userRepository = userRepository;
             _gameService = gameService;
+            _hubCalls = hubCalls;
         }
 
         public async Task<ErrorOr<Unit>> Handle(JoinGameWithBetCommand command, CancellationToken cancellationToken)
@@ -63,6 +66,11 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
             user.Account!.DebitBalance(bet);
             await _userRepository.Update(user, cancellationToken);
             _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: JoinGameWithBetCommand: {user.UserName} ({user.Id.Value}) debit {bet}");
+
+            if (game.GamePlayers.Count == CommonSystemValues.NumberOfPlayers)
+            {
+                await _hubCalls.AllPlayersJoinToGame(command.GameId.Value);
+            }
 
             return Unit.Value;
         }

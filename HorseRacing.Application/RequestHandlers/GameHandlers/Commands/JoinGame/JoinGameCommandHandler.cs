@@ -50,11 +50,6 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
 
             _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: JoinGameCommand: {user.UserName} ({user.Id.Value}) to: {game.Name}");
 
-            if (game.GamePlayers.Count == CommonSystemValues.NumberOfPlayers)
-            {
-                await _outerHubService.AllPlayersJoinToGame(command.GameId.Value);
-            }
-
             return Unit.Value;
         }
     }
