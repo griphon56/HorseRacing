@@ -18,10 +18,16 @@ namespace HorseRacing.Api.Hubs
             _connections = connections;
         }
 
-        /// <summary>
-        /// Подписывает текущее соединение на SignalR‑группу по gameId
-        /// и сохраняет ConnectionId в маппинге.
-        /// </summary>
+        public async Task SubscribeToLobby()
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, "LobbyViewersGroup");
+        }
+
+        public async Task UnsubscribeFromLobby()
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, "LobbyViewersGroup");
+        }
+        
         public Task JoinToGame(string gameId)
         {
             var guid = Guid.Parse(gameId);

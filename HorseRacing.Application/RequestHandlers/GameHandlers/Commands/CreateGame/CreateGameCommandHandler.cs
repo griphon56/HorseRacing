@@ -19,14 +19,16 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
         private readonly IGameRepository _gameRepository;
         private readonly IUserRepository _userRepository;
         private readonly IGameService _gameService;
+        private readonly IOuterCommonHubCallService _hubCalls;
 
         public CreateGameCommandHandler(IGameRepository gameRepository, ILogger<CreateGameCommandHandler> logger
-            , IUserRepository userRepository, IGameService gameService)
+            , IUserRepository userRepository, IGameService gameService, IOuterCommonHubCallService hubCalls)
         {
             _logger = logger;
             _gameRepository = gameRepository;
             _userRepository = userRepository;
             _gameService = gameService;
+            _hubCalls = hubCalls;
         }
 
         public async Task<ErrorOr<CreateGameResult>> Handle(CreateGameCommand command, CancellationToken cancellationToken)
@@ -60,6 +62,8 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
             await _userRepository.Update(user, cancellationToken);
 
             _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: CreateGameCommand: {user.UserName} ({user.Id.Value}) debit {bet}");
+
+            await _hubCalls.NotifyLobbyUpdate();
 
             return new CreateGameResult()
             {

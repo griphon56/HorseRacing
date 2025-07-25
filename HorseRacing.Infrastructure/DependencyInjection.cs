@@ -326,10 +326,13 @@ namespace HorseRacing.Infrastructure
                             accessToken = context.Request.Headers["Authorization"][0]
                                 .Substring("Bearer ".Length);
                         }
-                        var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken) &&
-                            (path.StartsWithSegments(DependencyInjection.CommonServerHub)))
+
+                        if (context.Request.Path.StartsWithSegments(DependencyInjection.CommonServerHub))
                         {
+                            if (string.IsNullOrEmpty(accessToken))
+                            {
+                                accessToken = context.Request.Query["access_token"];
+                            }
                             context.Token = accessToken;
                         }
                         return Task.CompletedTask;

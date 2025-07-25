@@ -4,12 +4,12 @@ import { useAuthStore } from '~/stores/auth-store';
 class SignalRService {
   private connections: Record<string, signalR.HubConnection> = {};
 
-  async connectToHub(hubName: string, gameId: string): Promise<void> {
+  async connectToHub(hubName: string): Promise<void> {
     const authStore = useAuthStore();
     const token = authStore.tokens?.AccessToken;
     const userId = authStore.user?.Id;
 
-    if (!token || !userId || !gameId) {
+    if (!token || !userId) {
       throw new Error('Missing required parameters for SignalR connection');
     }
 
@@ -74,6 +74,21 @@ class SignalRService {
       delete this.connections[hubName];
       console.log(`SignalR connection to ${hubName} stopped`);
     }
+  }
+
+  async subscribeToLobby(hubName: string): Promise<void> {
+    await this.invokeMethod<void>(hubName, 'SubscribeToLobby');
+    console.log(`Subscribed to LobbyViewersGroup on hub ${hubName}`);
+  }
+
+  async unsubscribeFromLobby(hubName: string): Promise<void> {
+    await this.invokeMethod<void>(hubName, 'UnsubscribeFromLobby');
+    console.log(`Unsubscribed from LobbyViewersGroup on hub ${hubName}`);
+  }
+
+  onUpdateListLobby(hubName: string, callback: (updatedList: unknown) => void): void {
+    this.onEvent(hubName, 'UpdateListLobby', callback);
+    console.log(`Subscribed to UpdateListLobby event on hub ${hubName}`);
   }
 }
 

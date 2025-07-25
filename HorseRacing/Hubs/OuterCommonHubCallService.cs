@@ -17,22 +17,15 @@ namespace HorseRacing.Api.Hubs
             _connections = connections;
         }
 
-        /// <summary>
-        /// Вызывается из бизнес‑логики, когда все игроки присоединились.
-        /// Отправляет клиентам в группе и по отдельным ConnectionId команду StartGame.
-        /// </summary>
         public async Task AllPlayersJoinToGame(Guid gameId)
         {
             var groupName = gameId.ToString();
-            // 1) Шлём в SignalR‑группу
             await _hub.Clients.Group(groupName).StartGame();
+        }
 
-            // 2) По всем сохранённым ConnectionId (на всякий случай)
-            var connections = _connections.GetConnections(gameId);
-            foreach (var connId in connections)
-            {
-                await _hub.Clients.Client(connId).StartGame();
-            }
+        public async Task NotifyLobbyUpdate()
+        {
+            await _hub.Clients.Group("LobbyViewersGroup").UpdateListLobby();
         }
     }
 }
