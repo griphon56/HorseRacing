@@ -14,6 +14,7 @@ export const router = createRouter({
     },
     {
       path: '/',
+      redirect: '/games',
       component: MainLayout,
       children: [
         {
@@ -53,10 +54,17 @@ export const router = createRouter({
             component: () => import('~/pages/game/join-game.vue'),
             meta: { requiresAuth: true },
             props: true
+        },
+        {
+            path: '/games/race/:id',
+            name: RouteName.Race,
+            component: () => import('~/pages/game/race-page.vue'),
+            meta: { requiresAuth: true },
+            props: true
         }
       ]
     },
-    { path: '/:pathMatch(.*)*', redirect: '/' }
+    { path: '/:pathMatch(.*)*', redirect: '/games' }
   ]
 })
 

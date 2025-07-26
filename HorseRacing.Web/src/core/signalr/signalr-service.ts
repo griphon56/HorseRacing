@@ -100,6 +100,14 @@ class SignalRService {
     this.onEvent(hubName, 'StartGame', callback);
     console.log(`Subscribed to StartGame event on hub ${hubName}`);
   }
+
+  getConnectionState(hubName: string): signalR.HubConnectionState | 'Disconnected' {
+    const connection = this.connections[hubName];
+    if (!connection) {
+      return 'Disconnected';
+    }
+    return connection.state;
+  }
 }
 
 export const signalRService = new SignalRService();

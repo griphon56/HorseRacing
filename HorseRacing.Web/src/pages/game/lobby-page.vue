@@ -20,30 +20,27 @@
                 </tr>
             </tbody>
         </n-table>
-        <div v-if="showTimer" class="timer-block">
-            <n-h2>До старта игры: {{ timer }} сек.</n-h2>
-        </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { NH1, NH2, NTable } from 'naive-ui'
+import { NH1, NTable } from 'naive-ui'
 import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '~/stores/auth-store';
 import { useGamesStore } from '~/stores/games-store'
 import { signalRService } from '~/core/signalr/signalr-service'
 import { SuitType } from '~/interfaces/api/contracts/model/game/enums/suit-type-enum'
 import type { GameUserDto } from '~/interfaces/api/contracts/model/game/dto/game-user-dto'
 import type { GetLobbyUsersWithBetsResponseDto } from '~/interfaces/api/contracts/model/game/responses/get-lobby-users-with-bets/get-lobby-users-with-bets-response-dto'
+import { RouteName } from '~/interfaces'
 
 const route = useRoute()
 const router = useRouter()
 const gamesStore = useGamesStore()
+const authStore = useAuthStore()
 const game = ref<GetLobbyUsersWithBetsResponseDto | null>(null)
 const players = ref<GameUserDto[]>([])
-const showTimer = ref(false)
-const timer = ref(10) // 10 секунд до старта
-let timerInterval: ReturnType<typeof setInterval> | null = null
 
 function suitName(suit: number | string) {
     switch (suit) {
@@ -66,41 +63,42 @@ function suitName(suit: number | string) {
 
 async function loadLobby() {
     const gameId = route.params.id as string
+
+    const checkResponse = await gamesStore.checkPlayerConnectedToGame({
+      Data: {
+        GameId: gameId,
+        UserId: authStore.user?.Id ?? '',
+      },
+    });
+
+    if (!checkResponse?.Data?.IsConnected) {
+        console.log('User is not connected to the game. Redirecting to join page...')
+        router.push({ name: RouteName.JoinGame, params: { id: gameId } })
+        return
+    }
+
     const usersResponse = await gamesStore.getLobbyUsersWithBets({ Data: { Id: gameId } })
     game.value = usersResponse?.Data || null
     players.value = usersResponse?.Data?.Players || []
 
-    const allSuitsTaken = players.value.length > 0 && players.value.every((p) => p.BetSuit)
-    if (allSuitsTaken) {
-        startTimer()
+    // Убедитесь, что соединение с SignalR активно
+    if (signalRService.getConnectionState('commonHub') !== 'Connected') {
+        await signalRService.connectToHub('commonHub');
     }
 
     // Подписка на событие StartGame
     signalRService.onStartGame('commonHub', () => {
-        console.log('Game started, redirecting to game page...')
-        router.push(`/game/${gameId}`)
+        console.log('Game started, redirecting to race page...')
+        router.push({ name: RouteName.Race, params: { id: gameId } })
     })
 }
 
-function startTimer() {
-    showTimer.value = true
-    timer.value = 10
-    if (timerInterval) clearInterval(timerInterval)
-    timerInterval = setInterval(() => {
-        timer.value--
-        if (timer.value <= 0) {
-            clearInterval(timerInterval!)
-            // Здесь можно вызвать старт игры
-            showTimer.value = false
-        }
-    }, 1000)
-}
-
 onMounted(async () => {
-    const gameId = route.params.id as string
-    await signalRService.connectToHub('commonHub')
-    await signalRService.joinToGame('commonHub', gameId)
-    await loadLobby()
+    try {
+        await loadLobby();
+    } catch (err) {
+        console.error('Error during lobby initialization:', err);
+    }
 })
 </script>
 
