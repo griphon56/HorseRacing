@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { NH1, NTable } from 'naive-ui'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth-store';
@@ -96,10 +96,18 @@ async function loadLobby() {
 onMounted(async () => {
     try {
         await loadLobby();
+
+        await signalRService.onEvent('commonHub', 'UpdateLobbyPlayers', async () => {
+            console.log('Получено обновление игроков в лобби');
+            await loadLobby(); // метод загрузки данных из API
+        });
     } catch (err) {
         console.error('Error during lobby initialization:', err);
     }
 })
+onUnmounted(() => {
+  signalRService.offEvent('commonHub', 'UpdateLobbyPlayers');
+});
 </script>
 
 <style scoped>

@@ -12,7 +12,6 @@
           <div>
               <strong>{{ game.Name }}</strong>
               <span v-if="game.Status !== undefined"> — Статус: {{ game.Status }}</span>
-              <span v-if="game.BetAmount !== undefined"> — Ставка: {{ game.BetAmount }}</span>
           </div>
       </n-list-item>
     </n-list>
@@ -72,7 +71,7 @@ onMounted(async () => {
     try {
         await signalRService.connectToHub(hubName);
         await signalRService.subscribeToLobby(hubName);
-        signalRService.onUpdateListLobby(hubName, updateGameList);
+        await signalRService.onUpdateListLobby(hubName, updateGameList);
     } catch (err) {
         console.error('Error setting up SignalR for game list updates:', err);
     }

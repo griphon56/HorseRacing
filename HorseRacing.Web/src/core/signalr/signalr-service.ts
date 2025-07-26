@@ -66,7 +66,13 @@ class SignalRService {
     connection.on(eventName, callback);
     console.log(`Subscribed to event ${eventName} on hub ${hubName}`);
   }
-
+  offEvent(hubName: string, eventName: string): void {
+    const connection = this.connections[hubName];
+    if (connection) {
+        connection.off(eventName);
+        console.log(`Unsubscribed from event ${eventName} on hub ${hubName}`);
+    }
+  }
   disconnect(hubName: string): void {
     const connection = this.connections[hubName];
     if (connection) {

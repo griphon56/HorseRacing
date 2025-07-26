@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
     NForm,
@@ -76,8 +76,16 @@ onMounted(async () => {
         form.value.gameId = String(route.params.id)
         await fetchAvailableSuits(form.value.gameId)
         await signalRService.connectToHub('commonHub')
+
+        await signalRService.onEvent('commonHub', 'UpdateAvailableSuits', async () => {
+            console.log('Получено обновление списка доступных мастей');
+            await fetchAvailableSuits(route.params.id as string); // повторно запрашиваем масти
+        });
     }
 })
+onUnmounted(() => {
+  signalRService.offEvent('commonHub', 'UpdateAvailableSuits');
+});
 
 async function fetchAvailableSuits(gameId: string) {
   const response = await gamesStore.getAvailableSuit({ Data: { Id: gameId } });
@@ -103,6 +111,10 @@ async function onJoinGame() {
     loading.value = true
     try {
         await formRef.value.validate()
+
+        await signalRService.joinToGame('commonHub', form.value.gameId)
+        console.log('Joined game! Redirecting to lobby...')
+
         await gamesStore.joinGameWithBet({
             Data: {
                 GameId: form.value.gameId,
@@ -112,8 +124,6 @@ async function onJoinGame() {
             },
         })
 
-        await signalRService.joinToGame('commonHub', form.value.gameId)
-        console.log('Joined game! Redirecting to lobby...')
         router.push({ name: RouteName.Lobby })
     } finally {
         loading.value = false

@@ -24,5 +24,13 @@
         /// Обновление списка игр
         /// </summary>
         Task UpdateListLobby();
+        /// <summary>
+        /// Событие обновления игроков лобби
+        /// </summary>
+        Task UpdateLobbyPlayers();
+        /// <summary>
+        /// События обновления доступных мастей
+        /// </summary>
+        Task UpdateAvailableSuits();
     }
 }

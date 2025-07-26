@@ -27,5 +27,15 @@ namespace HorseRacing.Api.Hubs
         {
             await _hub.Clients.Group("LobbyViewersGroup").UpdateListLobby();
         }
+
+        public async Task NotifyLobbyPlayersUpdate(Guid gameId)
+        {
+            await _hub.Clients.Group(gameId.ToString()).UpdateLobbyPlayers();
+        }
+
+        public async Task NotifyAvailableSuitsUpdate(Guid gameId)
+        {
+            await _hub.Clients.Group(gameId.ToString()).UpdateAvailableSuits();
+        }
     }
 }
