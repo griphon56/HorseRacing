@@ -88,6 +88,10 @@ onMounted(async () => {
     await signalRService.onEvent('UpdateLobbyPlayers', async () => {
         await loadLobby();
     });
+    await signalRService.onStartGame(() => {
+        const gameId = route.params.id as string
+        router.push({ name: RouteName.Race, params: { id: gameId } })
+    })
 })
 
 onBeforeUnmount(() => {

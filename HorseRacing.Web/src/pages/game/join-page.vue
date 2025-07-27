@@ -108,9 +108,9 @@ async function onJoinGame() {
         })
 
         if (!result) {
-             await signalRService.onStartGame(() => {
-            router.push({ name: RouteName.Race, params: { id: form.value.gameId } })
-        })
+            await signalRService.onStartGame(() => {
+                router.push({ name: RouteName.Race, params: { id: form.value.gameId } })
+            })
         }
 
         router.push({ name: RouteName.Lobby })
