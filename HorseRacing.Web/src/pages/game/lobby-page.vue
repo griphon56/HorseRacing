@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { NH1, NTable } from 'naive-ui'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth-store';
@@ -80,33 +80,18 @@ async function loadLobby() {
     const usersResponse = await gamesStore.getLobbyUsersWithBets({ Data: { Id: gameId } })
     game.value = usersResponse?.Data || null
     players.value = usersResponse?.Data?.Players || []
-
-    // Убедитесь, что соединение с SignalR активно
-    if (signalRService.getConnectionState('commonHub') !== 'Connected') {
-        await signalRService.connectToHub('commonHub');
-    }
-
-    // Подписка на событие StartGame
-    signalRService.onStartGame('commonHub', () => {
-        console.log('Game started, redirecting to race page...')
-        router.push({ name: RouteName.Race, params: { id: gameId } })
-    })
 }
 
 onMounted(async () => {
-    try {
-        await loadLobby();
+    await loadLobby();
 
-        await signalRService.onEvent('commonHub', 'UpdateLobbyPlayers', async () => {
-            console.log('Получено обновление игроков в лобби');
-            await loadLobby(); // метод загрузки данных из API
-        });
-    } catch (err) {
-        console.error('Error during lobby initialization:', err);
-    }
+    await signalRService.onEvent('UpdateLobbyPlayers', async () => {
+        await loadLobby();
+    });
 })
-onUnmounted(() => {
-  signalRService.offEvent('commonHub', 'UpdateLobbyPlayers');
+
+onBeforeUnmount(() => {
+  signalRService.offEvent('UpdateLobbyPlayers');
 });
 </script>
 

@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { NH1, NButton, NList, NListItem } from 'naive-ui';
 
@@ -67,26 +67,13 @@ const goToCreateRoom = () => {
 };
 
 onMounted(async () => {
-    const hubName = 'commonHub';
-    try {
-        await signalRService.connectToHub(hubName);
-        await signalRService.subscribeToLobby(hubName);
-        await signalRService.onUpdateListLobby(hubName, updateGameList);
-    } catch (err) {
-        console.error('Error setting up SignalR for game list updates:', err);
-    }
-
+    await signalRService.subscribeToUpdateListLobby();
+    await signalRService.onUpdateListLobby(updateGameList);
     await updateGameList();
 });
 
-onUnmounted(async () => {
-  const hubName = 'commonHub';
-  try {
-    await signalRService.unsubscribeFromLobby(hubName);
-    await signalRService.disconnect(hubName);
-  } catch (err) {
-    console.error('Error cleaning up SignalR for game list updates:', err);
-  }
+onBeforeUnmount(async () => {
+  await signalRService.offUpdateListLobby();
 });
 </script>
 

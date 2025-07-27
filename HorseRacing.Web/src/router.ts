@@ -45,13 +45,13 @@ export const router = createRouter({
         {
           path: '/games/create',
           name: RouteName.CreateRoom,
-          component: () => import('~/pages/game/create-room.vue'),
+          component: () => import('~/pages/game/create-page.vue'),
           meta: { requiresAuth: true }
         },
         {
             path: '/games/join/:id',
             name: RouteName.JoinGame,
-            component: () => import('~/pages/game/join-game.vue'),
+            component: () => import('~/pages/game/join-page.vue'),
             meta: { requiresAuth: true },
             props: true
         },

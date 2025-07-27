@@ -74,9 +74,7 @@ async function onCreateGame() {
 
     const gameId = response?.Data?.GameId;
     if (gameId) {
-      await signalRService.connectToHub('commonHub');
-      await signalRService.joinToGame('commonHub', gameId);
-      console.log('Joined game! Redirecting to lobby...');
+      await signalRService.joinToGame(gameId);
       router.push({ name: RouteName.Lobby, params: { id: gameId } });
     }
   } finally {

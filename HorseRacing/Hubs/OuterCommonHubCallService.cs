@@ -17,13 +17,13 @@ namespace HorseRacing.Api.Hubs
             _connections = connections;
         }
 
-        public async Task AllPlayersJoinToGame(Guid gameId)
+        public async Task NotifyStartGame(Guid gameId)
         {
             var groupName = gameId.ToString();
             await _hub.Clients.Group(groupName).StartGame();
         }
 
-        public async Task NotifyLobbyUpdate()
+        public async Task NotifyLobbyListUpdate()
         {
             await _hub.Clients.Group("LobbyViewersGroup").UpdateListLobby();
         }

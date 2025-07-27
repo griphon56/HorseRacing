@@ -72,7 +72,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
 
             if (game.GamePlayers.Count == CommonSystemValues.NumberOfPlayers)
             {
-                await _hubCalls.AllPlayersJoinToGame(command.GameId.Value);
+                await _hubCalls.NotifyStartGame(command.GameId.Value);
             }
 
             return Unit.Value;

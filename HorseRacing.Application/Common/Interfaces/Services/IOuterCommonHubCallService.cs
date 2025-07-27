@@ -3,14 +3,14 @@
     public interface IOuterCommonHubCallService
     {
         /// <summary>
-        /// Отправка события что все пользователи присоединились к игре
+        /// Отправка события о начале игры на клиент
         /// </summary>
         /// <param name="gameId">Код игры</param>
-        Task AllPlayersJoinToGame(Guid gameId);
+        Task NotifyStartGame(Guid gameId);
         /// <summary>
         /// Отправка события на клиент о том что нужно обновить список
         /// </summary>
-        Task NotifyLobbyUpdate();
+        Task NotifyLobbyListUpdate();
         /// <summary>
         /// Отправка события на клиент о том что нужно обновить список игроков в лобби
         /// </summary>

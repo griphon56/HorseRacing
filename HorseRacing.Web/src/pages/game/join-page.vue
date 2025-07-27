@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
     NForm,
@@ -71,22 +71,6 @@ const rules: FormRules = {
     betSuit: { required: true, type: 'number', message: 'Выберите масть', trigger: ['change'] },
 }
 
-onMounted(async () => {
-    if (route.params.id) {
-        form.value.gameId = String(route.params.id)
-        await fetchAvailableSuits(form.value.gameId)
-        await signalRService.connectToHub('commonHub')
-
-        await signalRService.onEvent('commonHub', 'UpdateAvailableSuits', async () => {
-            console.log('Получено обновление списка доступных мастей');
-            await fetchAvailableSuits(route.params.id as string); // повторно запрашиваем масти
-        });
-    }
-})
-onUnmounted(() => {
-  signalRService.offEvent('commonHub', 'UpdateAvailableSuits');
-});
-
 async function fetchAvailableSuits(gameId: string) {
   const response = await gamesStore.getAvailableSuit({ Data: { Id: gameId } });
   const availableSuits = response?.DataValues || [];
@@ -112,10 +96,9 @@ async function onJoinGame() {
     try {
         await formRef.value.validate()
 
-        await signalRService.joinToGame('commonHub', form.value.gameId)
-        console.log('Joined game! Redirecting to lobby...')
+        await signalRService.joinToGame(form.value.gameId)
 
-        await gamesStore.joinGameWithBet({
+        const result = await gamesStore.joinGameWithBet({
             Data: {
                 GameId: form.value.gameId,
                 UserId: authStore.user?.Id || '',
@@ -124,11 +107,35 @@ async function onJoinGame() {
             },
         })
 
+        if (!result) {
+             await signalRService.onStartGame(() => {
+            router.push({ name: RouteName.Race, params: { id: form.value.gameId } })
+        })
+        }
+
         router.push({ name: RouteName.Lobby })
     } finally {
         loading.value = false
     }
 }
+
+onMounted(async () => {
+    if (route.params.id) {
+        form.value.gameId = String(route.params.id)
+
+        signalRService.joinToGame(form.value.gameId);
+
+        await fetchAvailableSuits(form.value.gameId)
+
+        await signalRService.onEvent('UpdateAvailableSuits', async () => {
+            await fetchAvailableSuits(route.params.id as string);
+        });
+    }
+})
+
+onBeforeUnmount(() => {
+  signalRService.offEvent('UpdateAvailableSuits');
+});
 </script>
 
 <style scoped>

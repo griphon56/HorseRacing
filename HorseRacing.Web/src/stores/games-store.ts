@@ -51,7 +51,8 @@ export const useGamesStore = defineStore('games', () => {
     const headers: Record<string, string> = tokens?.AccessToken
       ? { Authorization: `Bearer ${tokens.AccessToken}` }
       : {};
-    await api.postJson('join-game-with-bet', { body: request, headers });
+    const response = await api.postJson('join-game-with-bet', { body: request, headers });
+    return await response.ok;
   }
 
   async function getAvailableSuit(request: GetAvailableSuitRequest) {

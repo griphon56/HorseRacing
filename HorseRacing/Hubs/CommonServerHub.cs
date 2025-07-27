@@ -18,21 +18,16 @@ namespace HorseRacing.Api.Hubs
             _connections = connections;
         }
 
-        public async Task SubscribeToLobby()
-        {
-            await Groups.AddToGroupAsync(Context.ConnectionId, "LobbyViewersGroup");
-        }
-
-        public async Task UnsubscribeFromLobby()
-        {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, "LobbyViewersGroup");
-        }
-        
         public Task JoinToGame(string gameId)
         {
             var guid = Guid.Parse(gameId);
             _connections.Add(guid, Context.ConnectionId);
             return Groups.AddToGroupAsync(Context.ConnectionId, gameId);
+        }
+
+        public Task SubscribeToUpdateListLobby()
+        {
+            return Groups.AddToGroupAsync(Context.ConnectionId, "LobbyViewersGroup");
         }
 
         public override Task OnDisconnectedAsync(Exception? exception)
