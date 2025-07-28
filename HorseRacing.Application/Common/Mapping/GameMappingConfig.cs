@@ -7,6 +7,7 @@ using HorseRacing.Contracts.Models.Game.Responses.GetGame;
 using HorseRacing.Contracts.Models.Game.Responses.GetGameResult;
 using HorseRacing.Contracts.Models.Game.Responses.GetLobbyUsersWithBets;
 using HorseRacing.Contracts.Models.Game.Responses.GetWaitingGames;
+using HorseRacing.Contracts.Models.Game.Responses.JoinGameWithBet;
 using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.GameAggregate.ReadOnlyModels;
 using Mapster;
@@ -65,6 +66,9 @@ namespace HorseRacing.Application.Common.Mapping
 
             config.NewConfig<CheckPlayerConnectedToGameResult, CheckPlayerConnectedToGameResponse>()
                 .Map(dest => dest.Data.IsConnected, src => src.IsConnected);
+
+            config.NewConfig<JoinGameWithBetResult, JoinGameWithBetResponse>()
+                .Map(dest => dest.Data.IsLastPlayer, src => src.IsLastPlayer);
         }
     }
 }

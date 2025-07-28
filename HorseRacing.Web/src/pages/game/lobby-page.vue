@@ -83,19 +83,23 @@ async function loadLobby() {
 }
 
 onMounted(async () => {
-    await loadLobby();
-
     await signalRService.onEvent('UpdateLobbyPlayers', async () => {
         await loadLobby();
     });
+
+    const gameId = route.params.id as string
+
+    await signalRService.joinToGame(gameId);
     await signalRService.onStartGame(() => {
-        const gameId = route.params.id as string
         router.push({ name: RouteName.Race, params: { id: gameId } })
     })
+
+    await loadLobby();
 })
 
 onBeforeUnmount(() => {
   signalRService.offEvent('UpdateLobbyPlayers');
+  signalRService.offEvent('StartGame');
 });
 </script>
 

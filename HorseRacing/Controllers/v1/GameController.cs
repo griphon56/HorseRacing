@@ -27,6 +27,7 @@ using HorseRacing.Contracts.Models.Game.Responses.GetGame;
 using HorseRacing.Contracts.Models.Game.Responses.GetGameResult;
 using HorseRacing.Contracts.Models.Game.Responses.GetLobbyUsersWithBets;
 using HorseRacing.Contracts.Models.Game.Responses.GetWaitingGames;
+using HorseRacing.Contracts.Models.Game.Responses.JoinGameWithBet;
 using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
 using HorseRacing.Domain.UserAggregate.ValueObjects;
@@ -111,7 +112,7 @@ namespace HorseRacing.Api.Controllers.v1
             });
 
             return gameResult.Match(
-                res => Ok(),
+                res => Ok(_mapper.Map<JoinGameWithBetResponse>(res)),
                 errors => Problem(errors));
         }
 

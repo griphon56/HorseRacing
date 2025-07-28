@@ -96,9 +96,9 @@ async function onJoinGame() {
     try {
         await formRef.value.validate()
 
-        await signalRService.joinToGame(form.value.gameId)
 
-        const result = await gamesStore.joinGameWithBet({
+
+        const response = await gamesStore.joinGameWithBet({
             Data: {
                 GameId: form.value.gameId,
                 UserId: authStore.user?.Id || '',
@@ -107,13 +107,13 @@ async function onJoinGame() {
             },
         })
 
-        if (!result) {
-            await signalRService.onStartGame(() => {
-                router.push({ name: RouteName.Race, params: { id: form.value.gameId } })
-            })
-        }
+        const isLast = response.Data.IsLastPlayer;
 
-        router.push({ name: RouteName.Lobby })
+        if (isLast) {
+            router.push({ name: RouteName.Race, params: { id: form.value.gameId } });
+        } else {
+            router.push({ name: RouteName.Lobby, params: { id: form.value.gameId } });
+        }
     } finally {
         loading.value = false
     }
@@ -123,7 +123,7 @@ onMounted(async () => {
     if (route.params.id) {
         form.value.gameId = String(route.params.id)
 
-        signalRService.joinToGame(form.value.gameId);
+        await signalRService.joinToGame(form.value.gameId);
 
         await fetchAvailableSuits(form.value.gameId)
 

@@ -63,7 +63,7 @@ export const useAuthStore = defineStore('auth', () => {
     // Сохраняем профиль пользователя
     user.value = {
       Id: result.Data.Id,
-      Username: result.Data.Username,
+      UserName: result.Data.UserName,
       FirstName: result.Data.FirstName,
       LastName: result.Data.LastName,
       Email: result.Data.Email
@@ -92,9 +92,14 @@ export const useAuthStore = defineStore('auth', () => {
   // 8. Отформатированное имя пользователя, например "Иванов И."
   const userFormattedName = computed(() => {
     if (!user.value) return ''
-    const { LastName, FirstName } = user.value
-    const initials = FirstName ? FirstName[0] + '.' : ''
-    return `${LastName} ${initials}`
+    const { LastName, FirstName, UserName } = user.value;
+
+    const lastName = LastName?.trim() || '';
+    const firstName = FirstName?.trim() || '';
+    const username = UserName?.trim() || '';
+
+    const fullName = [lastName, firstName].filter(Boolean).join(' ');
+    return fullName ? `${fullName} (${username})` : username;
   })
 
   return {

@@ -4,7 +4,7 @@ export interface AuthenticationResponseDto extends BaseDto {
     /** Код пользователя */
     Id: string;
     /** Логин */
-    Username: string;
+    UserName: string;
     /** Токен доступа */
     Token: string;
     /** Имя */

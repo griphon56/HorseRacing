@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
 import { makeApiWrapper } from '~/utils/api-wrapper'
 import { useAuthStore } from './auth-store'
 import type { CreateGameRequest } from '~/interfaces/api/contracts/model/game/requests/create-game/create-game-request';
@@ -15,6 +14,7 @@ import type { GetLobbyUsersWithBetsRequest } from '~/interfaces/api/contracts/mo
 import type { GetLobbyUsersWithBetsResponse } from '~/interfaces/api/contracts/model/game/responses/get-lobby-users-with-bets/get-lobby-users-with-bets-response';
 import type { CheckPlayerConnectedToGameRequest } from '~/interfaces/api/contracts/model/game/requests/check-player-connected-to-game/check-player-connected-to-game-request';
 import type { CheckPlayerConnectedToGameResponse } from '~/interfaces/api/contracts/model/game/responses/check-player-connected-to-game/check-player-connected-to-game-response';
+import type { JoinGameWithBetResponse } from '~/interfaces/api/contracts/model/game/responses/join-game-with-bet/join-game-with-bet-response';
 
 export const useGamesStore = defineStore('games', () => {
   const api = makeApiWrapper({ baseUrl: '/api/v1/Game' });
@@ -52,7 +52,7 @@ export const useGamesStore = defineStore('games', () => {
       ? { Authorization: `Bearer ${tokens.AccessToken}` }
       : {};
     const response = await api.postJson('join-game-with-bet', { body: request, headers });
-    return await response.ok;
+    return await response.json() as JoinGameWithBetResponse;
   }
 
   async function getAvailableSuit(request: GetAvailableSuitRequest) {

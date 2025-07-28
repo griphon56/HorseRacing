@@ -1,6 +1,7 @@
 ﻿using ErrorOr;
 using HorseRacing.Application.Common.Interfaces.Persistence;
 using HorseRacing.Application.Common.Interfaces.Services;
+using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
 using HorseRacing.Common;
 using HorseRacing.Domain.Common.Errors;
 using HorseRacing.Domain.GameAggregate;
@@ -12,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGameWithBet
 {
-    public class JoinGameWithBetCommandHandler : IRequestHandler<JoinGameWithBetCommand, ErrorOr<Unit>>
+    public class JoinGameWithBetCommandHandler : IRequestHandler<JoinGameWithBetCommand, ErrorOr<JoinGameWithBetResult>>
     {
         private readonly ILogger<JoinGameWithBetCommandHandler> _logger;
         private readonly IGameRepository _gameRepository;
@@ -29,7 +30,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
             _hubCalls = hubCalls;
         }
 
-        public async Task<ErrorOr<Unit>> Handle(JoinGameWithBetCommand command, CancellationToken cancellationToken)
+        public async Task<ErrorOr<JoinGameWithBetResult>> Handle(JoinGameWithBetCommand command, CancellationToken cancellationToken)
         {
             if (await _userRepository.GetById(command.UserId, cancellationToken) is not User user)
             {
@@ -70,12 +71,14 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
             await _hubCalls.NotifyLobbyPlayersUpdate(command.GameId.Value);
             await _hubCalls.NotifyAvailableSuitsUpdate(command.GameId.Value);
 
+            bool isLastPlayer = false;
             if (game.GamePlayers.Count == CommonSystemValues.NumberOfPlayers)
             {
+                isLastPlayer = true;
                 await _hubCalls.NotifyStartGame(command.GameId.Value);
             }
 
-            return Unit.Value;
+            return new JoinGameWithBetResult(){ IsLastPlayer = isLastPlayer };
         }
     }
 }

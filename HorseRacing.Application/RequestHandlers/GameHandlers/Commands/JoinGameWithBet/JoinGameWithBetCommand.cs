@@ -1,4 +1,5 @@
 ﻿using ErrorOr;
+using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
 using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
 using HorseRacing.Domain.UserAggregate.ValueObjects;
@@ -9,7 +10,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
     /// <summary>
     /// Команда подключения к игре с ставкой
     /// </summary>
-    public class JoinGameWithBetCommand : IRequest<ErrorOr<Unit>>
+    public class JoinGameWithBetCommand : IRequest<ErrorOr<JoinGameWithBetResult>>
     {
         /// <summary>
         /// Ставка

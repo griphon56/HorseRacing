@@ -5,6 +5,6 @@ export class AuthenticationResponse implements BaseResponse<AuthenticationRespon
     Data: AuthenticationResponseDto;
 
     constructor(data?: AuthenticationResponseDto) {
-        this.Data = data || { Id: '', Username: '', Token: '', FirstName: '', LastName: '', Email: '' };
+        this.Data = data || { Id: '', UserName: '', Token: '', FirstName: '', LastName: '', Email: '' };
     }
 }
