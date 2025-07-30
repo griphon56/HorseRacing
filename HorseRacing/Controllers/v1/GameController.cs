@@ -148,7 +148,7 @@ namespace HorseRacing.Api.Controllers.v1
         [HttpPost("start-game")]
         public async Task<IActionResult> StartGame([FromBody] StartGameRequest request)
         {
-            var gameResult = await _mediator.Send(new StartGameCommand()
+            var gameResult = await _mediator.Send(new PlayGameCommand()
             {
                 GameId = GameId.Create(request.Data.Id)
             });

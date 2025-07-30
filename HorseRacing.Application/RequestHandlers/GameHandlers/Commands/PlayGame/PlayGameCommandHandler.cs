@@ -1,5 +1,6 @@
 ﻿using ErrorOr;
 using HorseRacing.Application.Common.Interfaces.Persistence;
+using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
 using HorseRacing.Domain.Common.Errors;
 using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.GameAggregate.Enums;
@@ -9,18 +10,18 @@ using Microsoft.Extensions.Logging;
 
 namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGame
 {
-    public class StartGameCommandHandler : IRequestHandler<StartGameCommand, ErrorOr<Unit>>
+    public class PlayGameCommandHandler : IRequestHandler<PlayGameCommand, ErrorOr<PlayGameResult>>
     {
         private readonly IGameRepository _gameRepository;
-        private readonly ILogger<StartGameCommandHandler> _logger;
+        private readonly ILogger<PlayGameCommandHandler> _logger;
 
-        public StartGameCommandHandler(IGameRepository gameRepository, ILogger<StartGameCommandHandler> logger)
+        public PlayGameCommandHandler(IGameRepository gameRepository, ILogger<PlayGameCommandHandler> logger)
         {
             _gameRepository = gameRepository;
             _logger = logger;
         }
 
-        public async Task<ErrorOr<Unit>> Handle(StartGameCommand command, CancellationToken cancellationToken)
+        public async Task<ErrorOr<PlayGameResult>> Handle(PlayGameCommand command, CancellationToken cancellationToken)
         {
             if (await _gameRepository.GetById(command.GameId, cancellationToken, false) is not Game game)
             {
