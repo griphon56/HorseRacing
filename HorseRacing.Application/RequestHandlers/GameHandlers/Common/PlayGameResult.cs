@@ -1,5 +1,5 @@
 ﻿using HorseRacing.Application.Base;
-using HorseRacing.Domain.GameAggregate.Entities;
+using HorseRacing.Domain.GameAggregate.ReadOnlyModels;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
 
 namespace HorseRacing.Application.RequestHandlers.GameHandlers.Common
@@ -9,17 +9,26 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Common
         /// <summary>
         /// Код игры
         /// </summary>
-        public GameId GameId { get; set; }
+        public required GameId GameId { get; set; }
         /// <summary>
         /// Колода до начала игры
         /// </summary>
-        public List<GameDeckCard> InitialDeck { get; set; } // передалать на view
-
-        GamePlayer + GameHorse
-
+        public List<GameDeckCardView> InitialDeck { get; set; } = new();
+        /// <summary>
+        /// Информация о лошади и игроке который на неё поставил
+        /// </summary>
+        public List<HorseBetView> HorseBets { get; set; } = new();
         /// <summary>
         /// Все события по шагам
         /// </summary>
-        public List<GameEvent> Events { get; set; }
+        public List<GameEventView> Events { get; set; } = new();
+
+        public PlayGameResult(GameId gameId, List<GameDeckCardView> initialDeck, List<HorseBetView> horseBets, List<GameEventView> events)
+        {
+            GameId = gameId;
+            InitialDeck = initialDeck;
+            HorseBets = horseBets;
+            Events = events;
+        }
     }
 }

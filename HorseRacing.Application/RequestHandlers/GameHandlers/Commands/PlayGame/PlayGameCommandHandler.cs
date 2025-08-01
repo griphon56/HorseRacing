@@ -5,6 +5,7 @@ using HorseRacing.Domain.Common.Errors;
 using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.Events;
+using HorseRacing.Domain.GameAggregate.ReadOnlyModels;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -28,8 +29,15 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGam
                 return Errors.Game.GameNotFound;
             }
 
+            #region Deck initialize
             game.InitializeDeck();
+
+            var deckBeforeGameStarts = game.GameDeckCards.Select(x => new GameDeckCardView(x.CardSuit, x.CardRank, x.CardOrder, x.Zone));
+            
+            // Создать метод добавления GameEvent
+
             _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) deck initialized");
+            #endregion
 
             game.InitializeHorsePositions();
             _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) horse positions initialized");
@@ -69,7 +77,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGam
 
             await _gameRepository.Update(game, cancellationToken);
 
-            return Unit.Value;
+            return new PlayGameResult(game.Id, deckBeforeGameStarts,);
         }
     }
 }
