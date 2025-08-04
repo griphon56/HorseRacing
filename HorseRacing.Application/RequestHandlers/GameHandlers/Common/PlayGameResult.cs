@@ -9,7 +9,11 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Common
         /// <summary>
         /// Код игры
         /// </summary>
-        public required GameId GameId { get; set; }
+        public GameId GameId { get; set; }
+        /// <summary>
+        /// Назване игры
+        /// </summary>
+        public string Name { get; set; }
         /// <summary>
         /// Колода до начала игры
         /// </summary>
@@ -23,9 +27,10 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Common
         /// </summary>
         public List<GameEventView> Events { get; set; } = new();
 
-        public PlayGameResult(GameId gameId, List<GameDeckCardView> initialDeck, List<HorseBetView> horseBets, List<GameEventView> events)
+        public PlayGameResult(GameId gameId, string name, List<GameDeckCardView> initialDeck, List<HorseBetView> horseBets, List<GameEventView> events)
         {
             GameId = gameId;
+            Name = name;
             InitialDeck = initialDeck;
             HorseBets = horseBets;
             Events = events;

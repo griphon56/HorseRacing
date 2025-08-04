@@ -151,12 +151,13 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Step = table.Column<int>(type: "int", nullable: false),
                     EventType = table.Column<int>(type: "int", nullable: false),
-                    CardSuit = table.Column<int>(type: "int", nullable: false),
-                    CardRank = table.Column<int>(type: "int", nullable: false),
-                    CardOrder = table.Column<int>(type: "int", nullable: false),
-                    HorseSuit = table.Column<int>(type: "int", nullable: false),
-                    Position = table.Column<int>(type: "int", nullable: false),
+                    CardSuit = table.Column<int>(type: "int", nullable: true),
+                    CardRank = table.Column<int>(type: "int", nullable: true),
+                    CardOrder = table.Column<int>(type: "int", nullable: true),
+                    HorseSuit = table.Column<int>(type: "int", nullable: true),
+                    Position = table.Column<int>(type: "int", nullable: true),
                     EventDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     GameId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },

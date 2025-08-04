@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HorseRacing.Migrations.MSSQL.Migrations
 {
     [DbContext(typeof(HRDbContext))]
-    [Migration("20250317120629_InitialCreate")]
+    [Migration("20250804145121_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -312,13 +312,13 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                             b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<int>("CardOrder")
+                            b1.Property<int?>("CardOrder")
                                 .HasColumnType("int");
 
-                            b1.Property<int>("CardRank")
+                            b1.Property<int?>("CardRank")
                                 .HasColumnType("int");
 
-                            b1.Property<int>("CardSuit")
+                            b1.Property<int?>("CardSuit")
                                 .HasColumnType("int");
 
                             b1.Property<DateTime>("EventDate")
@@ -330,10 +330,13 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                             b1.Property<Guid>("GameId")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<int>("HorseSuit")
+                            b1.Property<int?>("HorseSuit")
                                 .HasColumnType("int");
 
-                            b1.Property<int>("Position")
+                            b1.Property<int?>("Position")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("Step")
                                 .HasColumnType("int");
 
                             b1.HasKey("Id");

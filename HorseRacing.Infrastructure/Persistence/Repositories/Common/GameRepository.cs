@@ -56,7 +56,7 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Common
                         , (gp, u) => new GameUserView
                         {
                             UserId = gp.UserId,
-                            FullName = $"{u.FirstName} {u.LastName} ({u.UserName})",
+                            FullName = Domain.Common.Utilities.Utilities.User.FormatLFMUsername(u.FirstName, u.LastName, u.UserName),
                             BetAmount = gp.BetAmount,
                             BetSuit = gp.BetSuit
                         }).ToList()
@@ -68,6 +68,16 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Common
             return await _dbContext.Games
                 .Where(new CheckPlayerConnectedToGameSpecification(gameId, userId))
                 .AnyAsync(cancellationToken);
+        }
+
+        public async Task<List<HorseBetView>> GetHorseBet(GameId id, CancellationToken cancellationToken = default)
+        {
+            return await BuildQuery(ByKeySearchSpecification(id))
+                .SelectMany(x=> x.GamePlayers
+                    .Join(_dbContext.Users, gp => gp.UserId, user => user.Id
+                        , (gp, user) => new { gp, user }))
+                .Select(x => new HorseBetView(x.gp.BetSuit, x.gp.BetAmount, x.gp.UserId, Domain.Common.Utilities.Utilities.User.FormatLFMUsername(x.user.FirstName, x.user.LastName, x.user.UserName)))
+                .ToListAsync(cancellationToken);
         }
     }
 }

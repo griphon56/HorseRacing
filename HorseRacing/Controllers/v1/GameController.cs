@@ -1,9 +1,7 @@
 ﻿using Asp.Versioning;
 using HorseRacing.Api.Controllers.Base;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGame;
-using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGameWithBet;
-using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.PlaceBet;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.CheckPlayerConnectedToGame;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Queries.GetAvailableSuit;
@@ -18,8 +16,7 @@ using HorseRacing.Contracts.Models.Game.Requests.GetGame;
 using HorseRacing.Contracts.Models.Game.Requests.GetGameResult;
 using HorseRacing.Contracts.Models.Game.Requests.GetLobbyUsersWithBets;
 using HorseRacing.Contracts.Models.Game.Requests.JoinGameWithBet;
-using HorseRacing.Contracts.Models.Game.Requests.StartGame;
-using HorseRacing.Contracts.Models.Game.Responses;
+using HorseRacing.Contracts.Models.Game.Requests.PlayGame;
 using HorseRacing.Contracts.Models.Game.Responses.CheckPlayerConnectedToGame;
 using HorseRacing.Contracts.Models.Game.Responses.CreateGame;
 using HorseRacing.Contracts.Models.Game.Responses.GetAvailableSuit;
@@ -28,6 +25,7 @@ using HorseRacing.Contracts.Models.Game.Responses.GetGameResult;
 using HorseRacing.Contracts.Models.Game.Responses.GetLobbyUsersWithBets;
 using HorseRacing.Contracts.Models.Game.Responses.GetWaitingGames;
 using HorseRacing.Contracts.Models.Game.Responses.JoinGameWithBet;
+using HorseRacing.Contracts.Models.Game.Responses.PlayGame;
 using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
 using HorseRacing.Domain.UserAggregate.ValueObjects;
@@ -145,8 +143,8 @@ namespace HorseRacing.Api.Controllers.v1
                 errors => Problem(errors));
         }
 
-        [HttpPost("start-game")]
-        public async Task<IActionResult> StartGame([FromBody] StartGameRequest request)
+        [HttpPost("play-game")]
+        public async Task<IActionResult> PlayGame([FromBody] PlayGameRequest request)
         {
             var gameResult = await _mediator.Send(new PlayGameCommand()
             {
@@ -154,7 +152,7 @@ namespace HorseRacing.Api.Controllers.v1
             });
 
             return gameResult.Match(
-                res => Ok(),
+                res => Ok(new PlayGameResponse(_mapper.Map<PlayGameResponseDto>(res))),
                 errors => Problem(errors));
         }
 

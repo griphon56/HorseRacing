@@ -1,8 +1,8 @@
-﻿using HorseRacing.Domain.GameAggregate.Enums;
+﻿using HorseRacing.Contracts.Base.Dto;
 
-namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
+namespace HorseRacing.Contracts.Models.Game.Dtos
 {
-    public class GameEventView
+    public class GameEventDto : BaseDto
     {
         /// <summary>
         /// Порядковый номер шага (1,2,3,…)
@@ -11,15 +11,15 @@ namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
         /// <summary>
         /// Тип события
         /// </summary>
-        public GameEventType EventType { get; private set; }
+        public int EventType { get; private set; }
         /// <summary>
         /// Масть карты
         /// </summary>
-        public SuitType? CardSuit { get; private set; }
+        public int? CardSuit { get; private set; }
         /// <summary>
         /// Номинал карты
         /// </summary>
-        public RankType? CardRank { get; private set; }
+        public int? CardRank { get; private set; }
         /// <summary>
         /// Позиция карты в колоде
         /// </summary>
@@ -27,7 +27,7 @@ namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
         /// <summary>
         /// Масть лошади
         /// </summary>
-        public SuitType? HorseSuit { get; private set; }
+        public int? HorseSuit { get; private set; }
         /// <summary>
         /// Позиция лошади
         /// </summary>
@@ -36,17 +36,5 @@ namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
         /// Дата события
         /// </summary>
         public DateTime EventDate { get; private set; }
-
-        public GameEventView(int step, GameEventType eventType, SuitType? cardSuit, RankType? cardRank, int? cardOrder, SuitType? horseSuit, int? position, DateTime eventDate)
-        {
-            Step = step;
-            EventType = eventType;
-            CardSuit = cardSuit;
-            CardRank = cardRank;
-            CardOrder = cardOrder;
-            HorseSuit = horseSuit;
-            Position = position;
-            EventDate = eventDate;
-        }
     }
 }

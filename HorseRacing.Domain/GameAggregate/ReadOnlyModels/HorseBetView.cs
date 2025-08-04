@@ -3,6 +3,9 @@ using HorseRacing.Domain.UserAggregate.ValueObjects;
 
 namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
 {
+    /// <summary>
+    /// Модель содержит информацию о игроке и масти лошади
+    /// </summary>
     public class HorseBetView
     {
         /// <summary>
@@ -21,6 +24,8 @@ namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
         /// ФИО (логин)
         /// </summary>
         public string FullName { get; set; } = string.Empty;
+
+        public HorseBetView() { }
 
         public HorseBetView(SuitType betSuit, int betAmount, UserId userId, string fullName)
         {

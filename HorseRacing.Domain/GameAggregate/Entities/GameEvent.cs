@@ -12,29 +12,33 @@ namespace HorseRacing.Domain.GameAggregate.Entities
     public class GameEvent : EntityGuid<GameEventId>
     {
         /// <summary>
+        /// Порядковый номер шага (1,2,3,…)
+        /// </summary>
+        public int Step { get; private set; }
+        /// <summary>
         /// Тип события
         /// </summary>
         public GameEventType EventType { get; private set; }
         /// <summary>
         /// Масть карты
         /// </summary>
-        public SuitType CardSuit { get; private set; }
+        public SuitType? CardSuit { get; private set; }
         /// <summary>
         /// Номинал карты
         /// </summary>
-        public RankType CardRank { get; private set; }
+        public RankType? CardRank { get; private set; }
         /// <summary>
         /// Позиция карты в колоде
         /// </summary>
-        public int CardOrder { get; private set; }
+        public int? CardOrder { get; private set; }
         /// <summary>
         /// Масть лошади
         /// </summary>
-        public SuitType HorseSuit { get; private set; }
+        public SuitType? HorseSuit { get; private set; }
         /// <summary>
         /// Позиция лошади
         /// </summary>
-        public int Position { get; private set; }
+        public int? Position { get; private set; }
         /// <summary>
         /// Дата события
         /// </summary>
@@ -46,11 +50,11 @@ namespace HorseRacing.Domain.GameAggregate.Entities
 
         private GameEvent() : base(GameEventId.CreateUnique()) { }
 
-        public GameEvent(GameEventId id, GameId gameId, GameEventType eventType, SuitType cardSuit, RankType cardRank
-            , int cardOrder, SuitType horseSuit, int position, DateTime eventDate)
+        private GameEvent(GameEventId id, GameId gameId, int step, GameEventType eventType, DateTime eventDate
+            , SuitType? cardSuit, RankType? cardRank, int? cardOrder, SuitType? horseSuit, int? position)
             : base(id ?? GameEventId.CreateUnique())
         {
-            GameId = gameId;
+            Step = step;
             EventType = eventType;
             CardSuit = cardSuit;
             CardRank = cardRank;
@@ -58,12 +62,13 @@ namespace HorseRacing.Domain.GameAggregate.Entities
             HorseSuit = horseSuit;
             Position = position;
             EventDate = eventDate;
+            GameId = gameId;
         }
 
-        public static GameEvent Create(GameEventId id, GameId gameId, GameEventType eventType, SuitType cardSuit, RankType cardRank
-            , int cardOrder, SuitType horseSuit, int position, DateTime eventDate)
+        public static GameEvent Create(GameId gameId, int step, GameEventType eventType, SuitType? cardSuit = null
+            , RankType? cardRank = null, int? cardOrder = null, SuitType? horseSuit = null, int? position = null)
         {
-            return new GameEvent(id, gameId, eventType, cardSuit, cardRank, cardOrder, horseSuit, position, eventDate);
+            return new GameEvent(GameEventId.CreateUnique(), gameId, step, eventType, DateTime.UtcNow, cardSuit, cardRank, cardOrder, horseSuit, position);
         }
     }
 }

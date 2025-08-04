@@ -16,5 +16,7 @@ namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
         /// Список пользователей в лобби с их ставками
         /// </summary>
         public List<GameUserView> Players { get; set; } = new();
+
+        public LobbyUsersWithBetsView() { }
     }
 }

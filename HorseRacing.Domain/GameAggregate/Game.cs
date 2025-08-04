@@ -4,6 +4,7 @@ using HorseRacing.Domain.GameAggregate.Entities;
 using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
 using HorseRacing.Domain.UserAggregate.ValueObjects;
+using MediatR;
 using System.ComponentModel.DataAnnotations;
 
 namespace HorseRacing.Domain.GameAggregate
@@ -217,31 +218,37 @@ namespace HorseRacing.Domain.GameAggregate
         /// <summary>
         /// Метод обновления положения лошади на основе масти карты
         /// </summary>
-        public void UpdateHorsePosition(GameDeckCard card)
+        public int UpdateHorsePosition(GameDeckCard card)
         {
-            if (card is null) return;
+            if (card is null) return -1;
 
             var horsePosition = _gameHorsePositions
                 .Where(horse => horse.HorseSuit == card.CardSuit).FirstOrDefault();
             if (horsePosition is not null)
             {
                 horsePosition.SetPosition(horsePosition.Position + 1);
+                return horsePosition.Position;
             }
+
+            return -1;
         }
 
         /// <summary>
         /// Метод обновления положения лошади на основе масти карты преграды
         /// </summary>
-        public void UpdateHorsePositionWithBlock(GameDeckCard card)
+        public int UpdateHorsePositionWithBlock(GameDeckCard card)
         {
-            if (card is null) return;
+            if (card is null) return -1;
 
             var horsePosition = _gameHorsePositions
                 .Where(horse => horse.HorseSuit == card.CardSuit).FirstOrDefault();
             if (horsePosition is not null)
             {
                 horsePosition.SetPosition(horsePosition.Position - 1);
+                return horsePosition.Position;
             }
+
+            return -1;
         }
         /// <summary>
         /// Метод проверки завершения игры
@@ -262,6 +269,12 @@ namespace HorseRacing.Domain.GameAggregate
             {
                 _gameResults.AddRange(gameResults);
             }
+        }
+
+        public void AddEventGame(GameId gameId, int step, GameEventType eventType, SuitType? cardSuit = null
+            , RankType? cardRank = null, int? cardOrder = null, SuitType? horseSuit = null, int? position = null)
+        {
+            _gameEvents.Add(GameEvent.Create(gameId, step, eventType, cardSuit, cardRank, cardOrder, horseSuit, position));
         }
     }
 }

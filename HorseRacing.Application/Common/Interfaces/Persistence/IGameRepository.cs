@@ -32,5 +32,11 @@ namespace HorseRacing.Application.Common.Interfaces.Persistence
         /// <param name="userId">Код пользователя</param>
         /// <param name="cancellationToken">Токен отмены</param>
         Task<bool> CheckPlayerConnectedToGame(GameId gameId, UserId userId, CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Метод получения информации о игроках, лошадях, ставке
+        /// </summary>
+        /// <param name="id">Код игры</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        Task<List<HorseBetView>> GetHorseBet(GameId id, CancellationToken cancellationToken = default);
     }
 }
