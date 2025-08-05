@@ -9,12 +9,13 @@ import type { GetWaitingGamesResponse } from '~/interfaces/api/contracts/model/g
 import type { JoinGameWithBetRequest } from '~/interfaces/api/contracts/model/game/requests/join-game-with-bet/join-game-with-bet-request';
 import type { GetAvailableSuitRequest } from '~/interfaces/api/contracts/model/game/requests/get-available-suit/get-available-suit-request';
 import type { GetAvailableSuitResponse } from '~/interfaces/api/contracts/model/game/responses/get-available-suit/get-available-suit-response';
-import type { StartGameRequest } from '~/interfaces/api/contracts/model/game/requests/start-game/start-game-request';
+import type { PlayGameRequest } from '~/interfaces/api/contracts/model/game/requests/play-game/play-game-request';
 import type { GetLobbyUsersWithBetsRequest } from '~/interfaces/api/contracts/model/game/requests/get-lobby-users-with-bets/get-lobby-users-with-bets-request';
 import type { GetLobbyUsersWithBetsResponse } from '~/interfaces/api/contracts/model/game/responses/get-lobby-users-with-bets/get-lobby-users-with-bets-response';
 import type { CheckPlayerConnectedToGameRequest } from '~/interfaces/api/contracts/model/game/requests/check-player-connected-to-game/check-player-connected-to-game-request';
 import type { CheckPlayerConnectedToGameResponse } from '~/interfaces/api/contracts/model/game/responses/check-player-connected-to-game/check-player-connected-to-game-response';
 import type { JoinGameWithBetResponse } from '~/interfaces/api/contracts/model/game/responses/join-game-with-bet/join-game-with-bet-response';
+import type { PlayGameResponse } from '~/interfaces/api/contracts/model/game/responses/play-game/play-game-response';
 
 export const useGamesStore = defineStore('games', () => {
   const api = makeApiWrapper({ baseUrl: '/api/v1/Game' });
@@ -64,13 +65,13 @@ export const useGamesStore = defineStore('games', () => {
     return await response.json() as GetAvailableSuitResponse;
   }
 
-  async function startGame(request: StartGameRequest) {
+  async function playGame(request: PlayGameRequest) {
     const { tokens } = useAuthStore();
     const headers: Record<string, string> = tokens?.AccessToken
       ? { Authorization: `Bearer ${tokens.AccessToken}` }
       : {};
-    const response = await api.postJson('start-game', { body: request, headers });
-    return await response.json();
+    const response = await api.postJson('play-game', { body: request, headers });
+    return await response.json() as PlayGameResponse;
   }
 
   async function getLobbyUsersWithBets(request: GetLobbyUsersWithBetsRequest) {
@@ -97,7 +98,7 @@ export const useGamesStore = defineStore('games', () => {
     getWaitingGames,
     joinGameWithBet,
     getAvailableSuit,
-    startGame,
+    playGame,
     getLobbyUsersWithBets,
     checkPlayerConnectedToGame
   };

@@ -1,7 +1,7 @@
 import type { BaseModelDto } from "~/interfaces/api/contracts/base/dto/base-model-dto";
 import type { BaseRequest } from "~/interfaces/api/contracts/base/requests/base-request";
 
-export class StartGameRequest implements BaseRequest<BaseModelDto> {
+export class PlayGameRequest implements BaseRequest<BaseModelDto> {
     Data: BaseModelDto;
 
     constructor(data?: BaseModelDto) {
