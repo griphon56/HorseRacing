@@ -63,7 +63,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
 
             _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: CreateGameCommand: {user.UserName} ({user.Id.Value}) debit {bet}");
 
-            await _hubCalls.NotifyLobbyListUpdate();
+            await _hubCalls.NotifyGameListUpdate();
 
             return new CreateGameResult()
             {

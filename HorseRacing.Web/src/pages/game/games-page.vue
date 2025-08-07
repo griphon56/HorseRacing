@@ -67,13 +67,13 @@ const goToCreateRoom = () => {
 };
 
 onMounted(async () => {
-    await signalRService.subscribeToUpdateListLobby();
-    await signalRService.onUpdateListLobby(updateGameList);
+    await signalRService.subscribeGameListUpdates();
+    await signalRService.onGameListUpdated(updateGameList);
     await updateGameList();
 });
 
 onBeforeUnmount(async () => {
-  await signalRService.offUpdateListLobby();
+  await signalRService.offGameListUpdated();
 });
 </script>
 

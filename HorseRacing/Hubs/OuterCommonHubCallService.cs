@@ -1,4 +1,5 @@
-﻿using HorseRacing.Application.Common.Interfaces.Hubs;
+﻿using ErrorOr;
+using HorseRacing.Application.Common.Interfaces.Hubs;
 using HorseRacing.Application.Common.Interfaces.Services;
 using Microsoft.AspNetCore.SignalR;
 
@@ -19,23 +20,22 @@ namespace HorseRacing.Api.Hubs
 
         public async Task NotifyStartGame(Guid gameId)
         {
-            var groupName = gameId.ToString();
-            await _hub.Clients.Group(groupName).StartGame();
+            await _hub.Clients.Group(gameId.ToString()).GoToRaceEvent();
         }
 
-        public async Task NotifyLobbyListUpdate()
+        public async Task NotifyGameListUpdate()
         {
-            await _hub.Clients.Group("LobbyViewersGroup").UpdateListLobby();
+            await _hub.Clients.Group("GameListUpdate").OnGameListUpdated();
         }
 
-        public async Task NotifyLobbyPlayersUpdate(Guid gameId)
+        public async Task NotifyLobbyPlayerListUpdate(Guid gameId)
         {
-            await _hub.Clients.Group(gameId.ToString()).UpdateLobbyPlayers();
+            await _hub.Clients.Group(gameId.ToString()).OnLobbyPlayerListUpdated();
         }
 
         public async Task NotifyAvailableSuitsUpdate(Guid gameId)
         {
-            await _hub.Clients.Group(gameId.ToString()).UpdateAvailableSuits();
+            await _hub.Clients.Group(gameId.ToString()).OnAvailableSuitsUpdated();
         }
     }
 }

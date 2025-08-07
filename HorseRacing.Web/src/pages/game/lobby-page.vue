@@ -20,6 +20,12 @@
                 </tr>
             </tbody>
         </n-table>
+
+        <div class="start-button-wrapper" v-if="players.length === MAX_PLAYERS">
+            <n-button type="primary" @click="goToRace">
+                Начать гонку
+            </n-button>
+        </div>
     </div>
 </template>
 
@@ -34,6 +40,8 @@ import { SuitType } from '~/interfaces/api/contracts/model/game/enums/suit-type-
 import type { GameUserDto } from '~/interfaces/api/contracts/model/game/dto/game-user-dto'
 import type { GetLobbyUsersWithBetsResponseDto } from '~/interfaces/api/contracts/model/game/responses/get-lobby-users-with-bets/get-lobby-users-with-bets-response-dto'
 import { RouteName } from '~/interfaces'
+
+const MAX_PLAYERS = 4
 
 const route = useRoute()
 const router = useRouter()
@@ -82,24 +90,24 @@ async function loadLobby() {
     players.value = usersResponse?.Data?.Players || []
 }
 
+function goToRace() {
+  const gameId = route.params.id as string
+  router.push({ name: RouteName.Race, params: { id: gameId } })
+}
+
 onMounted(async () => {
-    await signalRService.onEvent('UpdateLobbyPlayers', async () => {
-        await loadLobby();
-    });
+    await signalRService.onLobbyPlayerListUpdated(async () => { await loadLobby(); });
 
     const gameId = route.params.id as string
 
     await signalRService.joinToGame(gameId);
-    await signalRService.onStartGame(() => {
-        router.push({ name: RouteName.Race, params: { id: gameId } })
-    })
 
     await loadLobby();
 })
 
 onBeforeUnmount(() => {
-  signalRService.offEvent('UpdateLobbyPlayers');
-  signalRService.offEvent('StartGame');
+  signalRService.offLobbyPlayerListUpdated();
+  signalRService.offEvent('GoToRaceEvent');
 });
 </script>
 

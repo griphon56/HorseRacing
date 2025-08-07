@@ -10,12 +10,12 @@
         /// <summary>
         /// Отправка события на клиент о том что нужно обновить список
         /// </summary>
-        Task NotifyLobbyListUpdate();
+        Task NotifyGameListUpdate();
         /// <summary>
         /// Отправка события на клиент о том что нужно обновить список игроков в лобби
         /// </summary>
         /// <param name="gameId">Код игры</param>
-        Task NotifyLobbyPlayersUpdate(Guid gameId);
+        Task NotifyLobbyPlayerListUpdate(Guid gameId);
         /// <summary>
         /// Отправка события на клиент о том что нужно обновить список доступных мастей
         /// </summary>

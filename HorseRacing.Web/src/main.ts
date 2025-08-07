@@ -8,7 +8,7 @@ import App from './App.vue'
 import { router } from './router'
 import naive from 'naive-ui'
 import { signalRService } from '~/core/signalr/signalr-service';
-import { hubName } from '~/core/signalr/constants';
+import { SignalRHubName } from '~/core/signalr/constants';
 import { useAuthStore } from './stores/auth-store';
 
 const app = createApp(App)
@@ -24,7 +24,7 @@ router.beforeEach(async (to, from, next) => {
         const state = signalRService.getConnectionState()
         if (state !== 'Connected') {
         try {
-            await signalRService.connectToHub(hubName)
+            await signalRService.connectToHub(SignalRHubName)
         } catch (e) {
             console.error('SignalR connection failed in guard', e)
         }

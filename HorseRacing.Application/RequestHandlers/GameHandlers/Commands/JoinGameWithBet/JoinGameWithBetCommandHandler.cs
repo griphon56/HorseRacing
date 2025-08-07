@@ -68,7 +68,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.JoinGame
             await _userRepository.Update(user, cancellationToken);
             _logger.Log(LogLevel.Information, $"[{DateTime.UtcNow}]: JoinGameWithBetCommand: {user.UserName} ({user.Id.Value}) debit {bet}");
 
-            await _hubCalls.NotifyLobbyPlayersUpdate(command.GameId.Value);
+            await _hubCalls.NotifyLobbyPlayerListUpdate(command.GameId.Value);
             await _hubCalls.NotifyAvailableSuitsUpdate(command.GameId.Value);
 
             bool isLastPlayer = false;

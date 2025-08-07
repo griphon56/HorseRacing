@@ -69,6 +69,7 @@ namespace HorseRacing.Api
             services.AddSingleton<ProblemDetailsFactory, HorseRacingProblemDetailsFactory>();
 
             services.AddSignalR(options => options.EnableDetailedErrors = true);
+            services.AddSingleton<ReadyTrackerService>();
 
             #region Внедрение сервиса определения пользователя
             services.AddTransient<IHttpContextUserService, HttpContextUserService>();
