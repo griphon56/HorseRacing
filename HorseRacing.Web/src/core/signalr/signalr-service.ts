@@ -1,6 +1,7 @@
 import * as signalR from '@microsoft/signalr'
 import { useAuthStore } from '~/stores/auth-store'
-import { SignalRHubName, SignalRJoinToGame, SignalROnAvailableSuitsUpdated, SignalROnGameListUpdated, SignalROnLobbyPlayerListUpdated, SignalRSubscribeGameListUpdate } from './constants'
+import { SignalRHubName, SignalRJoinToGame, SignalROnAvailableSuitsUpdated, SignalROnGameListUpdated, SignalROnGameSimulationResult, SignalROnLobbyPlayerListUpdated, SignalRRegisterReadyToStart, SignalRSubscribeGameListUpdate } from './constants'
+import type { PlayGameResponse } from '~/interfaces/api/contracts/model/game/responses/play-game/play-game-response'
 
 class SignalRService {
     private connection: signalR.HubConnection | null = null
@@ -89,6 +90,11 @@ class SignalRService {
         await this.invokeMethod<void>(SignalRSubscribeGameListUpdate)
     }
 
+    async registerReadyToStart(gameId: string): Promise<void> {
+        await this.invokeMethod<void>(SignalRRegisterReadyToStart, gameId)
+        console.log(`Registered ready to start for game ${gameId}`)
+    }
+
     // Event handling
     onEvent(eventName: string, callback: (...args: unknown[]) => void): void {
         this.ensureConnected(SignalRHubName)
@@ -126,6 +132,17 @@ class SignalRService {
 
     offAvailableSuitsUpdated(): void {
         this.offEvent(SignalROnAvailableSuitsUpdated)
+    }
+
+    onGameSimulationResult(callback: (data: PlayGameResponse) => void): void {
+        this.onEvent(SignalROnGameSimulationResult, (payload: any) => {
+            const result = payload as PlayGameResponse;
+            callback(result);
+        })
+    }
+
+    offGameSimulationResult(): void {
+        this.offEvent(SignalROnGameSimulationResult)
     }
 
 }
