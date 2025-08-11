@@ -45,20 +45,19 @@ class SignalRService {
         return this.starting
     }
 
-    /** Gracefully stop & clean up */
+    getConnectionState(): signalR.HubConnectionState | 'Disconnected' {
+        if (!this.connection) {
+            return 'Disconnected'
+        }
+        return this.connection.state
+    }
+
     async disconnect(): Promise<void> {
         if (this.connection) {
             await this.connection.stop()
             this.connection = null
             console.info(`SignalR connection stopped`)
         }
-    }
-
-    getConnectionState(): signalR.HubConnectionState | 'Disconnected' {
-        if (!this.connection) {
-            return 'Disconnected'
-        }
-        return this.connection.state
     }
 
     private async ensureConnected(hubName: string) {
@@ -96,52 +95,86 @@ class SignalRService {
     }
 
     // Event handling
-    onEvent(eventName: string, callback: (...args: unknown[]) => void): void {
+    async onEvent(eventName: string, callback: (...args: unknown[]) => void): Promise<void> {
         this.ensureConnected(SignalRHubName)
             .then(() => this.connection!.on(eventName, callback))
             .catch(console.error)
         console.log(`Subscribed to event ${eventName}`)
     }
 
-    offEvent(eventName: string): void {
-        this.ensureConnected(SignalRHubName)
-            .then(() => this.connection!.off(eventName))
-            .catch(console.error)
-        console.log(`Unsubscribed from event ${eventName}`)
+     async offEvent(eventName: string): Promise<void> {
+        if (!this.connection) {
+            console.debug(`No connection - nothing to unsubscribe for ${eventName}`);
+            return;
+        }
+
+        try {
+            this.connection.off(eventName);
+            console.log(`Unsubscribed from event ${eventName}`);
+        } catch (err) {
+            console.error(`Error unsubscribing from ${eventName}:`, err);
+        }
     }
 
-    onGameListUpdated(callback: (updatedList: unknown) => void): void {
-        this.onEvent(SignalROnGameListUpdated, callback)
-    }
+    /** Подписка на одно событие с ожиданием результата и таймаутом */
+    async once<T = unknown>(eventName: string, timeoutMs = 30000): Promise<T> {
+        await this.ensureConnected(SignalRHubName)
 
-    offGameListUpdated(): void {
-        this.offEvent(SignalROnGameListUpdated)
-    }
+        if (!this.connection) throw new Error('SignalR connection not available')
 
-    onLobbyPlayerListUpdated(callback: (updatedList: unknown) => void): void {
-        this.onEvent(SignalROnLobbyPlayerListUpdated, callback)
-    }
+        return new Promise<T>((resolve, reject) => {
+        let timer: ReturnType<typeof setTimeout> | null = null
 
-    offLobbyPlayerListUpdated(): void {
-        this.offEvent(SignalROnLobbyPlayerListUpdated)
-    }
+        const handler = (...args: unknown[]) => {
+            try { this.connection?.off(eventName, handler) } catch {}
+            if (timer) { clearTimeout(timer); timer = null }
+            if (args.length === 0) resolve(undefined as unknown as T)
+            else if (args.length === 1) resolve(args[0] as T)
+            else resolve(args as unknown as T)
+        }
 
-    onAvailableSuitsUpdated(callback: (updatedList: unknown) => void): void {
-        this.onEvent(SignalROnAvailableSuitsUpdated, callback)
-    }
+        // подписываемся синхронно — connection.on возвращает сразу
+        this.connection!.on(eventName, handler)
 
-    offAvailableSuitsUpdated(): void {
-        this.offEvent(SignalROnAvailableSuitsUpdated)
-    }
+        console.log(`Subscribed once to ${eventName}`)
 
-    onGameSimulationResult(callback: (data: PlayGameResponse) => void): void {
-        this.onEvent(SignalROnGameSimulationResult, (payload: any) => {
-            const result = payload as PlayGameResponse;
-            callback(result);
+        timer = setTimeout(() => {
+            try { this.connection?.off(eventName, handler) } catch {}
+            reject(new Error(`Timeout (${timeoutMs}ms) waiting for SignalR event '${eventName}'`))
+        }, timeoutMs)
         })
     }
 
-    offGameSimulationResult(): void {
+    async onGameListUpdated(callback: (updatedList: unknown) => void): Promise<void> {
+        this.onEvent(SignalROnGameListUpdated, callback)
+    }
+
+    async offGameListUpdated(): Promise<void> {
+        this.offEvent(SignalROnGameListUpdated)
+    }
+
+    async onLobbyPlayerListUpdated(callback: (updatedList: unknown) => void): Promise<void> {
+        this.onEvent(SignalROnLobbyPlayerListUpdated, callback)
+    }
+
+    async offLobbyPlayerListUpdated(): Promise<void> {
+        this.offEvent(SignalROnLobbyPlayerListUpdated)
+    }
+
+    async onAvailableSuitsUpdated(callback: (updatedList: unknown) => void): Promise<void> {
+        this.onEvent(SignalROnAvailableSuitsUpdated, callback)
+    }
+
+    async offAvailableSuitsUpdated(): Promise<void> {
+        this.offEvent(SignalROnAvailableSuitsUpdated)
+    }
+
+    async onGameSimulationResult(): Promise<PlayGameResponse> {
+         const result = await this.once<PlayGameResponse>(SignalROnGameSimulationResult, 60000)
+         return result as PlayGameResponse;
+    }
+
+    async offGameSimulationResult(): Promise<void> {
         this.offEvent(SignalROnGameSimulationResult)
     }
 

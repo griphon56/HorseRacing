@@ -68,7 +68,8 @@ namespace HorseRacing.Api.Hubs
                     GameId = GameId.Create(gameIdGuid)
                 });
 
-                await Clients.Group(gameId).OnGameSimulationResult(new PlayGameResponse(_mapper.Map<PlayGameResponseDto>(result)));
+                var response = new PlayGameResponse(_mapper.Map<PlayGameResponseDto>(result.Value));
+                await Clients.Group(gameId).OnGameSimulationResult(response);
 
                 _readyFlags.Clear(gameIdGuid);
             }
