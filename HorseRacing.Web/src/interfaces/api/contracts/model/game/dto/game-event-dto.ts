@@ -1,5 +1,6 @@
 import type { BaseDto } from '~/interfaces/api/contracts/base/dto/base-dto';
 import type { GameEventType } from '../enums/game-event-type-enum';
+import type { SuitType } from '../enums/suit-type-enum';
 
 export interface GameEventDto extends BaseDto {
     /** Порядковый номер шага (1,2,3,…) */
@@ -7,13 +8,13 @@ export interface GameEventDto extends BaseDto {
     /** Тип события */
     EventType: GameEventType;
     /** Масть карты */
-    CardSuit?: number | null;
+    CardSuit?: SuitType | null;
     /** Номинал карты */
     CardRank?: number | null;
     /** Позиция карты в колоде */
     CardOrder?: number | null;
     /** Масть лошади */
-    HorseSuit?: number | null;
+    HorseSuit?: SuitType | null;
     /** Позиция лошади */
     Position?: number | null;
     /** Дата события */

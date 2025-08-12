@@ -1,0 +1,567 @@
+{
+  "Data": {
+    "GameId": {
+      "Value": "8e65b31e-5839-4059-9505-eeecfb45b15f"
+    },
+    "Name": "Game 123",
+    "InitialDeck": [
+      {
+        "CardSuit": 3,
+        "CardRank": 11,
+        "CardOrder": 1,
+        "Zone": 1
+      },
+      {
+        "CardSuit": 2,
+        "CardRank": 2,
+        "CardOrder": 2,
+        "Zone": 1
+      },
+      {
+        "CardSuit": 1,
+        "CardRank": 2,
+        "CardOrder": 3,
+        "Zone": 1
+      },
+      {
+        "CardSuit": 2,
+        "CardRank": 5,
+        "CardOrder": 4,
+        "Zone": 1
+      },
+      {
+        "CardSuit": 4,
+        "CardRank": 6,
+        "CardOrder": 5,
+        "Zone": 1
+      },
+      {
+        "CardSuit": 4,
+        "CardRank": 1,
+        "CardOrder": 6,
+        "Zone": 1
+      },
+      {
+        "CardSuit": 3,
+        "CardRank": 8,
+        "CardOrder": 7,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 2,
+        "CardRank": 9,
+        "CardOrder": 8,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 3,
+        "CardRank": 9,
+        "CardOrder": 9,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 1,
+        "CardRank": 6,
+        "CardOrder": 10,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 3,
+        "CardRank": 7,
+        "CardOrder": 11,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 3,
+        "CardRank": 5,
+        "CardOrder": 12,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 3,
+        "CardRank": 10,
+        "CardOrder": 13,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 3,
+        "CardRank": 4,
+        "CardOrder": 14,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 2,
+        "CardRank": 12,
+        "CardOrder": 15,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 1,
+        "CardRank": 7,
+        "CardOrder": 16,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 1,
+        "CardRank": 9,
+        "CardOrder": 17,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 1,
+        "CardRank": 8,
+        "CardOrder": 18,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 3,
+        "CardRank": 6,
+        "CardOrder": 19,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 4,
+        "CardRank": 10,
+        "CardOrder": 20,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 4,
+        "CardRank": 4,
+        "CardOrder": 21,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 1,
+        "CardRank": 11,
+        "CardOrder": 22,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 2,
+        "CardRank": 3,
+        "CardOrder": 23,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 4,
+        "CardRank": 9,
+        "CardOrder": 24,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 2,
+        "CardRank": 4,
+        "CardOrder": 25,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 4,
+        "CardRank": 3,
+        "CardOrder": 26,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 4,
+        "CardRank": 12,
+        "CardOrder": 27,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 4,
+        "CardRank": 11,
+        "CardOrder": 28,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 2,
+        "CardRank": 10,
+        "CardOrder": 29,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 3,
+        "CardRank": 2,
+        "CardOrder": 30,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 2,
+        "CardRank": 11,
+        "CardOrder": 31,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 3,
+        "CardRank": 3,
+        "CardOrder": 32,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 4,
+        "CardRank": 8,
+        "CardOrder": 33,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 4,
+        "CardRank": 5,
+        "CardOrder": 34,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 1,
+        "CardRank": 1,
+        "CardOrder": 35,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 2,
+        "CardRank": 1,
+        "CardOrder": 36,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 1,
+        "CardRank": 5,
+        "CardOrder": 37,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 1,
+        "CardRank": 4,
+        "CardOrder": 38,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 3,
+        "CardRank": 12,
+        "CardOrder": 39,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 4,
+        "CardRank": 7,
+        "CardOrder": 40,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 4,
+        "CardRank": 2,
+        "CardOrder": 41,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 1,
+        "CardRank": 12,
+        "CardOrder": 42,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 2,
+        "CardRank": 7,
+        "CardOrder": 43,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 1,
+        "CardRank": 3,
+        "CardOrder": 44,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 2,
+        "CardRank": 6,
+        "CardOrder": 45,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 2,
+        "CardRank": 8,
+        "CardOrder": 46,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 1,
+        "CardRank": 10,
+        "CardOrder": 47,
+        "Zone": 0
+      },
+      {
+        "CardSuit": 3,
+        "CardRank": 1,
+        "CardOrder": 48,
+        "Zone": 0
+      }
+    ],
+    "HorseBets": [
+      {
+        "BetSuit": 2,
+        "BetAmount": 1,
+        "UserId": "141fcb82-6639-4932-a68d-af84f09ef42d",
+        "FullName": "Петр Крести (petr)"
+      },
+      {
+        "BetSuit": 3,
+        "BetAmount": 1,
+        "UserId": "17b6f19e-56b1-485c-a16a-c60cec5cdaa6",
+        "FullName": "Алексей Бубна (alex)"
+      },
+      {
+        "BetSuit": 1,
+        "BetAmount": 1,
+        "UserId": "8f2facbc-2ef4-4fe1-b9e0-e3f877edb3c3",
+        "FullName": "Иван Пика (ivan)"
+      },
+      {
+        "BetSuit": 4,
+        "BetAmount": 1,
+        "UserId": "a1f52f7e-6dd6-4ff9-bded-78305b42c81e",
+        "FullName": "Джонни Черва (john)"
+      }
+    ],
+    "Events": [
+      {
+        "Step": 0,
+        "EventType": 0,
+        "EventDate": "2025-08-12T12:26:36.7726598Z"
+      },
+      {
+        "Step": 1,
+        "EventType": 1,
+        "EventDate": "2025-08-12T12:26:36.7749492Z"
+      },
+      {
+        "Step": 2,
+        "EventType": 2,
+        "EventDate": "2025-08-12T12:26:36.7755534Z"
+      },
+      {
+        "Step": 3,
+        "EventType": 5,
+        "CardSuit": 3,
+        "CardRank": 8,
+        "CardOrder": 7,
+        "EventDate": "2025-08-12T12:26:37.0317719Z"
+      },
+      {
+        "Step": 4,
+        "EventType": 6,
+        "CardSuit": 3,
+        "CardRank": 8,
+        "HorseSuit": 3,
+        "Position": 1,
+        "EventDate": "2025-08-12T12:26:37.0339829Z"
+      },
+      {
+        "Step": 5,
+        "EventType": 5,
+        "CardSuit": 2,
+        "CardRank": 9,
+        "CardOrder": 8,
+        "EventDate": "2025-08-12T12:26:37.0657362Z"
+      },
+      {
+        "Step": 6,
+        "EventType": 6,
+        "CardSuit": 2,
+        "CardRank": 9,
+        "HorseSuit": 2,
+        "Position": 1,
+        "EventDate": "2025-08-12T12:26:37.0658847Z"
+      },
+      {
+        "Step": 7,
+        "EventType": 5,
+        "CardSuit": 3,
+        "CardRank": 9,
+        "CardOrder": 9,
+        "EventDate": "2025-08-12T12:26:37.0708549Z"
+      },
+      {
+        "Step": 8,
+        "EventType": 6,
+        "CardSuit": 3,
+        "CardRank": 9,
+        "HorseSuit": 3,
+        "Position": 2,
+        "EventDate": "2025-08-12T12:26:37.0709094Z"
+      },
+      {
+        "Step": 9,
+        "EventType": 5,
+        "CardSuit": 1,
+        "CardRank": 6,
+        "CardOrder": 10,
+        "EventDate": "2025-08-12T12:26:37.0755011Z"
+      },
+      {
+        "Step": 10,
+        "EventType": 6,
+        "CardSuit": 1,
+        "CardRank": 6,
+        "HorseSuit": 1,
+        "Position": 1,
+        "EventDate": "2025-08-12T12:26:37.0755697Z"
+      },
+      {
+        "Step": 11,
+        "EventType": 5,
+        "CardSuit": 3,
+        "CardRank": 7,
+        "CardOrder": 11,
+        "EventDate": "2025-08-12T12:26:37.0800685Z"
+      },
+      {
+        "Step": 12,
+        "EventType": 6,
+        "CardSuit": 3,
+        "CardRank": 7,
+        "HorseSuit": 3,
+        "Position": 3,
+        "EventDate": "2025-08-12T12:26:37.0801265Z"
+      },
+      {
+        "Step": 13,
+        "EventType": 5,
+        "CardSuit": 3,
+        "CardRank": 5,
+        "CardOrder": 12,
+        "EventDate": "2025-08-12T12:26:37.0846455Z"
+      },
+      {
+        "Step": 14,
+        "EventType": 6,
+        "CardSuit": 3,
+        "CardRank": 5,
+        "HorseSuit": 3,
+        "Position": 4,
+        "EventDate": "2025-08-12T12:26:37.0847164Z"
+      },
+      {
+        "Step": 15,
+        "EventType": 5,
+        "CardSuit": 3,
+        "CardRank": 10,
+        "CardOrder": 13,
+        "EventDate": "2025-08-12T12:26:37.0890268Z"
+      },
+      {
+        "Step": 16,
+        "EventType": 6,
+        "CardSuit": 3,
+        "CardRank": 10,
+        "HorseSuit": 3,
+        "Position": 5,
+        "EventDate": "2025-08-12T12:26:37.089074Z"
+      },
+      {
+        "Step": 17,
+        "EventType": 5,
+        "CardSuit": 3,
+        "CardRank": 4,
+        "CardOrder": 14,
+        "EventDate": "2025-08-12T12:26:37.0940041Z"
+      },
+      {
+        "Step": 18,
+        "EventType": 6,
+        "CardSuit": 3,
+        "CardRank": 4,
+        "HorseSuit": 3,
+        "Position": 6,
+        "EventDate": "2025-08-12T12:26:37.0940492Z"
+      },
+      {
+        "Step": 19,
+        "EventType": 5,
+        "CardSuit": 2,
+        "CardRank": 12,
+        "CardOrder": 15,
+        "EventDate": "2025-08-12T12:26:37.0963544Z"
+      },
+      {
+        "Step": 20,
+        "EventType": 6,
+        "CardSuit": 2,
+        "CardRank": 12,
+        "HorseSuit": 2,
+        "Position": 2,
+        "EventDate": "2025-08-12T12:26:37.0963919Z"
+      },
+      {
+        "Step": 21,
+        "EventType": 5,
+        "CardSuit": 1,
+        "CardRank": 7,
+        "CardOrder": 16,
+        "EventDate": "2025-08-12T12:26:37.0988704Z"
+      },
+      {
+        "Step": 22,
+        "EventType": 6,
+        "CardSuit": 1,
+        "CardRank": 7,
+        "HorseSuit": 1,
+        "Position": 2,
+        "EventDate": "2025-08-12T12:26:37.0989197Z"
+      },
+      {
+        "Step": 23,
+        "EventType": 5,
+        "CardSuit": 1,
+        "CardRank": 9,
+        "CardOrder": 17,
+        "EventDate": "2025-08-12T12:26:37.1013459Z"
+      },
+      {
+        "Step": 24,
+        "EventType": 6,
+        "CardSuit": 1,
+        "CardRank": 9,
+        "HorseSuit": 1,
+        "Position": 3,
+        "EventDate": "2025-08-12T12:26:37.1013837Z"
+      },
+      {
+        "Step": 25,
+        "EventType": 5,
+        "CardSuit": 1,
+        "CardRank": 8,
+        "CardOrder": 18,
+        "EventDate": "2025-08-12T12:26:37.1035619Z"
+      },
+      {
+        "Step": 26,
+        "EventType": 6,
+        "CardSuit": 1,
+        "CardRank": 8,
+        "HorseSuit": 1,
+        "Position": 4,
+        "EventDate": "2025-08-12T12:26:37.103589Z"
+      },
+      {
+        "Step": 27,
+        "EventType": 5,
+        "CardSuit": 3,
+        "CardRank": 6,
+        "CardOrder": 19,
+        "EventDate": "2025-08-12T12:26:37.1056281Z"
+      },
+      {
+        "Step": 28,
+        "EventType": 6,
+        "CardSuit": 3,
+        "CardRank": 6,
+        "HorseSuit": 3,
+        "Position": 7,
+        "EventDate": "2025-08-12T12:26:37.1056566Z"
+      },
+      {
+        "Step": 29,
+        "EventType": 7,
+        "EventDate": "2025-08-12T12:26:37.107859Z"
+      }
+    ]
+  }
+}
