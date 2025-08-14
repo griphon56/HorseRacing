@@ -7,178 +7,160 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import * as PIXI from 'pixi.js';
+import { RankType } from '~/interfaces/api/contracts/model/game/enums/rank-type-enum';
+import { SuitType } from '~/interfaces/api/contracts/model/game/enums/suit-type-enum';
+import type { PlayGameResponse } from '~/interfaces/api/contracts/model/game/responses/play-game/play-game-response';
 
-// ---------------- CONFIG ----------------
-const CARD_WIDTH = 64;       // уменьшенный размер карты/лошади
-const CARD_HEIGHT = 88;
-const BARRIER_GAP = 4;      // расстояние между картами-барьерами
-const DECK_SHIFT_LEFT = 22; // сдвиг стопки внутрь трассы
-const POSITIONS_COUNT = 8;  // позиции 0..7 (0 start, 7 finish)
-const BARRIER_COUNT = 6;    // 1..6 — барьеры
-const FINISH_OFFSET = CARD_HEIGHT + 8; // сверху отступ = 1 карта
-const BOTTOM_PADDING = 12;  // снизу отступ чтобы лошади полностью видны
-const TRACK_SIDE_MARGIN = 20; // отступ слева от края для трека
-const EVENT_DELAY = 200;    // пауза между событиями
-const MOVE_EPS = 0.6;       // порог завершения анимации
-const STEP_SCALE = 0.7; // <1 — уменьшаем расстояние между позициями; >1 — увеличиваем
-const EXTRA_BOTTOM_SPACE = 100; // <-- увеличь, если нужно больше воздуха внизу
-const RIGHT_PANEL_WIDTH = 100;
-// ----------------------------------------
+// --------------- CONFIG ---------------
+const CARD_ATLAS_PNG_PATH = '/assets/spritesheet.png';
+const CARD_ATLAS_JSON_PATH = '/assets/spritesheet.json';
+const COLS = 14;
+const ROWS = 4;
+const BACK_COL_INDEX = COLS - 1;
 
+const CARD_WIDTH = 64;
+const CARD_HEIGHT = 64;
+const POSITIONS_COUNT = 8;
+const BARRIER_COUNT = 6;
+const FINISH_OFFSET = CARD_HEIGHT + 8;
+const BOTTOM_PADDING = 12;
+const TRACK_SIDE_MARGIN = 20;
+const DECK_SHIFT_LEFT = 22;
+const EVENT_DELAY = 220;
+const MOVE_EPS = 0.6;
+// --------------------------------------
+
+// PIXI refs
 const pixiContainer = ref<HTMLDivElement | null>(null);
 let app: PIXI.Application;
 let trackContainer: PIXI.Container;
 
-// Sprites and state
+// atlas
+let atlasTexture: PIXI.Texture | null = null;
+let atlasBase: any = null; // avoid strict BaseTexture typing (various pixi versions)
+let tileW = 0;
+let tileH = 0;
+
+// caches
+const texturesCache = new Map<string, PIXI.Texture>();
+let backTexture: PIXI.Texture | null = null;
+
+// sprites/state
 let deckSprites: PIXI.Sprite[] = [];
 let discardSprites: PIXI.Sprite[] = [];
 let currentCardSprite: PIXI.Sprite | null = null;
 
 const barrierSprites: PIXI.Sprite[] = [];
 const horseSprites: Record<number, PIXI.Sprite> = {};
-const horsePositions: Record<number, number> = {}; // logical positions 0..7
+const horsePositions: Record<number, number> = {};
+let positionYs: number[] = [];
 
-let positionYs: number[] = []; // Y (top) for sprite at each logical position (local to trackContainer)
-
-// Game data & events
 let gameData: any = null;
 let events: any[] = [];
+let stopProcessing = false;
 
-// small util
-const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// ---------------- PIXI init & lifecycle ----------------
-onMounted(async () => {
-  app = new PIXI.Application();
-  await app.init({
-    width: window.innerWidth,
-    height: window.innerHeight,
-    backgroundColor: 0x1d3557,
-    antialias: true,
-  });
-
-  if (!pixiContainer.value) throw new Error('pixiContainer ref is null');
-  pixiContainer.value.appendChild(app.canvas);
-
-  trackContainer = new PIXI.Container();
-  // offset trackContainer slightly from left/top
-  trackContainer.x = TRACK_SIDE_MARGIN;
-  trackContainer.y = 20;
-  app.stage.addChild(trackContainer);
-
-  // load mock (or replace with SignalR)
+// ------------------ Helpers ------------------
+// Safe remove from parent and destroy WITHOUT destroying shared textures/baseTexture.
+// We intentionally DO NOT pass 'baseTexture' because TS typings don't allow it.
+function safeRemoveAndDestroy(obj?: any | null) {
+  if (!obj) return;
   try {
-    const res = await fetch('/mock/game.json');
-    const parsed = await res.json();
-    gameData = parsed.Data;
-  } catch (e) {
-    console.warn('failed to load mock game.json', e);
-    gameData = { InitialDeck: [], HorseBets: [], Events: [] };
+    if (obj.parent) obj.parent.removeChild(obj);
+  } catch {}
+  try {
+    // don't destroy textures/baseTexture by default (likely shared)
+    (obj as any).destroy?.({ children: true, texture: false });
+  } catch {
+    try { (obj as any).destroy?.(); } catch {}
+  }
+}
+
+
+function rankIndexFromServer(cardRank: number): number {
+  if (cardRank === undefined || cardRank === null) return (RankType.Ace as unknown) as number;
+  if (cardRank >= 1 && cardRank <= 13) return cardRank - 1;
+  if (cardRank >= 0 && cardRank <= 12) return cardRank;
+  return Math.max(0, Math.min(12, cardRank));
+}
+
+// ---------------- Atlas load & cache ----------------
+// Загружает spritesheet JSON через PIXI.Assets и сохраняет все текстуры в texturesCache.
+async function loadCardAtlasAndCache(): Promise<void> {
+    const res1 = await fetch(CARD_ATLAS_JSON_PATH);
+    if (!res1.ok) throw new Error(`Failed to fetch atlas json: ${res1.status}`);
+    const atlasJson = await res1.json();
+
+  // загружаем json (PIXI.Assets корректно обработает spritesheet)
+  await PIXI.Assets.load(CARD_ATLAS_JSON_PATH) as PIXI.Spritesheet;
+
+  // Assets.get может вернуть либо объект spritesheet с .textures, либо сам набор текстур
+  const res: any = PIXI.Assets.get(CARD_ATLAS_JSON_PATH);
+  const texturesObj: Record<string, PIXI.Texture> | undefined = res?.textures ?? res;
+
+  if (!texturesObj || typeof texturesObj !== 'object') {
+    throw new Error('Atlas load failed: textures not found');
   }
 
-  buildInitialScene(gameData);
-  events = gameData.Events ?? [];
+  // заполняем кеш
+  for (const name of Object.keys(texturesObj)) {
+    const t = texturesObj[name] as PIXI.Texture;
+    if (t) texturesCache.set(name, t);
+  }
 
-  // start sequential processing of events
-  processEventsSequentially();
+  // try find back texture by common name
+  backTexture = texturesCache.get('card_back.png') ?? texturesCache.get('back.png') ?? null;
+}
 
-  window.addEventListener('resize', onResize);
-});
+// Получить текстуру карты по масти и рангу.
+// Ожидаем, что в json ключи называются как `${rankIndex}_${suit}.png` (пример: "0_1.png").
+function getCardTextureFor(suit: number, rankIndex: number): PIXI.Texture {
+  const rank = Math.max(0, Math.min(12, rankIndex));
+  const key = `${rank}_${suit}.png`;
+  const t = texturesCache.get(key);
+  if (!t) throw new Error(`Card texture not found: ${key}`);
+  return t;
+}
 
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', onResize);
-  try { app.destroy(); } catch {}
-});
+// Текстура рубашки
+function getBackTexture(): PIXI.Texture {
+  if (backTexture) return backTexture;
+  const t = texturesCache.get('card_back.png') ?? texturesCache.get('back.png');
+  if (!t) throw new Error('Back texture not found in atlas');
+  backTexture = t;
+  return t;
+}
 
-// ---------------- Layout & geometry ----------------
+// ---------------- Geometry/Layout ----------------
 function computeTrackMetrics() {
   const trackTop = FINISH_OFFSET;
-  const trackBottom = app.screen.height - trackContainer.y - BOTTOM_PADDING - EXTRA_BOTTOM_SPACE;
-  const trackHeight = Math.max(180, trackBottom - trackTop);
-  const trackWidth = Math.max(300, app.screen.width - trackContainer.x - TRACK_SIDE_MARGIN - (RIGHT_PANEL_WIDTH + 24));
+  const trackBottom = app.screen.height - trackContainer.y - BOTTOM_PADDING;
+  const trackHeight = Math.max(200, trackBottom - trackTop);
+  const trackWidth = Math.max(300, app.screen.width - trackContainer.x - TRACK_SIDE_MARGIN - 120);
   return { trackTop, trackBottom, trackHeight, trackWidth };
 }
 
 function recomputePositionYs() {
-  // positions 0..7, position 0 is bottom (start), 7 is near top (finish)
   const { trackTop, trackBottom } = computeTrackMetrics();
-  const intervals = POSITIONS_COUNT - 1; // 7 intervals
-  const step = ((trackBottom - trackTop) / intervals) * STEP_SCALE;
+  const intervals = POSITIONS_COUNT - 1;
+  const step = (trackBottom - trackTop) / intervals;
   positionYs = [];
   for (let p = 0; p < POSITIONS_COUNT; p++) {
-    const lineY = trackBottom - p * step; // reference line for position p
-    const spriteTopY = lineY - CARD_HEIGHT; // top coordinate of sprite so its top aligns with lineY - CARD_HEIGHT
+    const lineY = trackBottom - p * step;
+    const spriteTopY = lineY - CARD_HEIGHT;
     positionYs.push(spriteTopY);
   }
 }
 
-// ---------------- Build initial scene ----------------
-function buildInitialScene(data: any) {
-  // clear previous content
-  trackContainer.removeChildren();
-  deckSprites = [];
-  discardSprites = [];
-  currentCardSprite = null;
-  barrierSprites.length = 0;
-  Object.keys(horseSprites).forEach(k => {
-    try { horseSprites[+k].destroy({ children: true, texture: false }); } catch {}
-    delete horseSprites[+k];
-  });
-  for (const k in horsePositions) delete horsePositions[+k];
-  positionYs = [];
-
-  recomputePositionYs();
-  drawPositionLines(); // dashed lines and labels
-  drawBarriersFromDeck(data.InitialDeck || []);
-  drawDeckFromData(data.InitialDeck || []);
-  drawHorses(data.HorseBets || []);
-  placeBarriersOnPositions();
-  placeHorsesAtPositions();
-}
-
-// draw dashed lines and labels for positions 0..7
-function drawPositionLines() {
-  // remove old lines (keep other children like sprites)
-  // find any Graphics with name 'posLines' and remove
-  for (let i = trackContainer.children.length - 1; i >= 0; i--) {
-    const ch = trackContainer.children[i];
-    if ((ch as any).__posLines) {
-      trackContainer.removeChild(ch);
-      try { ch.destroy({ children: true, texture: false }); } catch {}
-    }
-  }
-
-  recomputePositionYs();
-  const g = new PIXI.Graphics();
-  (g as any).__posLines = true;
-  const { trackWidth } = computeTrackMetrics();
-  const xStart = 0;
-  const xEnd = trackWidth;
-  const labelStyle = new PIXI.TextStyle({ fill: 0xffffff, fontSize: 12 });
-
-  for (let p = 0; p < positionYs.length; p++) {
-    const topY = positionYs[p];
-    const lineY = topY + CARD_HEIGHT; // reference baseline
-    drawDashedLine(g, xStart, lineY, xEnd, lineY, 8, 6);
-    const label = new PIXI.Text(String(p), labelStyle);
-    label.x = -28;
-    label.y = lineY - label.height / 2;
-    (label as any).__posLines = true;
-    trackContainer.addChild(label);
-  }
-  trackContainer.addChild(g);
-}
-
-// dashed line drawer
-function drawDashedLine(g: PIXI.Graphics, x1: number, y1: number, x2: number, y2: number, dash = 6, gap = 4) {
-  g.lineStyle(2, 0xffffff, 0.12);
-  const dx = x2 - x1;
-  const dy = y2 - y1;
+// ---------------- Drawing helpers ----------------
+function drawDashedLine(g: PIXI.Graphics, x1: number, y1: number, x2: number, y2: number, dash = 8, gap = 6) {
+  const dx = x2 - x1, dy = y2 - y1;
   const dist = Math.hypot(dx, dy);
-  const stepTotal = dash + gap;
-  const segments = Math.floor(dist / stepTotal);
+  const step = dash + gap;
+  const segments = Math.floor(dist / step);
   for (let i = 0; i < segments; i++) {
-    const start = i * stepTotal;
+    const start = i * step;
     const sx = x1 + (dx * start) / dist;
     const sy = y1 + (dy * start) / dist;
     const ex = x1 + (dx * (start + dash)) / dist;
@@ -188,85 +170,112 @@ function drawDashedLine(g: PIXI.Graphics, x1: number, y1: number, x2: number, y2
   }
 }
 
-// ---------------- Barriers (draw from initial deck Zone==1) ----------------
-function drawBarriersFromDeck(deck: any[]) {
-  const barriers = deck.filter((c: any) => c.Zone === 1).slice(0, BARRIER_COUNT);
+// ---------------- Scene build / initial draw ----------------
+function clearScene() {
+  trackContainer.removeChildren();
+  // destroy deck sprites safely
+  deckSprites.forEach(s => safeRemoveAndDestroy(s));
+  deckSprites = [];
+  discardSprites.forEach(s => safeRemoveAndDestroy(s));
+  discardSprites = [];
+  safeRemoveAndDestroy(currentCardSprite);
+  currentCardSprite = null;
+
+  barrierSprites.forEach(s => safeRemoveAndDestroy(s));
+  barrierSprites.length = 0;
+
+  for (const k in horseSprites) {
+    safeRemoveAndDestroy(horseSprites[+k]);
+    delete horseSprites[+k];
+  }
+  for (const k in horsePositions) delete horsePositions[+k];
+  positionYs = [];
+}
+
+function drawPositionLines() {
+  // remove previous
+  for (let i = trackContainer.children.length - 1; i >= 0; i--) {
+    const ch = trackContainer.children[i];
+    if ((ch as any).__posLine) {
+      trackContainer.removeChild(ch);
+      safeRemoveAndDestroy(ch);
+    }
+  }
+  recomputePositionYs();
+  const g = new PIXI.Graphics();
+  (g as any).__posLine = true;
+  const { trackWidth } = computeTrackMetrics();
+  const xStart = 0, xEnd = trackWidth;
+  g.lineStyle(2, 0xffffff, 0.12);
+  for (let p = 0; p < positionYs.length; p++) {
+    const topY = positionYs[p];
+    const lineY = topY + CARD_HEIGHT;
+    drawDashedLine(g, xStart, lineY, xEnd, lineY, 8, 6);
+    const label = new PIXI.Text(String(p), { fill: 0xffffff, fontSize: 12 });
+    label.x = -28;
+    label.y = lineY - label.height / 2;
+    (label as any).__posLine = true;
+    trackContainer.addChild(label);
+  }
+  trackContainer.addChild(g);
+}
+
+function drawBarriers(initialDeck: any[]) {
+  const barriers = (initialDeck || []).filter((c:any) => c.Zone === 1).slice(0, BARRIER_COUNT);
   for (let i = 0; i < barriers.length; i++) {
     const card = barriers[i];
-    const s = createCardFront(card);
-    s.name = `barrier-${i+1}`;
-    trackContainer.addChild(s);
-    barrierSprites.push(s);
+    let spr: PIXI.Sprite;
+    if (atlasBase && card.CardSuit !== undefined) {
+      const rankIdx = rankIndexFromServer(card.CardRank);
+      spr = new PIXI.Sprite(getCardTextureFor(card.CardSuit, rankIdx));
+      spr.width = CARD_WIDTH; spr.height = CARD_HEIGHT;
+    } else spr = createPlaceholderCard();
+    trackContainer.addChild(spr);
+    barrierSprites.push(spr);
   }
 }
 
 function placeBarriersOnPositions() {
   recomputePositionYs();
-  // barriers map to positions 1..6
+  const leftX = 12;
   for (let i = 0; i < barrierSprites.length; i++) {
-    const posIndex = 1 + i; // position 1..6
+    const posIndex = i + 1;
     const topY = positionYs[posIndex];
-    const x = 12; // left padding inside trackContainer
-    barrierSprites[i].x = x;
+    barrierSprites[i].x = leftX;
     barrierSprites[i].y = topY;
   }
 }
 
-// ---------------- Deck, active, discard inside trackContainer ----------------
-function drawDeckFromData(deck: any[]) {
-  // compute deck stack X (right side inside track)
+function drawDeck(initialDeck: any[]) {
   const { trackWidth } = computeTrackMetrics();
   const deckX = trackWidth - CARD_WIDTH - DECK_SHIFT_LEFT;
   const deckY = 6;
-  const deckCards = (deck || []).filter((c: any) => c.Zone === 0);
+  const deck = (initialDeck || []).filter((c:any) => c.Zone === 0);
   deckSprites = [];
-  for (let i = 0; i < deckCards.length; i++) {
-    const card = deckCards[i];
-    const back = createCardBack();
-    back.x = deckX;
-    back.y = deckY + i * 0.35;
+  for (let i = 0; i < deck.length; i++) {
+    const card = deck[i];
+    const backTex = atlasBase ? getBackTexture() : generateBackTexture();
+    const back = new PIXI.Sprite(backTex);
+    back.width = CARD_WIDTH; back.height = CARD_HEIGHT;
+    back.x = deckX; back.y = deckY + i * 0.35;
     (back as any).__card = card;
     trackContainer.addChild(back);
     deckSprites.push(back);
   }
-
-  // discard placeholder (to the right of deck)
   const discardX = deckX + CARD_WIDTH + 12;
   const discardG = new PIXI.Graphics();
   discardG.lineStyle(2, 0x444444, 0.6);
   discardG.drawRoundedRect(discardX, deckY, CARD_WIDTH, CARD_HEIGHT, 8);
   trackContainer.addChild(discardG);
-
-  // active slot (below deck)
-  const activeX = deckX;
-  const activeY = deckY + CARD_HEIGHT + 14;
   const activeG = new PIXI.Graphics();
   activeG.lineStyle(2, 0x888888, 0.6);
-  activeG.drawRoundedRect(activeX, activeY, CARD_WIDTH, CARD_HEIGHT, 8);
+  activeG.drawRoundedRect(deckX, deckY + CARD_HEIGHT + 14, CARD_WIDTH, CARD_HEIGHT, 8);
   trackContainer.addChild(activeG);
 }
 
-// get global coords for active/discard (for move animations)
-function getActiveGlobalPosArray(): [number, number] {
-  const { trackWidth } = computeTrackMetrics();
-  const deckX = trackWidth - CARD_WIDTH - DECK_SHIFT_LEFT;
-  const deckY = 6;
-  const ax = trackContainer.x + deckX;
-  const ay = trackContainer.y + deckY + CARD_HEIGHT + 14;
-  return [ax, ay];
-}
-function getDiscardGlobalPos(): { x: number; y: number } {
-  const { trackWidth } = computeTrackMetrics();
-  const deckX = trackWidth - CARD_WIDTH - DECK_SHIFT_LEFT;
-  const deckY = 6;
-  const dx = trackContainer.x + deckX + CARD_WIDTH + 12;
-  const dy = trackContainer.y + deckY;
-  return { x: dx, y: dy };
-}
-
-// ---------------- Horses (same size as card), in a row ----------------
 function drawHorses(horseBets: any[]) {
   recomputePositionYs();
+
   const bets = horseBets ?? [];
   const count = Math.max(1, bets.length);
   const { trackWidth } = computeTrackMetrics();
@@ -275,121 +284,150 @@ function drawHorses(horseBets: any[]) {
   for (let i = 0; i < bets.length; i++) {
     const bet = bets[i];
     const suit = bet.BetSuit ?? (i + 1);
-    const horse = createHorseSprite(suit);
-    horse.anchor.set(0, 0);
+
+    // Название текстуры из атласа — зависит от того, как у тебя они названы
+    const tex = getCardTextureFor(suit, RankType.Ace);
+
+    if (!tex) {
+      console.warn(`Текстура ${tex} не найдена в атласе`);
+      continue;
+    }
+
+    const horseSprite = new PIXI.Sprite(tex);
+    horseSprite.width = CARD_WIDTH;
+    horseSprite.height = CARD_HEIGHT;
+    horseSprite.anchor.set(0, 0);
+
+    // Позиционирование
     const x = Math.round(spacing * (i + 1) - CARD_WIDTH / 2);
-    horse.x = x;
-    horse.y = positionYs[0]; // position 0 by default
-    trackContainer.addChild(horse);
-    horseSprites[suit] = horse;
+    horseSprite.x = x;
+    horseSprite.y = positionYs[0]; // стартовая позиция
+    trackContainer.addChild(horseSprite);
+
+    horseSprites[suit] = horseSprite;
     horsePositions[suit] = 0;
   }
 }
 
 function placeHorsesAtPositions() {
   recomputePositionYs();
-  const bets = Object.keys(horseSprites).map(k => +k);
+  const suits = Object.keys(horseSprites).map(k => +k);
+  if (suits.length === 0) return;
   const { trackWidth } = computeTrackMetrics();
-  const count = Math.max(1, bets.length);
-  const spacing = Math.max(1, trackWidth / (count + 1));
-  for (let i = 0; i < bets.length; i++) {
-    const suit = bets[i];
+  const leftPadding = 8;
+  const rightPadding = CARD_WIDTH + DECK_SHIFT_LEFT + 24;
+  const usableWidth = Math.max(1, trackWidth - leftPadding - rightPadding);
+  const count = suits.length;
+  const spacing = usableWidth / (count + 1);
+  for (let i = 0; i < suits.length; i++) {
+    const suit = suits[i];
     const spr = horseSprites[suit];
-    const x = Math.round(spacing * (i + 1) - CARD_WIDTH / 2);
-    spr.x = x;
-    const pos = horsePositions[suit] ?? 0;
-    spr.y = positionYs[Math.min(Math.max(0, pos), POSITIONS_COUNT - 1)];
+    if (!spr) continue;
+    spr.width = CARD_WIDTH; spr.height = CARD_HEIGHT;
+    spr.anchor.set(0, 0);
+    const centerX = leftPadding + spacing * (i + 1);
+    const targetX = Math.round(centerX - CARD_WIDTH / 2);
+    spr.x = targetX;
+    const pos = Math.max(0, Math.min(POSITIONS_COUNT - 1, horsePositions[suit] ?? 0));
+    const targetTopY = positionYs[pos] ?? positionYs[0] ?? 0;
+    spr.y = targetTopY;
   }
 }
 
-// ---------------- Events: sequential processing ----------------
-let stopProcessingFlag = false;
+function createPlaceholderCard(suit?: number) {
+  const g = new PIXI.Graphics();
+  g.beginFill(0xffffff);
+  g.drawRoundedRect(0, 0, CARD_WIDTH, CARD_HEIGHT, 6);
+  g.endFill();
+  if (suit) {
+    const cols: Record<number, number> = {1:0xffff00,2:0xff0000,3:0x0000ff,4:0x00cc00};
+    g.beginFill(cols[suit] ?? 0x666666);
+    g.drawCircle(CARD_WIDTH/2, CARD_HEIGHT/2, Math.min(CARD_WIDTH, CARD_HEIGHT) * 0.18);
+    g.endFill();
+  }
+  const tex = app.renderer.generateTexture(g);
+  g.destroy({ children: true, texture: false });
+  return new PIXI.Sprite(tex);
+}
+
+function generateBackTexture() {
+  const g = new PIXI.Graphics();
+  g.beginFill(0x333399);
+  g.drawRoundedRect(0, 0, CARD_WIDTH, CARD_HEIGHT, 8);
+  g.endFill();
+  const tex = app.renderer.generateTexture(g);
+  g.destroy({ children: true, texture: false });
+  return tex;
+}
+
+// ---------------- Events & animations ----------------
 async function processEventsSequentially() {
-  stopProcessingFlag = false;
-  for (let i = 0; i < events.length; i++) {
-    if (stopProcessingFlag) break;
+  stopProcessing = false;
+  for (let i = 0; i < (events || []).length; i++) {
+    if (stopProcessing) break;
     const ev = events[i];
-    try {
-      await handleEvent(ev);
-    } catch (e) {
-      console.warn('handleEvent error', e);
-    }
+    try { await handleEvent(ev); } catch (err) { console.warn('handleEvent error', err); }
     await sleep(EVENT_DELAY);
   }
 }
 
-// Map server EventType numbers to handlers (we only use the types you provided)
 async function handleEvent(ev: any) {
   switch (ev.EventType) {
-    case 5: // GetCardFromDeck
-      await handleGetCardFromDeck(ev);
-      break;
-    case 3: // ObstacleCardRevealed
-      await handleObstacleRevealed(ev);
-      break;
-    case 6: // UpdateHorsePosition
-      await handleUpdateHorsePosition(ev);
-      break;
-    default:
-      // other event types are ignored for now
-      break;
+    case 5: await onGetCardFromDeck(ev); break;
+    case 3: await onObstacleRevealed(ev); break;
+    case 6: await onUpdateHorsePosition(ev); break;
+    default: break;
   }
 }
 
-// ---------------- Card flow: deck -> active -> discard ----------------
-async function handleGetCardFromDeck(ev: any) {
+async function onGetCardFromDeck(ev: any) {
   if (deckSprites.length === 0) return;
   const top = deckSprites.pop()!;
-  const cardData = (ev && (ev.CardSuit !== undefined)) ? ev : (top as any).__card;
+  const cardData = (ev && ev.CardSuit !== undefined) ? ev : (top as any).__card;
   const gp = top.getGlobalPosition();
   const fly = new PIXI.Sprite(top.texture);
   (fly as any).__card = cardData;
-  fly.x = gp.x;
-  fly.y = gp.y;
+  fly.x = gp.x; fly.y = gp.y;
   app.stage.addChild(fly);
-  try { top.parent?.removeChild(top); top.destroy({ children: true, texture: false }); } catch {}
-
+  safeRemoveAndDestroy(top);
   if (currentCardSprite) {
-    const discardPos = getDiscardGlobalPos();
-    await flipAndMoveToDiscardAsync(currentCardSprite, discardPos.x, discardPos.y);
+    const discardGlobal = getDiscardGlobalPos();
+    await flipAndMoveToDiscardAsync(currentCardSprite, discardGlobal.x, discardGlobal.y);
     discardSprites.push(currentCardSprite);
     currentCardSprite = null;
   }
-
   const [ax, ay] = getActiveGlobalPosArray();
   await animateMoveToAsync(fly, ax, ay);
   await flipSpriteToFaceAsync(fly, cardData);
-  // attach to trackContainer local coords (convert global to local)
   const local = trackContainer.toLocal(new PIXI.Point(fly.x, fly.y), app.stage);
-  fly.x = local.x;
-  fly.y = local.y;
+  fly.x = local.x; fly.y = local.y;
   trackContainer.addChild(fly);
   currentCardSprite = fly;
 }
 
-async function handleObstacleRevealed(ev: any) {
-  // create card and place on the barrier position indicated (or next free)
+async function onObstacleRevealed(ev: any) {
   const card = { CardSuit: ev.CardSuit, CardRank: ev.CardRank, CardOrder: ev.CardOrder };
-  const s = createCardFront(card);
+  let s: PIXI.Sprite;
+  if (atlasBase && card.CardSuit !== undefined) {
+    const rankIdx = rankIndexFromServer(card.CardRank);
+    s = new PIXI.Sprite(getCardTextureFor(card.CardSuit, rankIdx));
+    s.width = CARD_WIDTH; s.height = CARD_HEIGHT;
+  } else s = createPlaceholderCard(card.CardSuit);
   trackContainer.addChild(s);
-  // find index: prefer CardOrder -> index (cardOrder 1 => barrier index 0 -> position1)
   let idx = 0;
   if (typeof ev.CardOrder === 'number' && ev.CardOrder >= 1) idx = Math.min(BARRIER_COUNT - 1, ev.CardOrder - 1);
-  // place at position idx+1
-  recomputePositionYs();
   const posIndex = idx + 1;
-  s.x = 12;
-  s.y = positionYs[posIndex];
+  recomputePositionYs();
+  s.x = 12; s.y = positionYs[posIndex];
   barrierSprites[idx] = s;
 }
 
-async function handleUpdateHorsePosition(ev: any) {
+async function onUpdateHorsePosition(ev: any) {
   const suit = ev.HorseSuit;
   const pos = Math.max(0, Math.min(POSITIONS_COUNT - 1, ev.Position ?? 0));
   await animateHorseToPosition(suit, pos);
 }
 
-// flip existing card to back and move to discard area
 async function flipAndMoveToDiscardAsync(sprite: PIXI.Sprite, tx: number, ty: number) {
   await flipSpriteToBackAsync(sprite);
   const gp = sprite.getGlobalPosition();
@@ -397,14 +435,13 @@ async function flipAndMoveToDiscardAsync(sprite: PIXI.Sprite, tx: number, ty: nu
   (fly as any).__card = (sprite as any).__card;
   fly.x = gp.x; fly.y = gp.y;
   app.stage.addChild(fly);
-  try { sprite.parent?.removeChild(sprite); sprite.destroy({ children: true, texture: false }); } catch {}
+  safeRemoveAndDestroy(sprite);
   await animateMoveToAsync(fly, tx, ty);
   const local = trackContainer.toLocal(new PIXI.Point(fly.x, fly.y), app.stage);
   fly.x = local.x; fly.y = local.y;
   trackContainer.addChild(fly);
 }
 
-// ---------------- flip & move helpers ----------------
 function flipSpriteToFaceAsync(sprite: PIXI.Sprite, cardData: any): Promise<void> {
   return new Promise(resolve => {
     let s = Math.abs(sprite.scale.x) || 1;
@@ -413,11 +450,15 @@ function flipSpriteToFaceAsync(sprite: PIXI.Sprite, cardData: any): Promise<void
       if (phase === 'in') {
         s -= 0.18; sprite.scale.x = s;
         if (s <= 0) {
-          // set face texture - reuse createCardFront to produce texture, then apply texture
-          const face = createCardFront(cardData);
-          sprite.texture = face.texture;
+          if (atlasBase && cardData?.CardSuit !== undefined) {
+            const rankIdx = rankIndexFromServer(cardData.CardRank);
+            sprite.texture = getCardTextureFor(cardData.CardSuit, rankIdx);
+          } else {
+            const tmp = createPlaceholderCard(cardData?.CardSuit);
+            sprite.texture = tmp.texture;
+            safeRemoveAndDestroy(tmp);
+          }
           (sprite as any).__card = cardData;
-          face.destroy({ children: true, texture: false });
           phase = 'out';
         }
       } else {
@@ -437,9 +478,7 @@ function flipSpriteToBackAsync(sprite: PIXI.Sprite): Promise<void> {
       if (phase === 'in') {
         s -= 0.18; sprite.scale.x = s;
         if (s <= 0) {
-          const back = createCardBack();
-          sprite.texture = back.texture;
-          back.destroy({ children: true, texture: false });
+          sprite.texture = atlasBase ? getBackTexture() : generateBackTexture();
           phase = 'out';
         }
       } else {
@@ -468,7 +507,6 @@ function animateMoveToAsync(sprite: PIXI.Sprite, tx: number, ty: number): Promis
   });
 }
 
-// ---------------- Horse movement (local to trackContainer) ----------------
 function animateHorseToPosition(suit: number, position: number): Promise<void> {
   return new Promise(resolve => {
     recomputePositionYs();
@@ -476,15 +514,8 @@ function animateHorseToPosition(suit: number, position: number): Promise<void> {
     if (!horse) { resolve(); return; }
     const cur = horsePositions[suit] ?? 0;
     if (cur === position) { resolve(); return; }
-
     const targetTopY = positionYs[Math.min(Math.max(0, position), POSITIONS_COUNT - 1)];
-    // avoid micro moves
-    if (Math.abs(horse.y - targetTopY) < MOVE_EPS) {
-      horsePositions[suit] = position;
-      horse.y = targetTopY;
-      resolve(); return;
-    }
-
+    if (Math.abs(horse.y - targetTopY) < MOVE_EPS) { horsePositions[suit] = position; horse.y = targetTopY; resolve(); return; }
     const cb = () => {
       const dy = targetTopY - horse.y;
       horse.y += dy * 0.22;
@@ -499,77 +530,103 @@ function animateHorseToPosition(suit: number, position: number): Promise<void> {
   });
 }
 
-// ---------------- Sprite creators (single unified implementations) ----------------
-function createCardBack(): PIXI.Sprite {
-  const g = new PIXI.Graphics();
-  g.beginFill(0x333399);
-  g.drawRoundedRect(0, 0, CARD_WIDTH, CARD_HEIGHT, 8);
-  g.endFill();
-  const tex = app.renderer.generateTexture(g);
-  g.destroy({ children: true, texture: false });
-  return new PIXI.Sprite(tex);
+// ---------------- Helpers ----------------
+function getActiveGlobalPosArray(): [number, number] {
+  const { trackWidth } = computeTrackMetrics();
+  const deckX = trackWidth - CARD_WIDTH - DECK_SHIFT_LEFT;
+  const deckY = 6;
+  return [trackContainer.x + deckX, trackContainer.y + deckY + CARD_HEIGHT + 14];
+}
+function getDiscardGlobalPos(): { x:number, y:number } {
+  const { trackWidth } = computeTrackMetrics();
+  const deckX = trackWidth - CARD_WIDTH - DECK_SHIFT_LEFT;
+  const deckY = 6;
+  return { x: trackContainer.x + deckX + CARD_WIDTH + 12, y: trackContainer.y + deckY };
 }
 
-function createCardFront(card: any): PIXI.Sprite {
-  const g = new PIXI.Graphics();
-  g.beginFill(0xffffff);
-  g.drawRoundedRect(0, 0, CARD_WIDTH, CARD_HEIGHT, 8);
-  g.endFill();
+// ---------------- Init / mount / resize ----------------
+onMounted(async () => {
+  app = new PIXI.Application();
+  await app.init({ resizeTo: pixiContainer.value!, backgroundColor: 0x1d3557, antialias: true });
+  pixiContainer.value!.appendChild(app.canvas);
 
-  const suitColors: Record<number, number> = { 1: 0xffff00, 2: 0xff0000, 3: 0x0000ff, 4: 0x00cc00 };
-  const color = suitColors[(card?.CardSuit as number) ?? 1] || 0x000000;
-  g.beginFill(color);
-  g.drawCircle(CARD_WIDTH / 2, CARD_HEIGHT / 2, Math.min(CARD_WIDTH, CARD_HEIGHT) * 0.18);
-  g.endFill();
+  trackContainer = new PIXI.Container();
+  trackContainer.x = TRACK_SIDE_MARGIN;
+  trackContainer.y = 20;
+  app.stage.addChild(trackContainer);
 
-  const tex = app.renderer.generateTexture(g);
-  g.destroy({ children: true, texture: false });
-  const s = new PIXI.Sprite(tex);
-  (s as any).__card = card;
-  return s;
-}
+  try { await loadCardAtlasAndCache(); } catch (e) { console.warn('atlas load failed', e); }
 
-function createHorseSprite(suit: number): PIXI.Sprite {
-  const colors: Record<number, number> = { 1: 0xffff00, 2: 0xff0000, 3: 0x0000ff, 4: 0x00cc00 };
-  const g = new PIXI.Graphics();
-  g.beginFill(colors[suit] ?? 0xffffff);
-  g.drawRoundedRect(0, 0, CARD_WIDTH, CARD_HEIGHT, 8);
-  g.endFill();
-  const tex = app.renderer.generateTexture(g);
-  g.destroy({ children: true, texture: false });
-  return new PIXI.Sprite(tex);
-}
+  try {
+    const res = await fetch('/mock/game.json');
+    const parsed = await res.json() as PlayGameResponse;
+    gameData = parsed.Data ?? parsed;
+  } catch (e) {
+    console.warn('mock not found', e);
+    gameData = { InitialDeck: [], HorseBets: [], Events: [] };
+  }
 
-// ---------------- Resize ----------------
+  clearScene();
+  recomputePositionYs();
+  drawPositionLines();
+  drawBarriers(gameData.InitialDeck || []);
+  placeBarriersOnPositions();
+  drawDeck(gameData.InitialDeck || []);
+  drawHorses(gameData.HorseBets || []);
+  placeHorsesAtPositions();
+
+  events = gameData.Events ?? [];
+  processEventsSequentially();
+
+  window.addEventListener('resize', onResize);
+});
+
+onBeforeUnmount(() => {
+  stopProcessing = true;
+  window.removeEventListener('resize', onResize);
+  // destroy scene, but avoid destroying shared textures by default
+  try {
+    // remove all children and safely destroy their display objects
+    clearScene();
+    // DO NOT destroy atlasBase here unless you are sure it's no longer used anywhere:
+    // atlasBase?.destroy?.();
+    app.destroy(true);
+  } catch {}
+});
+
 function onResize() {
-  try { app.renderer.resize(window.innerWidth, window.innerHeight); } catch {}
+  if (!pixiContainer.value) return;
+  try { app.renderer.resize(pixiContainer.value.clientWidth, pixiContainer.value.clientHeight); } catch {}
   recomputePositionYs();
   drawPositionLines();
   placeBarriersOnPositions();
   placeHorsesAtPositions();
-
-  // reposition deck and placeholders
-  // (clear deck visuals and redraw keeping remaining deckSprites textures)
-  // First convert existing deckSprites to textures + card metadata, then destroy, then re-create at new positions
-  const remainingCards = deckSprites.map(s => (s as any).__card).filter(Boolean);
-  // destroy old deck visuals
-  deckSprites.forEach(s => { try { s.parent?.removeChild(s); s.destroy({ children: true, texture: false }); } catch {} });
+  // rebuild deck visuals preserving remaining card data
+  const remaining = deckSprites.map(s => (s as any).__card).filter(Boolean);
+  deckSprites.forEach(s => safeRemoveAndDestroy(s));
   deckSprites = [];
-  // redraw deck
-  drawDeckFromData(remainingCards);
+  drawDeckFromData(remaining);
 }
 
+function drawDeckFromData(deckCards: any[]) {
+  const { trackWidth } = computeTrackMetrics();
+  const deckX = trackWidth - CARD_WIDTH - DECK_SHIFT_LEFT;
+  const deckY = 6;
+  for (let i = 0; i < deckCards.length; i++) {
+    const card = deckCards[i];
+    const tex = atlasBase ? getBackTexture() : generateBackTexture();
+    const back = new PIXI.Sprite(tex);
+    back.width = CARD_WIDTH; back.height = CARD_HEIGHT;
+    back.x = deckX; back.y = deckY + i * 0.35;
+    (back as any).__card = card;
+    trackContainer.addChild(back);
+    deckSprites.push(back);
+  }
+}
 </script>
 
 <style scoped>
 .race-container {
-  height: calc(100vh - 40px); /* уменьшили высоту игрового поля */
-  overflow: hidden;
-  position: relative;
-}
-.pixi-stage { width: 100%; height: 100%; display: block; }
-
-/* .race-container {
   width: 100%;
   height: 100vh;
   overflow: hidden;
@@ -578,5 +635,5 @@ function onResize() {
 .pixi-stage {
   width: 100%;
   height: 100%;
-} */
+}
 </style>
