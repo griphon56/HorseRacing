@@ -10,13 +10,10 @@ import * as PIXI from 'pixi.js';
 import { RankType } from '~/interfaces/api/contracts/model/game/enums/rank-type-enum';
 import { SuitType } from '~/interfaces/api/contracts/model/game/enums/suit-type-enum';
 import type { PlayGameResponse } from '~/interfaces/api/contracts/model/game/responses/play-game/play-game-response';
+import { ZoneType } from '~/interfaces/api/contracts/model/game/enums/zone-type-enum';
 
 // --------------- CONFIG ---------------
-const CARD_ATLAS_PNG_PATH = '/assets/spritesheet.png';
 const CARD_ATLAS_JSON_PATH = '/assets/spritesheet.json';
-const COLS = 14;
-const ROWS = 4;
-const BACK_COL_INDEX = COLS - 1;
 
 const CARD_WIDTH = 64;
 const CARD_HEIGHT = 64;
@@ -28,18 +25,13 @@ const TRACK_SIDE_MARGIN = 20;
 const DECK_SHIFT_LEFT = 22;
 const EVENT_DELAY = 220;
 const MOVE_EPS = 0.6;
+const STEP_SCALE = 0.7; // <1 — уменьшаем расстояние между позициями; >1 — увеличиваем
 // --------------------------------------
 
 // PIXI refs
 const pixiContainer = ref<HTMLDivElement | null>(null);
 let app: PIXI.Application;
 let trackContainer: PIXI.Container;
-
-// atlas
-let atlasTexture: PIXI.Texture | null = null;
-let atlasBase: any = null; // avoid strict BaseTexture typing (various pixi versions)
-let tileW = 0;
-let tileH = 0;
 
 // caches
 const texturesCache = new Map<string, PIXI.Texture>();
@@ -77,21 +69,9 @@ function safeRemoveAndDestroy(obj?: any | null) {
   }
 }
 
-
-function rankIndexFromServer(cardRank: number): number {
-  if (cardRank === undefined || cardRank === null) return (RankType.Ace as unknown) as number;
-  if (cardRank >= 1 && cardRank <= 13) return cardRank - 1;
-  if (cardRank >= 0 && cardRank <= 12) return cardRank;
-  return Math.max(0, Math.min(12, cardRank));
-}
-
 // ---------------- Atlas load & cache ----------------
 // Загружает spritesheet JSON через PIXI.Assets и сохраняет все текстуры в texturesCache.
 async function loadCardAtlasAndCache(): Promise<void> {
-    const res1 = await fetch(CARD_ATLAS_JSON_PATH);
-    if (!res1.ok) throw new Error(`Failed to fetch atlas json: ${res1.status}`);
-    const atlasJson = await res1.json();
-
   // загружаем json (PIXI.Assets корректно обработает spritesheet)
   await PIXI.Assets.load(CARD_ATLAS_JSON_PATH) as PIXI.Spritesheet;
 
@@ -110,7 +90,7 @@ async function loadCardAtlasAndCache(): Promise<void> {
   }
 
   // try find back texture by common name
-  backTexture = texturesCache.get('card_back.png') ?? texturesCache.get('back.png') ?? null;
+  backTexture = texturesCache.get('card_back.png') ?? null;
 }
 
 // Получить текстуру карты по масти и рангу.
@@ -126,7 +106,7 @@ function getCardTextureFor(suit: number, rankIndex: number): PIXI.Texture {
 // Текстура рубашки
 function getBackTexture(): PIXI.Texture {
   if (backTexture) return backTexture;
-  const t = texturesCache.get('card_back.png') ?? texturesCache.get('back.png');
+  const t = texturesCache.get('card_back.png');
   if (!t) throw new Error('Back texture not found in atlas');
   backTexture = t;
   return t;
@@ -144,7 +124,7 @@ function computeTrackMetrics() {
 function recomputePositionYs() {
   const { trackTop, trackBottom } = computeTrackMetrics();
   const intervals = POSITIONS_COUNT - 1;
-  const step = (trackBottom - trackTop) / intervals;
+  const step = ((trackBottom - trackTop) / intervals) * STEP_SCALE;
   positionYs = [];
   for (let p = 0; p < POSITIONS_COUNT; p++) {
     const lineY = trackBottom - p * step;
@@ -201,6 +181,7 @@ function drawPositionLines() {
       safeRemoveAndDestroy(ch);
     }
   }
+
   recomputePositionYs();
   const g = new PIXI.Graphics();
   (g as any).__posLine = true;
@@ -221,17 +202,24 @@ function drawPositionLines() {
 }
 
 function drawBarriers(initialDeck: any[]) {
-  const barriers = (initialDeck || []).filter((c:any) => c.Zone === 1).slice(0, BARRIER_COUNT);
+  const barriers = (initialDeck || []).filter((c:any) => c.Zone === ZoneType.Table).slice(0, BARRIER_COUNT);
   for (let i = 0; i < barriers.length; i++) {
     const card = barriers[i];
-    let spr: PIXI.Sprite;
-    if (atlasBase && card.CardSuit !== undefined) {
-      const rankIdx = rankIndexFromServer(card.CardRank);
-      spr = new PIXI.Sprite(getCardTextureFor(card.CardSuit, rankIdx));
-      spr.width = CARD_WIDTH; spr.height = CARD_HEIGHT;
-    } else spr = createPlaceholderCard();
-    trackContainer.addChild(spr);
-    barrierSprites.push(spr);
+
+    const tex = getCardTextureFor(card.CardSuit, card.CardRank);
+
+    if (!tex) {
+      console.warn(`Текстура ${tex} не найдена в атласе`);
+      continue;
+    }
+
+    const barrierSprite = new PIXI.Sprite(tex);
+
+    barrierSprite.width = CARD_WIDTH;
+    barrierSprite.height = CARD_HEIGHT;
+
+    trackContainer.addChild(barrierSprite);
+    barrierSprites.push(barrierSprite);
   }
 }
 
@@ -250,11 +238,11 @@ function drawDeck(initialDeck: any[]) {
   const { trackWidth } = computeTrackMetrics();
   const deckX = trackWidth - CARD_WIDTH - DECK_SHIFT_LEFT;
   const deckY = 6;
-  const deck = (initialDeck || []).filter((c:any) => c.Zone === 0);
+  const deck = (initialDeck || []).filter((c:any) => c.Zone === ZoneType.Deck);
   deckSprites = [];
   for (let i = 0; i < deck.length; i++) {
     const card = deck[i];
-    const backTex = atlasBase ? getBackTexture() : generateBackTexture();
+    const backTex = getBackTexture();
     const back = new PIXI.Sprite(backTex);
     back.width = CARD_WIDTH; back.height = CARD_HEIGHT;
     back.x = deckX; back.y = deckY + i * 0.35;
@@ -285,7 +273,6 @@ function drawHorses(horseBets: any[]) {
     const bet = bets[i];
     const suit = bet.BetSuit ?? (i + 1);
 
-    // Название текстуры из атласа — зависит от того, как у тебя они названы
     const tex = getCardTextureFor(suit, RankType.Ace);
 
     if (!tex) {
@@ -350,16 +337,6 @@ function createPlaceholderCard(suit?: number) {
   return new PIXI.Sprite(tex);
 }
 
-function generateBackTexture() {
-  const g = new PIXI.Graphics();
-  g.beginFill(0x333399);
-  g.drawRoundedRect(0, 0, CARD_WIDTH, CARD_HEIGHT, 8);
-  g.endFill();
-  const tex = app.renderer.generateTexture(g);
-  g.destroy({ children: true, texture: false });
-  return tex;
-}
-
 // ---------------- Events & animations ----------------
 async function processEventsSequentially() {
   stopProcessing = false;
@@ -408,9 +385,8 @@ async function onGetCardFromDeck(ev: any) {
 async function onObstacleRevealed(ev: any) {
   const card = { CardSuit: ev.CardSuit, CardRank: ev.CardRank, CardOrder: ev.CardOrder };
   let s: PIXI.Sprite;
-  if (atlasBase && card.CardSuit !== undefined) {
-    const rankIdx = rankIndexFromServer(card.CardRank);
-    s = new PIXI.Sprite(getCardTextureFor(card.CardSuit, rankIdx));
+  if (card.CardSuit !== undefined) {
+    s = new PIXI.Sprite(getCardTextureFor(card.CardSuit, card.CardRank));
     s.width = CARD_WIDTH; s.height = CARD_HEIGHT;
   } else s = createPlaceholderCard(card.CardSuit);
   trackContainer.addChild(s);
@@ -450,9 +426,8 @@ function flipSpriteToFaceAsync(sprite: PIXI.Sprite, cardData: any): Promise<void
       if (phase === 'in') {
         s -= 0.18; sprite.scale.x = s;
         if (s <= 0) {
-          if (atlasBase && cardData?.CardSuit !== undefined) {
-            const rankIdx = rankIndexFromServer(cardData.CardRank);
-            sprite.texture = getCardTextureFor(cardData.CardSuit, rankIdx);
+          if (cardData?.CardSuit !== undefined) {;
+            sprite.texture = getCardTextureFor(cardData.CardSuit, cardData.CardRank);
           } else {
             const tmp = createPlaceholderCard(cardData?.CardSuit);
             sprite.texture = tmp.texture;
@@ -478,7 +453,7 @@ function flipSpriteToBackAsync(sprite: PIXI.Sprite): Promise<void> {
       if (phase === 'in') {
         s -= 0.18; sprite.scale.x = s;
         if (s <= 0) {
-          sprite.texture = atlasBase ? getBackTexture() : generateBackTexture();
+          sprite.texture = getBackTexture();
           phase = 'out';
         }
       } else {
@@ -586,10 +561,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', onResize);
   // destroy scene, but avoid destroying shared textures by default
   try {
-    // remove all children and safely destroy their display objects
     clearScene();
-    // DO NOT destroy atlasBase here unless you are sure it's no longer used anywhere:
-    // atlasBase?.destroy?.();
     app.destroy(true);
   } catch {}
 });
@@ -614,7 +586,7 @@ function drawDeckFromData(deckCards: any[]) {
   const deckY = 6;
   for (let i = 0; i < deckCards.length; i++) {
     const card = deckCards[i];
-    const tex = atlasBase ? getBackTexture() : generateBackTexture();
+    const tex =  getBackTexture();
     const back = new PIXI.Sprite(tex);
     back.width = CARD_WIDTH; back.height = CARD_HEIGHT;
     back.x = deckX; back.y = deckY + i * 0.35;
@@ -627,13 +599,10 @@ function drawDeckFromData(deckCards: any[]) {
 
 <style scoped>
 .race-container {
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  background: #1d3557;
+    width: 100%;
+    height: calc(100vh - 200px);
+    overflow: hidden;
+    position: relative;
 }
-.pixi-stage {
-  width: 100%;
-  height: 100%;
-}
+.pixi-stage { width: 100%; height: 100%; display: block; }
 </style>
