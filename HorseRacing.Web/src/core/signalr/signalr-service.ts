@@ -102,7 +102,7 @@ class SignalRService {
         console.log(`Subscribed to event ${eventName}`)
     }
 
-     async offEvent(eventName: string): Promise<void> {
+    async offEvent(eventName: string): Promise<void> {
         if (!this.connection) {
             console.debug(`No connection - nothing to unsubscribe for ${eventName}`);
             return;
@@ -123,25 +123,25 @@ class SignalRService {
         if (!this.connection) throw new Error('SignalR connection not available')
 
         return new Promise<T>((resolve, reject) => {
-        let timer: ReturnType<typeof setTimeout> | null = null
+            let timer: ReturnType<typeof setTimeout> | null = null
 
-        const handler = (...args: unknown[]) => {
-            try { this.connection?.off(eventName, handler) } catch {}
-            if (timer) { clearTimeout(timer); timer = null }
-            if (args.length === 0) resolve(undefined as unknown as T)
-            else if (args.length === 1) resolve(args[0] as T)
-            else resolve(args as unknown as T)
-        }
+            const handler = (...args: unknown[]) => {
+                try { this.connection?.off(eventName, handler) } catch { }
+                if (timer) { clearTimeout(timer); timer = null }
+                if (args.length === 0) resolve(undefined as unknown as T)
+                else if (args.length === 1) resolve(args[0] as T)
+                else resolve(args as unknown as T)
+            }
 
-        // подписываемся синхронно — connection.on возвращает сразу
-        this.connection!.on(eventName, handler)
+            // подписываемся синхронно — connection.on возвращает сразу
+            this.connection!.on(eventName, handler)
 
-        console.log(`Subscribed once to ${eventName}`)
+            console.log(`Subscribed once to ${eventName}`)
 
-        timer = setTimeout(() => {
-            try { this.connection?.off(eventName, handler) } catch {}
-            reject(new Error(`Timeout (${timeoutMs}ms) waiting for SignalR event '${eventName}'`))
-        }, timeoutMs)
+            timer = setTimeout(() => {
+                try { this.connection?.off(eventName, handler) } catch { }
+                reject(new Error(`Timeout (${timeoutMs}ms) waiting for SignalR event '${eventName}'`))
+            }, timeoutMs)
         })
     }
 
@@ -170,8 +170,8 @@ class SignalRService {
     }
 
     async onGameSimulationResult(): Promise<PlayGameResponse> {
-         const result = await this.once<PlayGameResponse>(SignalROnGameSimulationResult, 60000)
-         return result as PlayGameResponse;
+        const result = await this.once<PlayGameResponse>(SignalROnGameSimulationResult, 60000)
+        return result as PlayGameResponse;
     }
 
     async offGameSimulationResult(): Promise<void> {

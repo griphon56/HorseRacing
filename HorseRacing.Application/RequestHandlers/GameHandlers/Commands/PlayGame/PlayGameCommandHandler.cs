@@ -62,7 +62,7 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGam
                 if (game.GameHorsePositions.Where(x => x.Position >= i_block).Count() == 4)
                 {
                     var cardBlock = game.GetCardFromTable();
-                    game.AddEventGame(command.GameId, step++, GameEventType.ObstacleCardRevealed, cardBlock.CardSuit, cardBlock.CardRank);
+                    game.AddEventGame(command.GameId, step++, GameEventType.ObstacleCardRevealed, cardBlock.CardSuit, cardBlock.CardRank, cardBlock.CardOrder);
                     _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) got card block {cardBlock.CardRank} {cardBlock.CardSuit}");
 
                     int horsePositionObstacle = game.UpdateHorsePositionWithBlock(cardBlock);

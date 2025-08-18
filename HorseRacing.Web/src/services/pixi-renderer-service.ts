@@ -23,7 +23,10 @@ export class PixiRendererService {
     private discardSprites: PIXI.Sprite[] = [];
     private currentCardSprite: PIXI.Sprite | null = null;
 
-    private barrierSprites: PIXI.Sprite[] = [];
+    private barrierSprites: PIXI.Sprite[] = []; // визуальные спрайты хранятся в barrierSprites.
+    private barrierCards: Array<any> = []; // хранит лицевые данные (CardSuit/CardRank) для каждой позиции,
+    private barrierFlipped: boolean[] = []; // булев флаг, перевернут ли барьер.
+
     private horseSprites: Record<number, PIXI.Sprite> = {};
     private horsePositions: Record<number, number> = {};
     private positionYs: number[] = [];
@@ -58,7 +61,6 @@ export class PixiRendererService {
         });
 
         // Insert canvas into container
-        // app.view is the DOM canvas element in Pixi v8; as fallback use (app as any).canvas
         const canvas = (this.app.canvas) as HTMLCanvasElement;
         if (!canvas) throw new Error('Pixi canvas element not found');
 
@@ -69,7 +71,6 @@ export class PixiRendererService {
         this.container.appendChild(canvas);
 
         // Make stage draw in logical coordinates by scaling it down by DPR
-        // (we drew app at physical resolution DESIGN*DPR, but we want logical coords = DESIGN)
         this.app.stage.scale.set(1 / DPR, 1 / DPR);
 
         // Create track container (all game visuals go here)
@@ -98,6 +99,7 @@ export class PixiRendererService {
     drawInitial(gameData: any) {
         this.clearScene();
         this.recomputePositionYs();
+        // draw barriers as backs (placeholders) — ALWAYS create config.BARRIER_COUNT backs
         this.drawBarriers(gameData.InitialDeck || []);
         this.placeBarriersOnPositions();
         this.drawDeck(gameData.InitialDeck || []);
@@ -145,18 +147,18 @@ export class PixiRendererService {
         }
     }
 
-    // ---------------- scene build / initial draw ----------------
+    // ---------------- scene build / initial draw helpers ----------------
     private safeRemoveAndDestroy(obj?: any | null) {
         if (!obj) return;
         try {
             if (obj.parent) obj.parent.removeChild(obj);
-        } catch {}
+        } catch { }
         try {
             (obj as any).destroy?.({ children: true, texture: false });
         } catch {
             try {
                 (obj as any).destroy?.();
-            } catch {}
+            } catch { }
         }
     }
 
@@ -172,6 +174,8 @@ export class PixiRendererService {
 
         this.barrierSprites.forEach(s => this.safeRemoveAndDestroy(s));
         this.barrierSprites.length = 0;
+        this.barrierCards = [];
+        this.barrierFlipped = [];
 
         for (const k in this.horseSprites) {
             this.safeRemoveAndDestroy(this.horseSprites[+k]);
@@ -182,25 +186,47 @@ export class PixiRendererService {
     }
 
     //#region Отрисовка барьеров
+    /**
+     * drawBarriers: рисует именно рубашки вверх. Всегда создаёт config.BARRIER_COUNT спрайтов.
+     * barrierCards хранит лицевые данные (если есть), barrierFlipped — флаг перевёрнут.
+     */
     private drawBarriers(initialDeck: any[]) {
         const barriers = (initialDeck || [])
             .filter((c: any) => c.Zone === ZoneType.Table)
             .slice(0, this.config.BARRIER_COUNT);
 
+        // очистим старые
+        this.barrierSprites.forEach(s => this.safeRemoveAndDestroy(s));
+        this.barrierSprites = [];
+        this.barrierCards = [];
+
         for (let i = 0; i < barriers.length; i++) {
             const card = barriers[i];
-            let tex: PIXI.Texture;
-            try {
-                tex = this.atlas.getCardTextureFor(card.CardSuit, card.CardRank);
-            } catch (e) {
-                console.warn('barrier texture not found', e);
-                continue;
-            }
-            const barrierSprite = new PIXI.Sprite(tex);
+            // рисуем рубашкой (back) — карта преграды лежит закрытой по умолчанию
+            const backTex = this.atlas.getBackTexture();
+            const barrierSprite = new PIXI.Sprite(backTex);
             barrierSprite.width = this.config.CARD_WIDTH;
             barrierSprite.height = this.config.CARD_HEIGHT;
+            (barrierSprite as any).__card = card; // сохраняем привязку
+            (barrierSprite as any).__isFace = false;
             this.trackContainer.addChild(barrierSprite);
             this.barrierSprites.push(barrierSprite);
+
+            // сохраняем данные о карте (чтобы знать чем переворачивать)
+            this.barrierCards[i] = card;
+        }
+
+        // если входных barriers меньше чем config.BARRIER_COUNT — создаём пустые backs,
+        // чтобы массив имел ожидаемую длину и позиции можно было рассчитывать далее.
+        while (this.barrierSprites.length < (this.config.BARRIER_COUNT ?? 0)) {
+            const backTex = this.atlas.getBackTexture();
+            const b = new PIXI.Sprite(backTex);
+            b.width = this.config.CARD_WIDTH;
+            b.height = this.config.CARD_HEIGHT;
+            (b as any).__isFace = false;
+            this.trackContainer.addChild(b);
+            this.barrierSprites.push(b);
+            this.barrierCards.push(null);
         }
     }
 
@@ -251,7 +277,7 @@ export class PixiRendererService {
         // Удаляем старые placeholder-ы
         const old = this.trackContainer.children.filter((c: any) => c && c.__deckPlaceholder);
         old.forEach((ph: any) => {
-            try { this.trackContainer.removeChild(ph); (ph as any).destroy?.(); } catch {}
+            try { this.trackContainer.removeChild(ph); (ph as any).destroy?.(); } catch { }
         });
 
         const discardOutline = new PIXI.Graphics();
@@ -265,7 +291,7 @@ export class PixiRendererService {
             // позиция в локальных координатах trackContainer
             const localX = discardX;
             const localY = deckY;
-            try { this.currentCardSprite.parent?.removeChild(this.currentCardSprite); } catch {}
+            try { this.currentCardSprite.parent?.removeChild(this.currentCardSprite); } catch { }
             this.currentCardSprite.x = localX;
             this.currentCardSprite.y = localY;
             this.trackContainer.addChild(this.currentCardSprite);
@@ -328,7 +354,7 @@ export class PixiRendererService {
         const local = this.trackContainer.toLocal(new PIXI.Point(fly.x, fly.y), this.app.stage);
         fly.x = local.x;
         fly.y = local.y;
-        try { fly.parent?.removeChild(fly); } catch {}
+        try { fly.parent?.removeChild(fly); } catch { }
         this.trackContainer.addChild(fly);
 
         // 5) поместим в discardSprites / currentCardSprite
@@ -462,8 +488,11 @@ export class PixiRendererService {
             case 5: // GetCardFromDeck
                 await this.onGetCardFromDeck(ev);
                 break;
-            case 3: // ObstacleRevealed
+            case 3: // ObstacleCardRevealed
                 await this.onObstacleRevealed(ev);
+                break;
+            case 4: // HorseRetreatedByObstacle
+                await this.onHorseRetreatedByObstacle(ev);
                 break;
             case 6: // UpdateHorsePosition
                 await this.onUpdateHorsePosition(ev);
@@ -473,21 +502,77 @@ export class PixiRendererService {
         }
     }
 
+    /**
+     * Обрабатывает событие ObstacleRevealed:
+     * - получает CardSuit/CardRank/CardOrder
+     * - сохраняет данные в barrierCards[index]
+     * - переворачивает соответствующий спрайт барьера (flip)
+     */
     private async onObstacleRevealed(ev: any) {
+        // ev.CardOrder — 1-based индекс преграды, которую нужно перевернуть
+        const order = Math.max(1, Math.min(this.config.BARRIER_COUNT ?? 1, Number(ev.CardOrder ?? 1)));
+        const idx = order - 1;
+
+        // убедимся, что спрайт существует — если нет, создаём back placeholder
+        if (!this.barrierSprites[idx]) {
+            const backTex = this.atlas.getBackTexture();
+            const b = new PIXI.Sprite(backTex);
+            b.width = this.config.CARD_WIDTH;
+            b.height = this.config.CARD_HEIGHT;
+            (b as any).__isFace = false;
+            this.trackContainer.addChild(b);
+            this.barrierSprites[idx] = b;
+            this.barrierCards[idx] = null;
+        }
+
+        // сохраняем данные о карте (если пришли в событии) — пригодится при перевороте
         const card = { CardSuit: ev.CardSuit, CardRank: ev.CardRank, CardOrder: ev.CardOrder };
-        const tex = this.atlas.getCardTextureFor(card.CardSuit, card.CardRank);
-        const s = new PIXI.Sprite(tex);
-        s.width = this.config.CARD_WIDTH;
-        s.height = this.config.CARD_HEIGHT;
-        this.trackContainer.addChild(s);
-        let idx = 0;
-        if (typeof ev.CardOrder === 'number' && ev.CardOrder >= 1)
-            idx = Math.min(this.config.BARRIER_COUNT - 1, ev.CardOrder - 1);
-        const posIndex = idx + 1;
+        this.barrierCards[idx] = card;
+
+        // поместим спрайт на нужную позицию (пересчитаем Y)
         this.recomputePositionYs();
-        s.x = 12;
-        s.y = this.positionYs[posIndex] ?? 0;
-        this.barrierSprites[idx] = s;
+        const leftX = 10;
+        const posIndex = idx + 1; // в твоей логике posIndex = idx + 1
+        const targetTopY = this.positionYs[posIndex] ?? this.positionYs[this.positionYs.length - 1] ?? 0;
+        const spr = this.barrierSprites[idx];
+        spr.x = leftX;
+        spr.y = targetTopY;
+
+        // если уже лицом — ничего не делаем
+        if ((spr as any).__isFace) return;
+
+        // flip sprite to face using existing flip helper
+        try {
+            await this.flipSpriteToFaceAsync(spr, card);
+            (spr as any).__isFace = true;
+        } catch (err) {
+            // fallback: просто заменить текстуру, если анимация сломалась
+            try {
+                spr.texture = this.atlas.getCardTextureFor(card.CardSuit, card.CardRank);
+                (spr as any).__card = card;
+                (spr as any).__isFace = true;
+            } catch (e) {
+                console.warn('Failed to reveal barrier face', e);
+            }
+        }
+    }
+
+    /**
+     * Обрабатывает событие HorseRetreatedByObstacle:
+     * - ev.HorseSuit — масть/ид лошади
+     * - ev.Position (опционально) — позиция в которую поставить; иначе отступаем на 1 назад
+     */
+    private async onHorseRetreatedByObstacle(ev: any) {
+        // ожидаем ev.HorseSuit и, опционно, ev.Steps (кол-во шагов назад), по умолчанию 1
+        const suit = ev.HorseSuit ?? ev.CardSuit ?? null;
+        if (suit === null) return;
+
+        const steps = Math.max(1, Math.floor(Number(ev.Steps ?? 1)));
+        const cur = this.horsePositions[suit] ?? 0;
+        const targetPos = Math.max(0, cur - steps);
+
+        // анимируем откат назад
+        await this.animateHorseToPosition(suit, targetPos);
     }
 
     private async onUpdateHorsePosition(ev: any) {
@@ -505,11 +590,13 @@ export class PixiRendererService {
                     s -= this.config.FLIP_STEP;
                     sprite.scale.x = s;
                     if (s <= 0) {
-                        sprite.texture = this.atlas.getCardTextureFor(
-                            cardData.CardSuit,
-                            cardData.CardRank
-                        );
-                        (sprite as any).__card = cardData;
+                        // Swap texture to face
+                        try {
+                            sprite.texture = this.atlas.getCardTextureFor(cardData.CardSuit, cardData.CardRank);
+                            (sprite as any).__card = cardData;
+                        } catch (err) {
+                            console.warn('flipSpriteToFaceAsync: texture not found', err);
+                        }
                         phase = 'out';
                     }
                 } else {
@@ -543,11 +630,18 @@ export class PixiRendererService {
         });
     }
 
+    /**
+     * animateHorseToPosition:
+     * - если спрайта нет, сохраняет позицию в horsePositions и завершается (чтобы при создании спрайта позиция была корректна)
+     * - иначе анимирует Y и обновляет horsePositions[suit]
+     */
     private animateHorseToPosition(suit: number, position: number): Promise<void> {
         return new Promise(resolve => {
             this.recomputePositionYs();
             const horse = this.horseSprites[suit];
             if (!horse) {
+                // нет спрайта — просто сохраним позицию
+                this.horsePositions[suit] = position;
                 resolve();
                 return;
             }
@@ -581,7 +675,7 @@ export class PixiRendererService {
     private onResize() {
         try {
             this.app.renderer.resize(this.container.clientWidth, this.container.clientHeight);
-        } catch {}
+        } catch { }
         this.recomputePositionYs();
         this.placeBarriersOnPositions();
         this.placeHorsesAtPositions();
