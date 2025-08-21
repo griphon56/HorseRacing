@@ -48,7 +48,9 @@ namespace HorseRacing.Application.Common.Mapping
                 .Map(dest => dest.DataValues, src => src.AvailableSuits);
 
             config.NewConfig<GameResultView, GetGameResultResponseDto>()
-                .Map(dest => dest, src => src);
+                .Map(dest => dest, src => src)
+                .Map(dest => dest.UserId, src => src.UserId.Value)
+                .Map(dest => dest.GameId, src => src.GameId.Value);
 
             config.NewConfig<GetGameResultsResult, GetGameResultResponse>()
                 .Map(dest => dest.DataValues, src => src.GameResults);

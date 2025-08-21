@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import type { GameConfig } from '~/core/games/game-config';
 import { ZoneType } from '~/interfaces/api/contracts/model/game/enums/zone-type-enum';
 import { RankType } from '~/interfaces/api/contracts/model/game/enums/rank-type-enum';
+import { RouteName } from '~/interfaces/app/routes';
 
 export type AtlasService = {
     getCardTextureFor: (suit: number, rankIndex: number) => PIXI.Texture;
@@ -34,6 +35,10 @@ export class PixiRendererService {
     private events: any[] = [];
     private stopProcessing = false;
     private processing = false;
+
+    // overlay для экрана завершения
+    private endGameOverlay?: PIXI.Container;
+    private endGameTimeoutId: number | null = null;
 
     private resizeHandler = () => this.onResize();
 
@@ -88,6 +93,7 @@ export class PixiRendererService {
             this.stopEvents();
             window.removeEventListener('resize', this.resizeHandler);
             this.clearScene();
+            this.removeEndGameScreen(); // очистим overlay и таймер
             // destroy app but avoid destroying shared textures
             this.app.destroy(true);
         } catch (e) {
@@ -466,6 +472,110 @@ export class PixiRendererService {
     //#endregion
 
     // ---------------- Events & animations ----------------
+
+    //#region End game
+    /**
+     * Обработчик события EndGame — показывает экран завершения и планирует редирект.
+     * ev может содержать поле ResultUrl (строка) или RedirectUrl, иначе используется '/results'.
+     */
+    private async onEndGame(ev: any) {
+        // остановим обработку дальнейших событий
+        this.stopEvents();
+
+        const url = (ev && (ev.ResultUrl || ev.RedirectUrl)) || RouteName.Result;
+        this.showEndGameScreen(url);
+    }
+
+    /**
+     * Показывает оверлей "Гонка завершена!" и запускает таймер на redirectMs (по умолчанию 10_000 ms).
+     * При клике по оверле происходит немедленный редирект.
+     */
+    private showEndGameScreen(resultUrl: string, redirectMs = 10000) {
+        // если уже показан — сбросим предыдущий
+        this.removeEndGameScreen();
+
+        const w = Math.round(this.config.DESIGN_WIDTH);
+        const h = Math.round(this.config.DESIGN_HEIGHT);
+
+        const container = new PIXI.Container();
+        container.name = 'endGameOverlay';
+
+        // затемнённый фон (с прозрачностью)
+        const bg = new PIXI.Graphics();
+        bg.beginFill(0x000000, 0.6); // чёрный с alpha 0.6
+        bg.drawRect(0, 0, w, h);
+        bg.endFill();
+        // сделать фон интерактивным чтобы поймать клик
+        bg.interactive = true;
+        bg.on('pointerdown', () => {
+            // немедленный редирект при клике
+            this.performRedirect(resultUrl);
+        });
+        container.addChild(bg);
+
+        // текст "Гонка завершена!"
+        const style = new PIXI.TextStyle({
+            fill: 0xffffff,
+            fontSize: 28,
+            fontWeight: '700',
+            align: 'center'
+        });
+        const txt = new PIXI.Text('Гонка завершена!', style);
+        // центрируем по логическим координатам
+        txt.x = Math.round((w - txt.width) / 2);
+        txt.y = Math.round((h - txt.height) / 2);
+        container.addChild(txt);
+
+        // можно добавить мелкий подсказочный текст (необязательно)
+        const hint = new PIXI.Text('Переход в результаты через 10 секунд...', {
+            fill: 0xcccccc,
+            fontSize: 12,
+            align: 'center',
+        });
+        hint.x = Math.round((w - hint.width) / 2);
+        hint.y = txt.y + txt.height + 12;
+        container.addChild(hint);
+
+        // добавляем поверх всего — на stage (логические координаты, т.к. stage масштабирован)
+        this.app.stage.addChild(container);
+        this.endGameOverlay = container;
+
+        // планируем редирект
+        this.endGameTimeoutId = window.setTimeout(() => {
+            this.performRedirect(resultUrl);
+        }, redirectMs);
+    }
+
+    /** Снимает оверлей и очищает таймер */
+    private removeEndGameScreen() {
+        if (this.endGameTimeoutId !== null) {
+            clearTimeout(this.endGameTimeoutId);
+            this.endGameTimeoutId = null;
+        }
+        if (this.endGameOverlay) {
+            try {
+                // безопасно удалить контейнер и содержимое
+                if (this.endGameOverlay.parent) this.endGameOverlay.parent.removeChild(this.endGameOverlay);
+            } catch { }
+            try { this.endGameOverlay.destroy({ children: true, texture: false }); } catch { }
+            this.endGameOverlay = undefined;
+        }
+    }
+
+    /** Выполняет перенаправление — сначала удаляет overlay, потом делает window.location */
+    private performRedirect(resultUrl: string) {
+        // гарантируем, что оверлей не останется и таймер отменён
+        this.removeEndGameScreen();
+        try {
+            // используем window.location.href — при необходимости заменить на router
+            window.location.href = resultUrl;
+        } catch (err) {
+            console.warn('Redirect failed', err);
+        }
+    }
+
+    //#endregion
+
     private async processEventsSequentially() {
         if (this.processing) return;
         this.processing = true;
@@ -496,6 +606,9 @@ export class PixiRendererService {
                 break;
             case 6: // UpdateHorsePosition
                 await this.onUpdateHorsePosition(ev);
+                break;
+            case 7: // EndGame
+                await this.onEndGame(ev);
                 break;
             default:
                 break;
