@@ -13,7 +13,11 @@ namespace HorseRacing.Domain.GameAggregate.Entities
     public class GameResult : EntityGuid<GameResultId>
     {
         /// <summary>
-        /// Место, позиция
+        /// Место, которое заняла лошадь в игре
+        /// </summary>
+        public int Place {  get; private set; }
+        /// <summary>
+        /// Позиция лошади по окончанию игры 
         /// </summary>
         public int Position { get; private set; }
         /// <summary>
@@ -31,18 +35,19 @@ namespace HorseRacing.Domain.GameAggregate.Entities
 
         private GameResult () : base(GameResultId.CreateUnique()) { }
 
-        private GameResult(GameResultId id, int position, SuitType betSuit, GameId gameId, UserId userId)
+        private GameResult(GameResultId id, int position, int place, SuitType betSuit, GameId gameId, UserId userId)
             : base(id ?? GameResultId.CreateUnique())
         {
+            Place = place;
             Position = position;
             BetSuit = betSuit;
             GameId = gameId;
             UserId = userId;
         }
 
-        public static GameResult Create(GameResultId id, int position, SuitType betSuit, GameId gameId, UserId userId)
+        public static GameResult Create(GameResultId id, int position, int place, SuitType betSuit, GameId gameId, UserId userId)
         {
-            return new GameResult(id, position, betSuit, gameId, userId);
+            return new GameResult(id, position, place, betSuit, gameId, userId);
         }
     }
 }

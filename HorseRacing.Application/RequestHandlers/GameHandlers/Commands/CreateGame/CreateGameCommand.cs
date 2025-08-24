@@ -22,7 +22,11 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
         /// <summary>
         /// Ставка пользователя создавшего игру
         /// </summary>
-        public int BetAmount { get; set; } = 10;
+        public decimal BetAmount { get; set; } = 10;
+        /// <summary>
+        /// Режим игры
+        /// </summary>
+        public GameModeType Mode { get; set; }
         /// <summary>
         /// Масть лошади, 
         /// которую пользователь выбрал при создании игры

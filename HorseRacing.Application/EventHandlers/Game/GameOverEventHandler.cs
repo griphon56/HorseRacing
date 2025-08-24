@@ -27,10 +27,10 @@ namespace HorseRacing.Application.EventHandlers.Game
 
             if (game.GamePlayers is not null && game.GamePlayers.Any())
             {
-                var winHorse = game.GameHorsePositions.Where(x => x.Position == 7).FirstOrDefault();
+                var winHorse = game.GameHorsePositions.Where(x => x.Place == 1).FirstOrDefault();
                 var winPlayer = game.GamePlayers.Where(x => x.BetSuit == winHorse!.HorseSuit).FirstOrDefault();
 
-                int winAmount = game.GamePlayers.Sum(player => player.BetAmount);
+                decimal winAmount = game.GamePlayers.Sum(player => player.BetAmount);
 
                 var user = await _userRepository.GetById(winPlayer!.UserId, cancellationToken);
                 if (user is null)
@@ -46,10 +46,9 @@ namespace HorseRacing.Application.EventHandlers.Game
                 List<GameResult> gameResults = new List<GameResult>();
                 foreach (var player in game.GamePlayers)
                 {
-                    int positionHorse = game.GameHorsePositions.Where(x => x.HorseSuit == player.BetSuit)
-                        .Select(x => x.Position).FirstOrDefault();
+                    var positionHorse = game.GameHorsePositions.Where(x => x.HorseSuit == player.BetSuit).FirstOrDefault();
 
-                    gameResults.Add(GameResult.Create(GameResultId.CreateUnique(), positionHorse, player.BetSuit, game.Id, player.UserId));
+                    gameResults.Add(GameResult.Create(GameResultId.CreateUnique(), positionHorse!.Position, positionHorse!.Place, player.BetSuit, game.Id, player.UserId));
                 }
 
                 game.AddGameResult(gameResults);
@@ -57,6 +56,6 @@ namespace HorseRacing.Application.EventHandlers.Game
                 await _gameRepository.Update(game, cancellationToken);
                 _logger.LogInformation($"[{DateTime.UtcNow}]: GameOverEventHandler: record of game result");
             }
-        }
+        }        
     }
 }

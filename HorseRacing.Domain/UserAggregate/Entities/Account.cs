@@ -13,7 +13,7 @@ namespace HorseRacing.Domain.UserAggregate.Entities
         /// <summary>
         /// Баланс счета
         /// </summary>
-        public int Balance { get; private set; }
+        public decimal Balance { get; private set; }
         /// <summary>
         /// Код пользователя
         /// </summary>
@@ -21,7 +21,7 @@ namespace HorseRacing.Domain.UserAggregate.Entities
 
         private Account() : base(AccountId.CreateUnique()) { }
 
-        private Account(AccountId id, int balance, UserId userId) : base(id ?? AccountId.CreateUnique())
+        private Account(AccountId id, decimal balance, UserId userId) : base(id ?? AccountId.CreateUnique())
         {
             Balance = balance;
             UserId = userId;
@@ -33,7 +33,7 @@ namespace HorseRacing.Domain.UserAggregate.Entities
         /// <param name="id">Код аккаунта</param>
         /// <param name="balance">Баланс</param>
         /// <param name="userId">Код пользователя</param>
-        public static Account Create(AccountId id, int balance, UserId userId)
+        public static Account Create(AccountId id, decimal balance, UserId userId)
         {
             return new Account(id, balance, userId);
         }
@@ -41,7 +41,7 @@ namespace HorseRacing.Domain.UserAggregate.Entities
         /// Метод списания баланса
         /// </summary>
         /// <param name="balance">Баланс</param>
-        public void DebitBalance(int coins)
+        public void DebitBalance(decimal coins)
         {
             Balance -= coins;
         }
@@ -49,7 +49,7 @@ namespace HorseRacing.Domain.UserAggregate.Entities
         /// Метод зачисления баланса
         /// </summary>
         /// <param name="balance">Баланс</param>
-        public void CreditBalance(int coins)
+        public void CreditBalance(decimal coins)
         {
             Balance += coins;
         }

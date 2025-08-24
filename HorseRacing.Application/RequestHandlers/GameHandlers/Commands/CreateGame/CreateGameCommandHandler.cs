@@ -38,14 +38,16 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.CreateGa
                 return Errors.Authentication.UserNotFound;
             }
 
-            Game game = Game.Create(GameId.CreateUnique(), command.Name, Domain.GameAggregate.Enums.StatusType.Wait, new EntityChangeInfo(DateTime.UtcNow, user.Id));
-
-            int bet = command.BetAmount == 0 ? 10 : command.BetAmount;
+            decimal bet = command.BetAmount == 0 ? 10 : command.BetAmount;
 
             if (user!.Account!.Balance - bet < 0)
             {
                 return Errors.Game.NotEnoughFundsToPlaceBet;
             }
+
+            Game game = Game.Create(GameId.CreateUnique(), command.Name, Domain.GameAggregate.Enums.StatusType.Wait
+                , command.Mode, new EntityChangeInfo(DateTime.UtcNow, user.Id)
+                , command.Mode == Domain.GameAggregate.Enums.GameModeType.Classic ? bet : null);
 
             var suit = command.BetSuit == Domain.GameAggregate.Enums.SuitType.None 
                 ? _gameService.GetRandomAvilableSuit(game).Result.Value

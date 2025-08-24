@@ -17,6 +17,10 @@
         /// Количество игроков
         /// </summary>
         public const int NumberOfPlayers = 4;
+        /// <summary>
+        /// Количество лошадей
+        /// </summary>
+        public const int NumberOfHorse = 4;
 
         public static class CommonRepositoryValues
         {

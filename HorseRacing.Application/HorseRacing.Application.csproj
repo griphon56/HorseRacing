@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="EventHandlers\Common\" />
+    <Compile Remove="EventHandlers\Common\**" />
+    <EmbeddedResource Remove="EventHandlers\Common\**" />
+    <None Remove="EventHandlers\Common\**" />
   </ItemGroup>
 
   <ItemGroup>

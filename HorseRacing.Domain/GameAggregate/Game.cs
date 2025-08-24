@@ -4,7 +4,6 @@ using HorseRacing.Domain.GameAggregate.Entities;
 using HorseRacing.Domain.GameAggregate.Enums;
 using HorseRacing.Domain.GameAggregate.ValueObjects;
 using HorseRacing.Domain.UserAggregate.ValueObjects;
-using MediatR;
 using System.ComponentModel.DataAnnotations;
 
 namespace HorseRacing.Domain.GameAggregate
@@ -19,6 +18,14 @@ namespace HorseRacing.Domain.GameAggregate
         /// Статус игры
         /// </summary>
         public StatusType Status { get; private set; }
+        /// <summary>
+        /// Режим игры
+        /// </summary>
+        public GameModeType Mode { get; private set; }
+        /// <summary>
+        /// Предопределенная ставка при создании игры
+        /// </summary>
+        public decimal? DefaultBet { get; private set; }
         /// <summary>
         /// Наименование комнаты
         /// </summary>
@@ -64,11 +71,13 @@ namespace HorseRacing.Domain.GameAggregate
 
         private Game() : base(GameId.CreateUnique(), new EntityChangeInfo(DateTime.UtcNow)) { }
 
-        private Game(GameId id, string name, StatusType status, EntityChangeInfo changeInfo
-            , DateTime? dateStart = null, DateTime? dateEnd = null)
+        private Game(GameId id, string name, StatusType status, GameModeType mode, EntityChangeInfo changeInfo
+            , decimal? defaultBet = null, DateTime? dateStart = null, DateTime? dateEnd = null)
             : base(id ?? GameId.CreateUnique(), changeInfo)
         {
             Name = name;
+            Mode = mode;
+            DefaultBet = defaultBet;
             Status = status;
             DateStart = dateStart;
             DateEnd = dateEnd;
@@ -80,15 +89,15 @@ namespace HorseRacing.Domain.GameAggregate
         /// <param name="name">Наименование игры</param>
         /// <param name="status">Статус</param>
         /// <param name="changeInfo"><see cref="EntityChangeInfo"/></param>
-        public static Game Create(GameId id, string name, StatusType status, EntityChangeInfo changeInfo)
+        public static Game Create(GameId id, string name, StatusType status, GameModeType mode, EntityChangeInfo changeInfo, decimal? defaultBet = null)
         {
-            return new Game(id, name, status, changeInfo);
+            return new Game(id, name, status, mode, changeInfo, defaultBet);
         }
 
         /// <summary>
         /// Метод обновления информации о игре
         /// </summary>
-        /// <param name="name">Наименоване</param>
+        /// <param name="name">Наименование</param>
         /// <param name="status">Статус игры</param>
         /// <param name="dt_start">Дата начала</param>
         /// <param name="dt_end">Дата окончания</param>
@@ -181,7 +190,7 @@ namespace HorseRacing.Domain.GameAggregate
             var horsePositions = new List<GameHorsePosition>();
             foreach (var suit in suits)
             {
-                horsePositions.Add(GameHorsePosition.Create(GameHorsePositionId.CreateUnique(), this.Id, suit, 0));
+                horsePositions.Add(GameHorsePosition.Create(GameHorsePositionId.CreateUnique(), this.Id, suit, 0, 0));
             }
 
             _gameHorsePositions.AddRange(horsePositions);
@@ -222,12 +231,42 @@ namespace HorseRacing.Domain.GameAggregate
         {
             if (card is null) return -1;
 
-            var horsePosition = _gameHorsePositions
-                .Where(horse => horse.HorseSuit == card.CardSuit).FirstOrDefault();
-            if (horsePosition is not null)
+            var horse = _gameHorsePositions
+                .Where(h => h.HorseSuit == card.CardSuit).FirstOrDefault();
+            if (horse is not null)
             {
-                horsePosition.SetPosition(horsePosition.Position + 1);
-                return horsePosition.Position;
+                horse.SetPosition(horse.Position + 1);
+                return horse.Position;
+            }
+
+            return -1;
+        }
+        /// <summary>
+        /// Метод получения финишного места лошади
+        /// </summary>
+        public int GetHorsePlace(GameDeckCard card)
+        {
+            if (card is null) return -1;
+
+            var horse = _gameHorsePositions
+                .Where(h => h.HorseSuit == card.CardSuit).FirstOrDefault();
+
+            return horse is not null ? horse.Place : -1;
+        }
+        /// <summary>
+        /// Метод обновления позиции финиширования лошади
+        /// </summary>
+        public int UpdateHorseFinishPlace(GameDeckCard card)
+        {
+            if (card is null) return -1;
+
+            var horse = _gameHorsePositions
+                .Where(h => h.HorseSuit == card.CardSuit).FirstOrDefault();
+            if (horse is not null)
+            {
+                int maxPlace = _gameHorsePositions.Select(x => x.Place).Max();
+                horse.SetFinishPlace(maxPlace + 1);
+                return horse.Place;
             }
 
             return -1;
@@ -253,10 +292,10 @@ namespace HorseRacing.Domain.GameAggregate
         /// <summary>
         /// Метод проверки завершения игры
         /// </summary>
-        /// <returns>Возвращает true, если одна из лошадей пересекла финишную линию</returns>
+        /// <returns>Возвращает true, если все лошади пересекли финишную линию</returns>
         public bool IsGameFinished()
         {
-            return _gameHorsePositions.Select(x => x.Position).Max() == CommonSystemValues.NumberOfObstacles + 1;
+            return _gameHorsePositions.Select(x => x.Position == CommonSystemValues.NumberOfObstacles + 1).Count() == CommonSystemValues.NumberOfHorse;
         }
 
         /// <summary>
@@ -272,9 +311,10 @@ namespace HorseRacing.Domain.GameAggregate
         }
 
         public void AddEventGame(GameId gameId, int step, GameEventType eventType, SuitType? cardSuit = null
-            , RankType? cardRank = null, int? cardOrder = null, SuitType? horseSuit = null, int? position = null)
+            , RankType? cardRank = null, int? cardOrder = null, SuitType? horseSuit = null, int? position = null
+            , int? place = null)
         {
-            _gameEvents.Add(GameEvent.Create(gameId, step, eventType, cardSuit, cardRank, cardOrder, horseSuit, position));
+            _gameEvents.Add(GameEvent.Create(gameId, step, eventType, cardSuit, cardRank, cardOrder, horseSuit, position, place));
         }
     }
 }

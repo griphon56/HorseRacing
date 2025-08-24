@@ -15,7 +15,7 @@ namespace HorseRacing.Domain.GameAggregate.Entities
         /// <summary>
         /// Ставка
         /// </summary>
-        public int BetAmount { get; private set; }
+        public decimal BetAmount { get; private set; }
         /// <summary>
         /// Масть
         /// </summary>
@@ -31,7 +31,7 @@ namespace HorseRacing.Domain.GameAggregate.Entities
 
         private GamePlayer() : base(GamePlayerId.CreateUnique()) { }
 
-        private GamePlayer(GamePlayerId id, int betAmount, SuitType betSuit, GameId gameId, UserId userId)
+        private GamePlayer(GamePlayerId id, decimal betAmount, SuitType betSuit, GameId gameId, UserId userId)
              : base(id ?? GamePlayerId.CreateUnique())
         {
             BetAmount = betAmount;
@@ -40,12 +40,12 @@ namespace HorseRacing.Domain.GameAggregate.Entities
             UserId = userId;
         }
 
-        public static GamePlayer Create(GamePlayerId id, int betAmount, SuitType betSuit, GameId gameId, UserId userId)
+        public static GamePlayer Create(GamePlayerId id, decimal betAmount, SuitType betSuit, GameId gameId, UserId userId)
         {
             return new GamePlayer(id, betAmount, betSuit, gameId, userId);
         }
 
-        public void Update(int betAmount, SuitType betSuit)
+        public void Update(decimal betAmount, SuitType betSuit)
         {
             BetAmount = betAmount;
             BetSuit = betSuit;

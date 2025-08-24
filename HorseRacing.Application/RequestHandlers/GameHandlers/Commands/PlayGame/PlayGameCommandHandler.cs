@@ -1,6 +1,7 @@
 ﻿using ErrorOr;
 using HorseRacing.Application.Common.Interfaces.Persistence;
 using HorseRacing.Application.RequestHandlers.GameHandlers.Common;
+using HorseRacing.Common;
 using HorseRacing.Domain.Common.Errors;
 using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.GameAggregate.Enums;
@@ -59,15 +60,18 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGam
             int i_block = 1;
             while (!game.IsGameFinished())
             {
-                if (game.GameHorsePositions.Where(x => x.Position >= i_block).Count() == 4)
+                if (game.GameHorsePositions.Where(x => x.Position >= i_block).Count() == CommonSystemValues.NumberOfHorse)
                 {
                     var cardBlock = game.GetCardFromTable();
                     game.AddEventGame(command.GameId, step++, GameEventType.ObstacleCardRevealed, cardBlock.CardSuit, cardBlock.CardRank, cardBlock.CardOrder);
                     _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) got card block {cardBlock.CardRank} {cardBlock.CardSuit}");
 
-                    int horsePositionObstacle = game.UpdateHorsePositionWithBlock(cardBlock);
-                    game.AddEventGame(command.GameId, step++, GameEventType.HorseRetreatedByObstacle, cardBlock.CardSuit, cardBlock.CardRank, null, cardBlock.CardSuit, horsePositionObstacle);
-                    _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) updated horse position with block");
+                    if (game.GetHorsePlace(cardBlock) == 0)
+                    {
+                        int horsePositionObstacle = game.UpdateHorsePositionWithBlock(cardBlock);
+                        game.AddEventGame(command.GameId, step++, GameEventType.HorseRetreatedByObstacle, cardBlock.CardSuit, cardBlock.CardRank, null, cardBlock.CardSuit, horsePositionObstacle);
+                        _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) updated horse position with block");
+                    }
 
                     i_block++;
                 }
@@ -76,9 +80,19 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Commands.StartGam
                 game.AddEventGame(command.GameId, step++, GameEventType.GetCardFromDeck, card.CardSuit, card.CardRank, card.CardOrder);
                 _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) got card {card.CardRank} {card.CardSuit}");
 
-                int horsePosition = game.UpdateHorsePosition(card);
-                game.AddEventGame(command.GameId, step++, GameEventType.UpdateHorsePosition, card.CardSuit, card.CardRank, null, card.CardSuit, horsePosition);
-                _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) updated horse position");
+                if(game.GetHorsePlace(card) == 0)
+                {
+                    int horsePosition = game.UpdateHorsePosition(card);
+                    game.AddEventGame(command.GameId, step++, GameEventType.UpdateHorsePosition, card.CardSuit, card.CardRank, null, card.CardSuit, horsePosition);
+                    _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) updated horse position: {horsePosition}");
+
+                    if (CommonSystemValues.NumberOfObstacles + 1 == horsePosition)
+                    {
+                        int horsePlace = game.UpdateHorseFinishPlace(card);
+                        game.AddEventGame(command.GameId, step++, GameEventType.HorseFinished, card.CardSuit, card.CardRank, null, card.CardSuit, null, horsePlace);
+                        _logger.LogInformation($"[{DateTime.UtcNow}]: Game {game.Name} ({game.Id.Value}) updated horse finish place: {horsePlace}");
+                    }
+                }
 
                 await _gameRepository.Update(game, cancellationToken);
             }

@@ -1,4 +1,5 @@
 ﻿using HorseRacing.Contracts.Base.Dto;
+using HorseRacing.Domain.GameAggregate.Enums;
 
 namespace HorseRacing.Contracts.Models.Game.Requests.CreateGame
 {
@@ -17,8 +18,14 @@ namespace HorseRacing.Contracts.Models.Game.Requests.CreateGame
         /// </summary>
         public int BetAmount { get; set; } = 10;
         /// <summary>
+        /// Режим игры
+        /// <see cref="GameModeType"/>
+        /// </summary>
+        public int Mode { get; set; } = 0;
+        /// <summary>
         /// Масть лошади, 
         /// которую пользователь выбрал при создании игры
+        /// <see cref="SuitType"/>
         /// </summary>
         public int BetSuit { get; set; } = 0;
     }

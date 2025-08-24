@@ -9,4 +9,6 @@ export interface CreateGameRequestDto extends BaseDto{
     BetAmount: number;
     /** Масть лошади, которую выбрал пользователь при создании игры */
     BetSuit: number;
+    /** Режим игры */
+    Mode: number;
 }

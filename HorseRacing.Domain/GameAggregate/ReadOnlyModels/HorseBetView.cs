@@ -15,7 +15,7 @@ namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
         /// <summary>
         /// Сумма ставки
         /// </summary>
-        public int BetAmount { get; set; }
+        public decimal BetAmount { get; set; }
         /// <summary>
         /// Код пользователя
         /// </summary>
@@ -27,7 +27,7 @@ namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
 
         public HorseBetView() { }
 
-        public HorseBetView(SuitType betSuit, int betAmount, UserId userId, string fullName)
+        public HorseBetView(SuitType betSuit, decimal betAmount, UserId userId, string fullName)
         {
             BetSuit = betSuit;
             BetAmount = betAmount;

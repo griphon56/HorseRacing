@@ -20,18 +20,23 @@ namespace HorseRacing.Domain.GameAggregate.Entities
         /// </summary>
         public int Position { get; private set; }
         /// <summary>
+        /// Каким финишировал
+        /// </summary>
+        public int Place { get; private set; }
+        /// <summary>
         /// Код игры
         /// </summary>
         public GameId GameId { get; private set; }
 
         private GameHorsePosition() : base(GameHorsePositionId.CreateUnique()) { }
 
-        private GameHorsePosition(GameHorsePositionId id, GameId gameId, SuitType horseSuit, int position)
+        private GameHorsePosition(GameHorsePositionId id, GameId gameId, SuitType horseSuit, int position, int place = 0)
             : base(id ?? GameHorsePositionId.CreateUnique())
         {
             GameId = gameId;
             HorseSuit = horseSuit;
             Position = position;
+            Place = place;
         }
         /// <summary>
         /// Метод создания лошади в игре
@@ -40,9 +45,9 @@ namespace HorseRacing.Domain.GameAggregate.Entities
         /// <param name="gameId">Код игры</param>
         /// <param name="horseSuit">Масть лошади</param>
         /// <param name="position">Позиция</param>
-        public static GameHorsePosition Create(GameHorsePositionId id, GameId gameId, SuitType horseSuit, int position)
+        public static GameHorsePosition Create(GameHorsePositionId id, GameId gameId, SuitType horseSuit, int position, int place = 0)
         {
-            return new GameHorsePosition(id, gameId, horseSuit, position);
+            return new GameHorsePosition(id, gameId, horseSuit, position, place);
         }
         /// <summary>
         /// Метод установки позиции лошади
@@ -51,6 +56,15 @@ namespace HorseRacing.Domain.GameAggregate.Entities
         public void SetPosition(int position)
         {
             Position = position;
+        }
+
+        /// <summary>
+        /// Метод установки позиции при финише
+        /// </summary>
+        /// <param name="place"></param>
+        public void SetFinishPlace(int place)
+        {
+            Place = place;
         }
     }
 }

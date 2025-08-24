@@ -40,6 +40,10 @@ namespace HorseRacing.Domain.GameAggregate.Entities
         /// </summary>
         public int? Position { get; private set; }
         /// <summary>
+        /// Финишная позиция лошади
+        /// </summary>
+        public int? Place { get; private set; }
+        /// <summary>
         /// Дата события
         /// </summary>
         public DateTime EventDate { get; private set; }
@@ -51,7 +55,7 @@ namespace HorseRacing.Domain.GameAggregate.Entities
         private GameEvent() : base(GameEventId.CreateUnique()) { }
 
         private GameEvent(GameEventId id, GameId gameId, int step, GameEventType eventType, DateTime eventDate
-            , SuitType? cardSuit, RankType? cardRank, int? cardOrder, SuitType? horseSuit, int? position)
+            , SuitType? cardSuit, RankType? cardRank, int? cardOrder, SuitType? horseSuit, int? position, int? place)
             : base(id ?? GameEventId.CreateUnique())
         {
             Step = step;
@@ -63,12 +67,13 @@ namespace HorseRacing.Domain.GameAggregate.Entities
             Position = position;
             EventDate = eventDate;
             GameId = gameId;
+            Place = place;
         }
 
         public static GameEvent Create(GameId gameId, int step, GameEventType eventType, SuitType? cardSuit = null
-            , RankType? cardRank = null, int? cardOrder = null, SuitType? horseSuit = null, int? position = null)
+            , RankType? cardRank = null, int? cardOrder = null, SuitType? horseSuit = null, int? position = null, int? place = null)
         {
-            return new GameEvent(GameEventId.CreateUnique(), gameId, step, eventType, DateTime.UtcNow, cardSuit, cardRank, cardOrder, horseSuit, position);
+            return new GameEvent(GameEventId.CreateUnique(), gameId, step, eventType, DateTime.UtcNow, cardSuit, cardRank, cardOrder, horseSuit, position, place);
         }
     }
 }

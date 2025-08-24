@@ -20,5 +20,7 @@ namespace HorseRacing.Domain.GameAggregate.Enums
         UpdateHorsePosition,
         [Description("Игра завершилась")]
         EndGame,
+        [Description("Лошадь финишировала")]
+        HorseFinished
     }
 }

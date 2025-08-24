@@ -16,7 +16,7 @@ namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
         /// <summary>
         /// Сумма ставки
         /// </summary>
-        public required int BetAmount { get; set; }
+        public required decimal BetAmount { get; set; }
         /// <summary>
         /// Масть
         /// </summary>
