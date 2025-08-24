@@ -15,6 +15,14 @@ namespace HorseRacing.Application.RequestHandlers.GameHandlers.Common
         /// </summary>
         public StatusType Status { get; set; }
         /// <summary>
+        /// Режим игры
+        /// </summary>
+        public GameModeType Mode { get; set; }
+        /// <summary>
+        /// Предопределенная ставка при создании игры
+        /// </summary>
+        public decimal? DefaultBet { get; set; }
+        /// <summary>
         /// Наименование комнаты
         /// </summary>
         public string Name { get; set; } = string.Empty;

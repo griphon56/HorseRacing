@@ -1,12 +1,19 @@
 <template>
     <div class="join-game-page">
         <n-h1>Присоединиться к игре</n-h1>
+
+        <div v-if="gameInfo" class="game-header">
+            <strong>Комната:</strong> {{ gameInfo.Name }}
+            <span v-if="gameInfo.Mode">({{ gameModeName(gameInfo.Mode) }})</span>
+        </div>
+
         <n-form ref="formRef" :model="form" :rules="rules" label-placement="top">
             <n-form-item label="Ставка" path="betAmount">
                 <n-input-number
                     v-model:value="form.betAmount"
                     :min="1"
                     placeholder="Введите ставку"
+                    :disabled="isBetDisabled"
                 />
             </n-form-item>
             <n-form-item label="Масть" path="betSuit">
@@ -27,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, reactive } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import {
     NForm,
@@ -45,7 +52,9 @@ import { useAuthStore } from '~/stores/auth-store';
 import { RouteName } from '~/interfaces';
 import { SuitType } from '~/interfaces/api/contracts/model/game/enums/suit-type-enum';
 import { signalRService } from '~/core/signalr/signalr-service';
-import { SuitOptions } from '~/utils/game-utils';
+import { SuitOptions, gameModeName } from '~/utils/game-utils';
+import type { GetGameResponseDto } from '~/interfaces/api/contracts/model/game/responses/get-game/get-game-response-dto';
+import { GameModeType } from '~/interfaces/api/contracts/model/game/enums/game-mode-type-enum';
 
 const suitOptions = ref([...SuitOptions]);
 
@@ -56,7 +65,7 @@ const route = useRoute();
 
 const loading = ref(false);
 const formRef = ref<FormInst | null>(null);
-const form = ref({
+const form = reactive({
     gameId: '',
     betAmount: 1,
     betSuit: SuitType.Diamonds,
@@ -66,6 +75,30 @@ const rules: FormRules = {
     betAmount: { required: true, type: 'number', message: 'Введите ставку', trigger: ['input'] },
     betSuit: { required: true, type: 'number', message: 'Выберите масть', trigger: ['change'] },
 };
+
+const gameInfo = ref<GetGameResponseDto | null>(null);
+const isBetDisabled = ref(false);
+
+/**
+ * Получает информацию по игре. Адаптируется к разным форматам ответа (Data / DataValues / plain).
+ */
+async function fetchGameInfo(gameId: string) {
+    try {
+        const resp = await gamesStore.getGameById({ Data: { Id: gameId } });
+        if (!resp || !resp.Data) return;
+
+        gameInfo.value = resp.Data;
+
+        if (gameInfo.value.Mode == GameModeType.Classic) {
+            form.betAmount = gameInfo.value.DefaultBet ?? 1;
+            isBetDisabled.value = true;
+        } else {
+            isBetDisabled.value = false;
+        }
+    } catch (err) {
+        console.warn('fetchGameInfo error', err);
+    }
+}
 
 async function fetchAvailableSuits(gameId: string) {
     const response = await gamesStore.getAvailableSuit({ Data: { Id: gameId } });
@@ -78,7 +111,7 @@ async function fetchAvailableSuits(gameId: string) {
     );
 
     if (suitOptions.value.length > 0) {
-        form.value.betSuit = suitOptions.value[0].value;
+        form.betSuit = suitOptions.value[0].value;
     }
 }
 
@@ -94,14 +127,14 @@ async function onJoinGame() {
 
         await gamesStore.joinGameWithBet({
             Data: {
-                GameId: form.value.gameId,
+                GameId: form.gameId,
                 UserId: authStore.user?.Id || '',
-                BetAmount: form.value.betAmount,
-                BetSuit: form.value.betSuit as SuitType,
+                BetAmount: form.betAmount,
+                BetSuit: form.betSuit as SuitType,
             },
         });
 
-        router.push({ name: RouteName.Lobby, params: { id: form.value.gameId } });
+        router.push({ name: RouteName.Lobby, params: { id: form.gameId } });
     } finally {
         loading.value = false;
     }
@@ -109,11 +142,12 @@ async function onJoinGame() {
 
 onMounted(async () => {
     if (route.params.id) {
-        form.value.gameId = String(route.params.id);
+        form.gameId = String(route.params.id);
+        await fetchGameInfo(form.gameId);
 
-        await signalRService.joinToGame(form.value.gameId);
+        await fetchAvailableSuits(form.gameId);
 
-        await fetchAvailableSuits(form.value.gameId);
+        await signalRService.joinToGame(form.gameId);
 
         await signalRService.onAvailableSuitsUpdated(async () => {
             await fetchAvailableSuits(route.params.id as string);

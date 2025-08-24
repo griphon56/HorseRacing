@@ -51,7 +51,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Balance = table.Column<int>(type: "int", nullable: false),
+                    Balance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -100,6 +100,8 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
+                    Mode = table.Column<int>(type: "int", nullable: false),
+                    DefaultBet = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     DateStart = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DateEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -158,6 +160,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                     CardOrder = table.Column<int>(type: "int", nullable: true),
                     HorseSuit = table.Column<int>(type: "int", nullable: true),
                     Position = table.Column<int>(type: "int", nullable: true),
+                    Place = table.Column<int>(type: "int", nullable: true),
                     EventDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     GameId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -179,6 +182,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     HorseSuit = table.Column<int>(type: "int", nullable: false),
                     Position = table.Column<int>(type: "int", nullable: false),
+                    Place = table.Column<int>(type: "int", nullable: false),
                     GameId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -197,7 +201,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    BetAmount = table.Column<int>(type: "int", nullable: false),
+                    BetAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     BetSuit = table.Column<int>(type: "int", nullable: false),
                     GameId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
@@ -224,6 +228,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Place = table.Column<int>(type: "int", nullable: false),
                     Position = table.Column<int>(type: "int", nullable: false),
                     BetSuit = table.Column<int>(type: "int", nullable: false),
                     GameId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -263,11 +268,11 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                 columns: new[] { "Id", "Balance", "UserId" },
                 values: new object[,]
                 {
-                    { new Guid("1223998a-318f-460c-9464-1164ee56cb46"), 0, new Guid("8223998a-318f-460c-9464-1164ee56cb46") },
-                    { new Guid("12e3693b-c52c-418b-8053-7f1d2c173f73"), 10, new Guid("141fcb82-6639-4932-a68d-af84f09ef42d") },
-                    { new Guid("6e61dbec-d4c9-4f17-ba0d-2920d714e3d8"), 10, new Guid("8f2facbc-2ef4-4fe1-b9e0-e3f877edb3c3") },
-                    { new Guid("7435e47c-7336-4c28-badc-0fa526756616"), 10, new Guid("17b6f19e-56b1-485c-a16a-c60cec5cdaa6") },
-                    { new Guid("b43ab810-b393-454d-b35f-15975d20e33b"), 10, new Guid("a1f52f7e-6dd6-4ff9-bded-78305b42c81e") }
+                    { new Guid("1223998a-318f-460c-9464-1164ee56cb46"), 0m, new Guid("8223998a-318f-460c-9464-1164ee56cb46") },
+                    { new Guid("12e3693b-c52c-418b-8053-7f1d2c173f73"), 100m, new Guid("141fcb82-6639-4932-a68d-af84f09ef42d") },
+                    { new Guid("6e61dbec-d4c9-4f17-ba0d-2920d714e3d8"), 100m, new Guid("8f2facbc-2ef4-4fe1-b9e0-e3f877edb3c3") },
+                    { new Guid("7435e47c-7336-4c28-badc-0fa526756616"), 100m, new Guid("17b6f19e-56b1-485c-a16a-c60cec5cdaa6") },
+                    { new Guid("b43ab810-b393-454d-b35f-15975d20e33b"), 100m, new Guid("a1f52f7e-6dd6-4ff9-bded-78305b42c81e") }
                 });
 
             migrationBuilder.CreateIndex(

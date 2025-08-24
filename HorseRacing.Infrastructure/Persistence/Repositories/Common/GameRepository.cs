@@ -1,5 +1,4 @@
 ﻿using HorseRacing.Application.Common.Interfaces.Persistence;
-using HorseRacing.Common;
 using HorseRacing.Domain.GameAggregate;
 using HorseRacing.Domain.GameAggregate.ReadOnlyModels;
 using HorseRacing.Domain.GameAggregate.Specifications.Queries;
@@ -38,9 +37,8 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Common
                     GameId = id,
                     UserId = x.result.UserId,
                     BetSuit = x.result.BetSuit,
-                    FullName = $"{x.user.FirstName} {x.user.LastName} ({x.user.UserName})",
-                    Position = x.result.Position,
-                    IsWinner = x.result.Position == CommonSystemValues.NumberOfObstacles + 1
+                    FullName = Domain.Common.Utilities.Utilities.User.FormatLFMUsername(x.user.FirstName, x.user.LastName, x.user.UserName),
+                    Place = x.result.Place,
                 })
                 .ToListAsync(cancellationToken);
         }
@@ -52,6 +50,7 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Common
                 {
                     GameId = x.Id,
                     GameName = x.Name,
+                    TotalBank = x.GamePlayers.Select(gp => gp.BetAmount).Sum(),
                     Players = x.GamePlayers.Join(_dbContext.Users, gp => gp.UserId, u => u.Id
                         , (gp, u) => new GameUserView
                         {
@@ -73,7 +72,7 @@ namespace HorseRacing.Infrastructure.Persistence.Repositories.Common
         public async Task<List<HorseBetView>> GetHorseBet(GameId id, CancellationToken cancellationToken = default)
         {
             return await BuildQuery(ByKeySearchSpecification(id))
-                .SelectMany(x=> x.GamePlayers
+                .SelectMany(x => x.GamePlayers
                     .Join(_dbContext.Users, gp => gp.UserId, user => user.Id
                         , (gp, user) => new { gp, user }))
                 .Select(x => new HorseBetView(x.gp.BetSuit, x.gp.BetAmount, x.gp.UserId, Domain.Common.Utilities.Utilities.User.FormatLFMUsername(x.user.FirstName, x.user.LastName, x.user.UserName)))

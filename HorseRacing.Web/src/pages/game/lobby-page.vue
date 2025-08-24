@@ -3,19 +3,22 @@
         <n-h1>Лобби игры</n-h1>
         <div v-if="game">
             <div class="game-title"><strong>Игра:</strong> {{ game.GameName }}</div>
+            <div class="game-total-bank">
+                <strong>Банк: </strong>
+                {{ game.TotalBank }}
+                <n-icon size="25" color="#0e7a0d" :component="MoneyBillAltRegular" />
+            </div>
         </div>
         <n-table :bordered="false" :single-line="false" class="players-table">
             <thead>
                 <tr>
                     <th>Игрок</th>
-                    <th>Ставка</th>
                     <th>Масть</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="player in players" :key="player.UserId">
                     <td>{{ player.FullName }}</td>
-                    <td>{{ player.BetAmount }}</td>
                     <td>{{ suitName(player.BetSuit) }}</td>
                 </tr>
             </tbody>
@@ -29,6 +32,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { MoneyBillAltRegular } from '@vicons/fa';
 import { NH1, NTable } from 'naive-ui';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '~/stores/auth-store';
@@ -100,6 +104,10 @@ onBeforeUnmount(() => {
 }
 .game-title {
     margin-bottom: 20px;
+    font-size: 18px;
+}
+.game-total-bank {
+    margin-bottom: 10px;
     font-size: 18px;
 }
 .players-table {

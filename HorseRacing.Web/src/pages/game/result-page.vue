@@ -8,23 +8,18 @@
                     <th>🏅</th>
                     <th>Игрок</th>
                     <th>Масть</th>
-                    <th>Победитель</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="player in sortedPlayers" :key="player.UserId">
                     <td class="pos-cell">
-                        <template v-if="player.Position === 1">🥇</template>
-                        <template v-else-if="player.Position === 2">🥈</template>
-                        <template v-else-if="player.Position === 3">🥉</template>
-                        <template v-else>{{ player.Position }}</template>
+                        <template v-if="player.Place === 1">🥇</template>
+                        <template v-else-if="player.Place === 2">🥈</template>
+                        <template v-else-if="player.Place === 3">🥉</template>
+                        <template v-else>{{ player.Place }}</template>
                     </td>
                     <td class="name-cell">{{ player.FullName ?? '—' }}</td>
                     <td class="suit-cell">{{ suitName(player.BetSuit) }}</td>
-                    <td class="winner-cell">
-                        <span v-if="player.IsWinner">✅</span>
-                        <span v-else>—</span>
-                    </td>
                 </tr>
             </tbody>
         </n-table>
@@ -52,14 +47,11 @@ const players = ref<GetGameResultResponseDto[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 
-/**
- * Сортировка: по Position (1..n). Если Position отсутствует — ставим в конец.
- */
 const sortedPlayers = computed(() => {
     return [...players.value].sort((a, b) => {
-        const aPos = typeof a.Position === 'number' ? a.Position : Number.POSITIVE_INFINITY;
-        const bPos = typeof b.Position === 'number' ? b.Position : Number.POSITIVE_INFINITY;
-        return aPos - bPos;
+        const aPlace = typeof a.Place === 'number' ? a.Place : Number.POSITIVE_INFINITY;
+        const bPlace = typeof b.Place === 'number' ? b.Place : Number.POSITIVE_INFINITY;
+        return aPlace - bPlace;
     });
 });
 
@@ -77,13 +69,9 @@ onMounted(async () => {
             return;
         }
 
-        // Вызов store — адаптируй аргументы под твой store если нужно.
-        // Ожидаем, что store.getGameResult возвращает { DataValues: GetGameResultResponseDto[] } или схожую структуру.
         const response = await gamesStore.getGameResult({ Data: { Id: gameId } });
-
         const dataArray: GetGameResultResponseDto[] = response?.DataValues ?? [];
 
-        // Нормализуем типы и защитимся от undefined
         players.value = Array.isArray(dataArray) ? dataArray : [];
     } catch (e: any) {
         console.error('getGameResult failed', e);
@@ -123,11 +111,6 @@ onMounted(async () => {
 
 .suit-cell {
     width: 120px;
-    text-align: center;
-}
-
-.winner-cell {
-    width: 80px;
     text-align: center;
 }
 </style>

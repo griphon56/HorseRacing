@@ -1,16 +1,14 @@
-import type { BaseDto } from "~/interfaces/api/contracts/base/dto/base-dto";
+import type { BaseDto } from '~/interfaces/api/contracts/base/dto/base-dto';
 
 export interface GetGameResultResponseDto extends BaseDto {
-    /** Место, позиция */
-    Position : number;
+    /** Место, которое заняла лошадь в игре */
+    Place: number;
     /** Масть */
-    BetSuit : number;
+    BetSuit: number;
     /** Код игры */
-    GameId : string;
+    GameId: string;
     /** Код пользователя */
-    UserId  : string;
+    UserId: string;
     /** Полное имя пользователя */
-    FullName  : string;
-    /** Победитель */
-    IsWinner : boolean;
+    FullName: string;
 }

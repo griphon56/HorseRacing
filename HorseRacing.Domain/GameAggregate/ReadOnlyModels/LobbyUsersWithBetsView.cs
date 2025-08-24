@@ -13,6 +13,10 @@ namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
         /// </summary>
         public string GameName { get; set; } = string.Empty;
         /// <summary>
+        /// Общий банк ставок
+        /// </summary>
+        public decimal TotalBank { get; set; }
+        /// <summary>
         /// Список пользователей в лобби с их ставками
         /// </summary>
         public List<GameUserView> Players { get; set; } = new();

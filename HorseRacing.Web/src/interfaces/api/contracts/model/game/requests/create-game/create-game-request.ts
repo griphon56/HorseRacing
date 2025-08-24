@@ -5,6 +5,6 @@ export class CreateGameRequest implements BaseRequest<CreateGameRequestDto> {
     Data: CreateGameRequestDto;
 
     constructor(data?: CreateGameRequestDto) {
-        this.Data = data || { UserId: '', Name: '', BetAmount: 0, BetSuit: 0 };
+        this.Data = data || { UserId: '', Name: '', BetAmount: 0, BetSuit: 0, Mode: 0 };
     }
 }

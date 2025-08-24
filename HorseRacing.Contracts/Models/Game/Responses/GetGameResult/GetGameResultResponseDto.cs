@@ -6,9 +6,9 @@ namespace HorseRacing.Contracts.Models.Game.Responses.GetGameResult
     public class GetGameResultResponseDto : BaseDto
     {
         /// <summary>
-        /// Место, позиция
+        /// Место, которое заняла лошадь в игре
         /// </summary>
-        public int Position { get; set; }
+        public int Place { get; set; }
         /// <summary>
         /// Масть
         /// </summary>
@@ -25,9 +25,5 @@ namespace HorseRacing.Contracts.Models.Game.Responses.GetGameResult
         /// Полное имя пользователя
         /// </summary>
         public string FullName { get; set; } = string.Empty;
-        /// <summary>
-        /// Победитель
-        /// </summary>
-        public bool IsWinner { get; set; }
     }
 }

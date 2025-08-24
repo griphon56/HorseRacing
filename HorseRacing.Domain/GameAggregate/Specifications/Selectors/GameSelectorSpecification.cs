@@ -14,6 +14,7 @@ namespace HorseRacing.Domain.GameAggregate.Specifications.Selectors
             {
                 GameId = m.Id,
                 Name = m.Name,
+                Mode = m.Mode,
                 Status = m.Status,
                 DateStart = m.DateStart,
                 DateEnd = m.DateEnd

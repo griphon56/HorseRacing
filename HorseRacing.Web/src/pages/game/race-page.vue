@@ -37,7 +37,12 @@ onMounted(async () => {
 
     const atlasProvider = { getCardTextureFor, getBackTexture };
 
-    renderer = new PixiRendererService(pixiContainer.value, defaultGameConfig, atlasProvider);
+    renderer = new PixiRendererService(
+        pixiContainer.value,
+        defaultGameConfig,
+        atlasProvider,
+        gameData.Id
+    );
     await renderer.init();
     renderer.drawInitial(gameData);
     renderer.startEvents(gameData.Events ?? []);

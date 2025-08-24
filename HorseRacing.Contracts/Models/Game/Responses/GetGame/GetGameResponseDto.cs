@@ -10,9 +10,17 @@ namespace HorseRacing.Contracts.Models.Game.Responses.GetGame
         /// </summary>
         public Guid GameId { get; set; }
         /// <summary>
-        /// Статус игры
+        /// Статус игры <see cref="StatusType"/>
         /// </summary>
-        public StatusType Status { get; set; }
+        public int Status { get; set; }
+        /// <summary>
+        /// Режим игры <see cref="GameModeType"/>
+        /// </summary> 
+        public int Mode { get; set; }
+        /// <summary>
+        /// Предопределенная ставка при создании игры
+        /// </summary>
+        public decimal? DefaultBet { get; set; }
         /// <summary>
         /// Наименование комнаты
         /// </summary>

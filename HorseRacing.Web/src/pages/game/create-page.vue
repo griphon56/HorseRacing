@@ -5,6 +5,13 @@
             <n-form-item label="Название игры" path="name">
                 <n-input v-model:value="form.name" placeholder="Введите название" />
             </n-form-item>
+            <n-form-item label="Режим игры" path="mode">
+                <n-select
+                    v-model:value="form.mode"
+                    :options="GameModeOptions"
+                    placeholder="Выберите режим игры"
+                />
+            </n-form-item>
             <n-form-item label="Ставка" path="betAmount">
                 <n-input-number
                     v-model:value="form.betAmount"
@@ -30,7 +37,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { SuitOptions } from '~/utils/game-utils';
+import { SuitOptions, GameModeOptions } from '~/utils/game-utils';
 import {
     NForm,
     NFormItem,
@@ -85,7 +92,7 @@ async function onCreateGame() {
                 Name: form.value.name,
                 BetAmount: form.value.betAmount,
                 BetSuit: form.value.betSuit as SuitType,
-                Mode: form.value.mode,
+                Mode: form.value.mode as GameModeType,
             },
         });
 

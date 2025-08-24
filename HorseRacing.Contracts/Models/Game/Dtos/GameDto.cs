@@ -13,6 +13,10 @@ namespace HorseRacing.Contracts.Models.Game.Dtos
         /// </summary>
         public StatusType Status { get; set; }
         /// <summary>
+        /// Режим игры
+        /// </summary>
+        public GameModeType Mode { get; set; }
+        /// <summary>
         /// Наименование комнаты
         /// </summary>
         public string Name { get; set; } = string.Empty;

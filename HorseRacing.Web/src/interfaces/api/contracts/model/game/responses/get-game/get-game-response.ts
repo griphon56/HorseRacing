@@ -5,6 +5,14 @@ export class GetGameResponse implements BaseResponse<GetGameResponseDto> {
     Data: GetGameResponseDto;
 
     constructor(data?: GetGameResponseDto) {
-        this.Data = data || { GameId: '', Name: '', Status: 0, DateStart: '', DateEnd: '' };
+        this.Data = data || {
+            GameId: '',
+            Name: '',
+            Status: 0,
+            Mode: 0,
+            DefaultBet: 0,
+            DateStart: '',
+            DateEnd: '',
+        };
     }
 }

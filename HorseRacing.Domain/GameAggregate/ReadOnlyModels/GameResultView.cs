@@ -7,9 +7,9 @@ namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
     public class GameResultView
     {
         /// <summary>
-        /// Место, позиция
+        /// Место, которое заняла лошадь в игре
         /// </summary>
-        public int Position { get; set; }
+        public int Place { get; set; }
         /// <summary>
         /// Масть
         /// </summary>
@@ -26,9 +26,5 @@ namespace HorseRacing.Domain.GameAggregate.ReadOnlyModels
         /// Полное имя пользователя
         /// </summary>
         public string FullName { get; set; } = string.Empty;
-        /// <summary>
-        /// Победитель
-        /// </summary>
-        public bool IsWinner { get; set; } = false;
     }
 }

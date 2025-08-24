@@ -100,6 +100,12 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                     b.Property<DateTime?>("DateStart")
                         .HasColumnType("datetime2");
 
+                    b.Property<decimal?>("DefaultBet")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Mode")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -330,6 +336,9 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                             b1.Property<int?>("HorseSuit")
                                 .HasColumnType("int");
 
+                            b1.Property<int?>("Place")
+                                .HasColumnType("int");
+
                             b1.Property<int?>("Position")
                                 .HasColumnType("int");
 
@@ -357,6 +366,9 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                             b1.Property<int>("HorseSuit")
                                 .HasColumnType("int");
 
+                            b1.Property<int>("Place")
+                                .HasColumnType("int");
+
                             b1.Property<int>("Position")
                                 .HasColumnType("int");
 
@@ -375,8 +387,8 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                             b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<int>("BetAmount")
-                                .HasColumnType("int");
+                            b1.Property<decimal>("BetAmount")
+                                .HasColumnType("decimal(18,2)");
 
                             b1.Property<int>("BetSuit")
                                 .HasColumnType("int");
@@ -415,6 +427,9 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
 
                             b1.Property<Guid>("GameId")
                                 .HasColumnType("uniqueidentifier");
+
+                            b1.Property<int>("Place")
+                                .HasColumnType("int");
 
                             b1.Property<int>("Position")
                                 .HasColumnType("int");
@@ -466,8 +481,8 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                             b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<int>("Balance")
-                                .HasColumnType("int");
+                            b1.Property<decimal>("Balance")
+                                .HasColumnType("decimal(18,2)");
 
                             b1.Property<Guid>("UserId")
                                 .HasColumnType("uniqueidentifier");
@@ -486,31 +501,31 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                                 new
                                 {
                                     Id = new Guid("1223998a-318f-460c-9464-1164ee56cb46"),
-                                    Balance = 0,
+                                    Balance = 0m,
                                     UserId = new Guid("8223998a-318f-460c-9464-1164ee56cb46")
                                 },
                                 new
                                 {
                                     Id = new Guid("6e61dbec-d4c9-4f17-ba0d-2920d714e3d8"),
-                                    Balance = 10,
+                                    Balance = 100m,
                                     UserId = new Guid("8f2facbc-2ef4-4fe1-b9e0-e3f877edb3c3")
                                 },
                                 new
                                 {
                                     Id = new Guid("12e3693b-c52c-418b-8053-7f1d2c173f73"),
-                                    Balance = 10,
+                                    Balance = 100m,
                                     UserId = new Guid("141fcb82-6639-4932-a68d-af84f09ef42d")
                                 },
                                 new
                                 {
                                     Id = new Guid("b43ab810-b393-454d-b35f-15975d20e33b"),
-                                    Balance = 10,
+                                    Balance = 100m,
                                     UserId = new Guid("a1f52f7e-6dd6-4ff9-bded-78305b42c81e")
                                 },
                                 new
                                 {
                                     Id = new Guid("7435e47c-7336-4c28-badc-0fa526756616"),
-                                    Balance = 10,
+                                    Balance = 100m,
                                     UserId = new Guid("17b6f19e-56b1-485c-a16a-c60cec5cdaa6")
                                 });
                         });

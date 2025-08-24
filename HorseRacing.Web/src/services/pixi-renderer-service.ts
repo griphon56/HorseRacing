@@ -10,6 +10,8 @@ export type AtlasService = {
 };
 
 export class PixiRendererService {
+    private gameId: string | null = null;
+
     // external
     private container: HTMLElement;
     private config: GameConfig;
@@ -42,10 +44,16 @@ export class PixiRendererService {
 
     private resizeHandler = () => this.onResize();
 
-    constructor(container: HTMLElement, config: GameConfig, atlasService: AtlasService) {
+    constructor(
+        container: HTMLElement,
+        config: GameConfig,
+        atlasService: AtlasService,
+        gameId: string
+    ) {
         this.container = container;
         this.config = config;
         this.atlas = atlasService;
+        this.gameId = gameId;
     }
 
     // ---------------- lifecycle ----------------
@@ -66,7 +74,7 @@ export class PixiRendererService {
         });
 
         // Insert canvas into container
-        const canvas = (this.app.canvas) as HTMLCanvasElement;
+        const canvas = this.app.canvas as HTMLCanvasElement;
         if (!canvas) throw new Error('Pixi canvas element not found');
 
         // Set fixed CSS size to logical DESIGN size (so canvas visually is 360x800)
@@ -129,13 +137,17 @@ export class PixiRendererService {
         const trackTop = this.config.FINISH_OFFSET;
 
         // Нижняя граница трека = высота экрана минус смещение контейнера и отступ снизу
-        const trackBottom = this.config.DESIGN_HEIGHT - this.trackContainer.y - this.config.BOTTOM_PADDING;
+        const trackBottom =
+            this.config.DESIGN_HEIGHT - this.trackContainer.y - this.config.BOTTOM_PADDING;
 
         // Высота трека = разница между низом и верхом (но не меньше 200px, чтобы поле не было слишком маленьким)
         const trackHeight = Math.max(200, trackBottom - trackTop);
 
         // Ширина трека = ширина экрана минус отступы (левый + правый запас 60px)
-        const trackWidth = Math.max(400, this.config.DESIGN_WIDTH - this.trackContainer.x - this.config.TRACK_SIDE_MARGIN_X - 60);
+        const trackWidth = Math.max(
+            400,
+            this.config.DESIGN_WIDTH - this.trackContainer.x - this.config.TRACK_SIDE_MARGIN_X - 60
+        );
 
         return { trackTop, trackBottom, trackHeight, trackWidth };
     }
@@ -158,13 +170,13 @@ export class PixiRendererService {
         if (!obj) return;
         try {
             if (obj.parent) obj.parent.removeChild(obj);
-        } catch { }
+        } catch {}
         try {
             (obj as any).destroy?.({ children: true, texture: false });
         } catch {
             try {
                 (obj as any).destroy?.();
-            } catch { }
+            } catch {}
         }
     }
 
@@ -257,7 +269,7 @@ export class PixiRendererService {
 
     private drawDeckFromData(deckCards: any[]) {
         const { trackWidth } = this.computeTrackMetrics();
-        const deckX = trackWidth - (this.config.CARD_WIDTH * 3) - this.config.DECK_SHIFT_LEFT; // правая стопка
+        const deckX = trackWidth - this.config.CARD_WIDTH * 3 - this.config.DECK_SHIFT_LEFT; // правая стопка
         const deckY = 6;
 
         // Очистим старые backs
@@ -283,13 +295,22 @@ export class PixiRendererService {
         // Удаляем старые placeholder-ы
         const old = this.trackContainer.children.filter((c: any) => c && c.__deckPlaceholder);
         old.forEach((ph: any) => {
-            try { this.trackContainer.removeChild(ph); (ph as any).destroy?.(); } catch { }
+            try {
+                this.trackContainer.removeChild(ph);
+                (ph as any).destroy?.();
+            } catch {}
         });
 
         const discardOutline = new PIXI.Graphics();
         (discardOutline as any).__deckPlaceholder = 'discard';
         discardOutline.lineStyle(2, 0x444444, 0.6);
-        discardOutline.drawRoundedRect(discardX, deckY, this.config.CARD_WIDTH, this.config.CARD_HEIGHT, 8);
+        discardOutline.drawRoundedRect(
+            discardX,
+            deckY,
+            this.config.CARD_WIDTH,
+            this.config.CARD_HEIGHT,
+            8
+        );
         this.trackContainer.addChild(discardOutline);
 
         // Если есть уже текущая карта (currentCardSprite) — убедимся что она на позиции отбоя
@@ -297,7 +318,9 @@ export class PixiRendererService {
             // позиция в локальных координатах trackContainer
             const localX = discardX;
             const localY = deckY;
-            try { this.currentCardSprite.parent?.removeChild(this.currentCardSprite); } catch { }
+            try {
+                this.currentCardSprite.parent?.removeChild(this.currentCardSprite);
+            } catch {}
             this.currentCardSprite.x = localX;
             this.currentCardSprite.y = localY;
             this.trackContainer.addChild(this.currentCardSprite);
@@ -307,7 +330,7 @@ export class PixiRendererService {
     // Возвращает глобальную позицию (в window coords) для отбоя (куда должны прибывать карты)
     private getDiscardGlobalPos(): { x: number; y: number } {
         const { trackWidth } = this.computeTrackMetrics();
-        const deckX = trackWidth - (this.config.CARD_WIDTH * 3) - this.config.DECK_SHIFT_LEFT;
+        const deckX = trackWidth - this.config.CARD_WIDTH * 3 - this.config.DECK_SHIFT_LEFT;
         const deckY = 6;
         const discardX = deckX + this.config.CARD_WIDTH + 8;
         const discardY = deckY;
@@ -345,7 +368,11 @@ export class PixiRendererService {
         }
 
         // защита: если не объект, делаем fallback
-        if (!discardGlobal || typeof discardGlobal.x !== 'number' || typeof discardGlobal.y !== 'number') {
+        if (
+            !discardGlobal ||
+            typeof discardGlobal.x !== 'number' ||
+            typeof discardGlobal.y !== 'number'
+        ) {
             console.warn('discardGlobal is invalid, using fallback', discardGlobal);
             discardGlobal = { x: 0, y: 0 };
         }
@@ -360,7 +387,9 @@ export class PixiRendererService {
         const local = this.trackContainer.toLocal(new PIXI.Point(fly.x, fly.y), this.app.stage);
         fly.x = local.x;
         fly.y = local.y;
-        try { fly.parent?.removeChild(fly); } catch { }
+        try {
+            fly.parent?.removeChild(fly);
+        } catch {}
         this.trackContainer.addChild(fly);
 
         // 5) поместим в discardSprites / currentCardSprite
@@ -374,8 +403,7 @@ export class PixiRendererService {
     private computeHorizontalLayout(count: number) {
         // границы по горизонтали внутри трассы: левый запас и правый запас (где колода)
         const leftPadding = this.config.HORSE_LEFT_PADDING ?? 12;
-        const rightPadding =
-            this.config.CARD_WIDTH + (this.config.HORSE_RIGHT_EXTRA ?? 24);
+        const rightPadding = this.config.CARD_WIDTH + (this.config.HORSE_RIGHT_EXTRA ?? 24);
 
         const { trackWidth } = this.computeTrackMetrics();
         const usableWidth = Math.max(1, trackWidth - leftPadding - rightPadding);
@@ -384,7 +412,8 @@ export class PixiRendererService {
         const spacing = usableWidth / (Math.max(1, count) + 1);
 
         // функция получения X для индекса i (0-based)
-        const xForIndex = (i: number) => Math.round(leftPadding + spacing * (i + 1) - this.config.CARD_WIDTH / 2);
+        const xForIndex = (i: number) =>
+            Math.round(leftPadding + spacing * (i + 1) - this.config.CARD_WIDTH / 2);
 
         return { leftPadding, rightPadding, usableWidth, spacing, xForIndex };
     }
@@ -464,7 +493,10 @@ export class PixiRendererService {
             spr.x = targetX;
 
             // Y — по позиции horsePositions[suit], привязка к positionYs
-            const pos = Math.max(0, Math.min(this.config.POSITIONS_COUNT - 1, this.horsePositions[suit] ?? 0));
+            const pos = Math.max(
+                0,
+                Math.min(this.config.POSITIONS_COUNT - 1, this.horsePositions[suit] ?? 0)
+            );
             const targetTopY = this.positionYs[pos] ?? this.positionYs[0] ?? 0;
             spr.y = targetTopY;
         }
@@ -482,7 +514,7 @@ export class PixiRendererService {
         // остановим обработку дальнейших событий
         this.stopEvents();
 
-        const url = (ev && (ev.ResultUrl || ev.RedirectUrl)) || RouteName.Result;
+        const url = '/games/result/' + this.gameId;
         this.showEndGameScreen(url);
     }
 
@@ -518,7 +550,7 @@ export class PixiRendererService {
             fill: 0xffffff,
             fontSize: 28,
             fontWeight: '700',
-            align: 'center'
+            align: 'center',
         });
         const txt = new PIXI.Text('Гонка завершена!', style);
         // центрируем по логическим координатам
@@ -555,9 +587,12 @@ export class PixiRendererService {
         if (this.endGameOverlay) {
             try {
                 // безопасно удалить контейнер и содержимое
-                if (this.endGameOverlay.parent) this.endGameOverlay.parent.removeChild(this.endGameOverlay);
-            } catch { }
-            try { this.endGameOverlay.destroy({ children: true, texture: false }); } catch { }
+                if (this.endGameOverlay.parent)
+                    this.endGameOverlay.parent.removeChild(this.endGameOverlay);
+            } catch {}
+            try {
+                this.endGameOverlay.destroy({ children: true, texture: false });
+            } catch {}
             this.endGameOverlay = undefined;
         }
     }
@@ -623,7 +658,10 @@ export class PixiRendererService {
      */
     private async onObstacleRevealed(ev: any) {
         // ev.CardOrder — 1-based индекс преграды, которую нужно перевернуть
-        const order = Math.max(1, Math.min(this.config.BARRIER_COUNT ?? 1, Number(ev.CardOrder ?? 1)));
+        const order = Math.max(
+            1,
+            Math.min(this.config.BARRIER_COUNT ?? 1, Number(ev.CardOrder ?? 1))
+        );
         const idx = order - 1;
 
         // убедимся, что спрайт существует — если нет, создаём back placeholder
@@ -646,7 +684,8 @@ export class PixiRendererService {
         this.recomputePositionYs();
         const leftX = 10;
         const posIndex = idx + 1; // в твоей логике posIndex = idx + 1
-        const targetTopY = this.positionYs[posIndex] ?? this.positionYs[this.positionYs.length - 1] ?? 0;
+        const targetTopY =
+            this.positionYs[posIndex] ?? this.positionYs[this.positionYs.length - 1] ?? 0;
         const spr = this.barrierSprites[idx];
         spr.x = leftX;
         spr.y = targetTopY;
@@ -705,7 +744,10 @@ export class PixiRendererService {
                     if (s <= 0) {
                         // Swap texture to face
                         try {
-                            sprite.texture = this.atlas.getCardTextureFor(cardData.CardSuit, cardData.CardRank);
+                            sprite.texture = this.atlas.getCardTextureFor(
+                                cardData.CardSuit,
+                                cardData.CardRank
+                            );
                             (sprite as any).__card = cardData;
                         } catch (err) {
                             console.warn('flipSpriteToFaceAsync: texture not found', err);
@@ -788,7 +830,7 @@ export class PixiRendererService {
     private onResize() {
         try {
             this.app.renderer.resize(this.container.clientWidth, this.container.clientHeight);
-        } catch { }
+        } catch {}
         this.recomputePositionYs();
         this.placeBarriersOnPositions();
         this.placeHorsesAtPositions();
