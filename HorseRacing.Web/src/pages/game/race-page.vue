@@ -13,10 +13,14 @@ import { defaultGameConfig } from '~/core/games/game-config';
 import { loadCardAtlasAndCache, getCardTextureFor, getBackTexture } from '~/services/atlas-service';
 import { loadMockGame } from '~/services/game-service';
 import type { PlayGameResponse } from '~/interfaces/api/contracts/model/game/responses/play-game/play-game-response';
+import { signalRService } from '~/core/signalr/signalr-service';
+import { useRoute } from 'vue-router';
 
 const pixiContainer = ref<HTMLDivElement | null>(null);
 const phoneFrame = ref<HTMLDivElement | null>(null);
 let renderer: PixiRendererService | null = null;
+
+const route = useRoute();
 
 onMounted(async () => {
     try {
@@ -27,8 +31,15 @@ onMounted(async () => {
 
     let gameData: any = { InitialDeck: [], HorseBets: [], Events: [] };
     try {
-        const parsed = (await loadMockGame('/mock/game.json')) as PlayGameResponse;
-        gameData = parsed.Data ?? parsed;
+        const resultGameSimulation = signalRService.onGameSimulationResult();
+        await signalRService.registerReadyToStart(String(route.params.id));
+        const playResult = await resultGameSimulation;
+        console.log('Simulation result received', playResult);
+
+        gameData = playResult?.Data ?? playResult;
+
+        // const parsed = (await loadMockGame('/mock/game.json')) as PlayGameResponse;
+        // gameData = parsed.Data ?? parsed;
     } catch (e) {
         console.warn(e);
     }
@@ -50,6 +61,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
     try {
+        signalRService.offGameSimulationResult();
         renderer?.stopEvents();
         renderer?.destroy();
         renderer = null;
