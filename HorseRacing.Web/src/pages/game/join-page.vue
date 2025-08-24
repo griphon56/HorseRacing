@@ -27,8 +27,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import {
     NForm,
     NFormItem,
@@ -39,62 +39,58 @@ import {
     NSpace,
     type FormInst,
     type FormRules,
-} from 'naive-ui'
-import { useGamesStore } from '~/stores/games-store'
-import { useAuthStore } from '~/stores/auth-store'
-import { RouteName } from '~/interfaces'
-import { SuitType } from '~/interfaces/api/contracts/model/game/enums/suit-type-enum'
-import { signalRService } from '~/core/signalr/signalr-service'
+} from 'naive-ui';
+import { useGamesStore } from '~/stores/games-store';
+import { useAuthStore } from '~/stores/auth-store';
+import { RouteName } from '~/interfaces';
+import { SuitType } from '~/interfaces/api/contracts/model/game/enums/suit-type-enum';
+import { signalRService } from '~/core/signalr/signalr-service';
+import { SuitOptions } from '~/utils/game-utils';
 
-const suitOptions = ref([
-    { label: 'Бубны', value: SuitType.Diamonds },
-    { label: 'Черви', value: SuitType.Hearts },
-    { label: 'Пики', value: SuitType.Spades },
-    { label: 'Трефы', value: SuitType.Clubs },
-])
+const suitOptions = ref([...SuitOptions]);
 
-const gamesStore = useGamesStore()
-const authStore = useAuthStore()
-const router = useRouter()
-const route = useRoute()
+const gamesStore = useGamesStore();
+const authStore = useAuthStore();
+const router = useRouter();
+const route = useRoute();
 
-const loading = ref(false)
-const formRef = ref<FormInst | null>(null)
+const loading = ref(false);
+const formRef = ref<FormInst | null>(null);
 const form = ref({
     gameId: '',
     betAmount: 1,
     betSuit: SuitType.Diamonds,
-})
+});
 
 const rules: FormRules = {
     betAmount: { required: true, type: 'number', message: 'Введите ставку', trigger: ['input'] },
     betSuit: { required: true, type: 'number', message: 'Выберите масть', trigger: ['change'] },
-}
+};
 
 async function fetchAvailableSuits(gameId: string) {
-  const response = await gamesStore.getAvailableSuit({ Data: { Id: gameId } });
-  const availableSuits = response?.DataValues || [];
+    const response = await gamesStore.getAvailableSuit({ Data: { Id: gameId } });
+    const availableSuits = response?.DataValues || [];
 
-  const availableSuitKeys = availableSuits.map((suit: any) => suit.Suit);
+    const availableSuitKeys = availableSuits.map((suit: any) => suit.Suit);
 
-  suitOptions.value = suitOptions.value.filter(opt =>
-    availableSuitKeys.includes(SuitType[opt.value])
-  );
+    suitOptions.value = suitOptions.value.filter(opt =>
+        availableSuitKeys.includes(SuitType[opt.value])
+    );
 
     if (suitOptions.value.length > 0) {
-        form.value.betSuit = suitOptions.value[0].value
+        form.value.betSuit = suitOptions.value[0].value;
     }
 }
 
 function goBack() {
-    router.push({ name: RouteName.Games })
+    router.push({ name: RouteName.Games });
 }
 
 async function onJoinGame() {
-    if (!formRef.value) return
-    loading.value = true
+    if (!formRef.value) return;
+    loading.value = true;
     try {
-        await formRef.value.validate()
+        await formRef.value.validate();
 
         await gamesStore.joinGameWithBet({
             Data: {
@@ -103,31 +99,30 @@ async function onJoinGame() {
                 BetAmount: form.value.betAmount,
                 BetSuit: form.value.betSuit as SuitType,
             },
-        })
+        });
 
         router.push({ name: RouteName.Lobby, params: { id: form.value.gameId } });
-
     } finally {
-        loading.value = false
+        loading.value = false;
     }
 }
 
 onMounted(async () => {
     if (route.params.id) {
-        form.value.gameId = String(route.params.id)
+        form.value.gameId = String(route.params.id);
 
         await signalRService.joinToGame(form.value.gameId);
 
-        await fetchAvailableSuits(form.value.gameId)
+        await fetchAvailableSuits(form.value.gameId);
 
         await signalRService.onAvailableSuitsUpdated(async () => {
             await fetchAvailableSuits(route.params.id as string);
         });
     }
-})
+});
 
 onBeforeUnmount(() => {
-  signalRService.offAvailableSuitsUpdated();
+    signalRService.offAvailableSuitsUpdated();
 });
 </script>
 

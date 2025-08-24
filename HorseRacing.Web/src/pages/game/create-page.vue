@@ -15,7 +15,7 @@
             <n-form-item label="Масть" path="betSuit">
                 <n-select
                     v-model:value="form.betSuit"
-                    :options="suitOptions"
+                    :options="SuitOptions"
                     placeholder="Выберите масть"
                 />
             </n-form-item>
@@ -30,20 +30,25 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { NForm, NFormItem, NInput, NInputNumber, NSelect, NButton, NH1, NSpace, type FormInst, type FormRules } from 'naive-ui';
+import { SuitOptions } from '~/utils/game-utils';
+import {
+    NForm,
+    NFormItem,
+    NInput,
+    NInputNumber,
+    NSelect,
+    NButton,
+    NH1,
+    NSpace,
+    type FormInst,
+    type FormRules,
+} from 'naive-ui';
 import { useGamesStore } from '~/stores/games-store';
 import { useAuthStore } from '~/stores/auth-store';
 import { RouteName } from '~/interfaces';
 import { SuitType } from '~/interfaces/api/contracts/model/game/enums/suit-type-enum';
 import { signalRService } from '~/core/signalr/signalr-service';
 import { GameModeType } from '~/interfaces/api/contracts/model/game/enums/game-mode-type-enum';
-
-const suitOptions = [
-  { label: 'Бубны', value: SuitType.Diamonds },
-  { label: 'Черви', value: SuitType.Hearts },
-  { label: 'Пики', value: SuitType.Spades },
-  { label: 'Трефы', value: SuitType.Clubs },
-];
 
 const gamesStore = useGamesStore();
 const authStore = useAuthStore();
@@ -52,46 +57,46 @@ const router = useRouter();
 const loading = ref(false);
 const formRef = ref<FormInst | null>(null);
 const form = ref({
-  name: '',
-  betAmount: 1,
-  betSuit: SuitType.Diamonds,
-  mode: GameModeType.Classic
+    name: '',
+    betAmount: 1,
+    betSuit: SuitType.Diamonds,
+    mode: GameModeType.Classic,
 });
 
 const rules: FormRules = {
-  name: { required: true, message: 'Введите название', trigger: ['input'] },
-  betAmount: { required: true, type: 'number', message: 'Введите ставку', trigger: ['input'] },
-  betSuit: { required: true, type: 'number', message: 'Выберите масть', trigger: ['change'] },
-  mode: {required: true, type: 'number', message: 'Выберите режим игры', trigger: ['change'] }
+    name: { required: true, message: 'Введите название', trigger: ['input'] },
+    betAmount: { required: true, type: 'number', message: 'Введите ставку', trigger: ['input'] },
+    betSuit: { required: true, type: 'number', message: 'Выберите масть', trigger: ['change'] },
+    mode: { required: true, type: 'number', message: 'Выберите режим игры', trigger: ['change'] },
 };
 
 function goBack() {
-  router.push({ name: RouteName.Games });
+    router.push({ name: RouteName.Games });
 }
 
 async function onCreateGame() {
-  if (!formRef.value) return;
-  loading.value = true;
-  try {
-    await formRef.value.validate();
-    const response = await gamesStore.createGame({
-      Data: {
-        UserId: authStore.user?.Id || '',
-        Name: form.value.name,
-        BetAmount: form.value.betAmount,
-        BetSuit: form.value.betSuit as SuitType,
-        Mode: form.value.
-      }
-    });
+    if (!formRef.value) return;
+    loading.value = true;
+    try {
+        await formRef.value.validate();
+        const response = await gamesStore.createGame({
+            Data: {
+                UserId: authStore.user?.Id || '',
+                Name: form.value.name,
+                BetAmount: form.value.betAmount,
+                BetSuit: form.value.betSuit as SuitType,
+                Mode: form.value.mode,
+            },
+        });
 
-    const gameId = response?.Data?.GameId;
-    if (gameId) {
-      await signalRService.joinToGame(gameId);
-      router.push({ name: RouteName.Lobby, params: { id: gameId } });
+        const gameId = response?.Data?.GameId;
+        if (gameId) {
+            await signalRService.joinToGame(gameId);
+            router.push({ name: RouteName.Lobby, params: { id: gameId } });
+        }
+    } finally {
+        loading.value = false;
     }
-  } finally {
-    loading.value = false;
-  }
 }
 </script>
 

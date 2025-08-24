@@ -40,7 +40,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { NButton, NSpace, NH1, NTable } from 'naive-ui';
 import { useGamesStore } from '~/stores/games-store';
-import { SuitType } from '~/interfaces/api/contracts/model/game/enums/suit-type-enum';
+import { suitName } from '~/utils/game-utils';
 import { RouteName } from '~/interfaces/app/routes';
 import type { GetGameResultResponseDto } from '~/interfaces/api/contracts/model/game/responses/get-game-result/get-game-result-response-dto';
 
@@ -51,26 +51,6 @@ const gamesStore = useGamesStore();
 const players = ref<GetGameResultResponseDto[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
-
-/**
- * Преобразует масть (число enum или строку) в читаемое название.
- * Поддерживает как числовые значения SuitType.*, так и строковые.
- */
-function suitName(suit: number | string | null | undefined) {
-    if (suit === null || suit === undefined) return '—';
-    switch (suit) {
-        case SuitType.Diamonds:
-            return 'Бубны';
-        case SuitType.Hearts:
-            return 'Черви';
-        case SuitType.Spades:
-            return 'Пики';
-        case SuitType.Clubs:
-            return 'Трефы';
-        default:
-            return String(suit);
-    }
-}
 
 /**
  * Сортировка: по Position (1..n). Если Position отсутствует — ставим в конец.
