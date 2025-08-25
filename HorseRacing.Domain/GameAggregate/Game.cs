@@ -295,7 +295,7 @@ namespace HorseRacing.Domain.GameAggregate
         /// <returns>Возвращает true, если все лошади пересекли финишную линию</returns>
         public bool IsGameFinished()
         {
-            return _gameHorsePositions.Select(x => x.Position == CommonSystemValues.NumberOfObstacles + 1).Count() == CommonSystemValues.NumberOfHorse;
+            return _gameHorsePositions.Where(x => x.Position == CommonSystemValues.NumberOfObstacles + 1).Count() == CommonSystemValues.NumberOfHorse;
         }
 
         /// <summary>

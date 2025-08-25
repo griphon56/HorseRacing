@@ -2,7 +2,6 @@ import * as PIXI from 'pixi.js';
 import type { GameConfig } from '~/core/games/game-config';
 import { ZoneType } from '~/interfaces/api/contracts/model/game/enums/zone-type-enum';
 import { RankType } from '~/interfaces/api/contracts/model/game/enums/rank-type-enum';
-import { RouteName } from '~/interfaces/app/routes';
 
 export type AtlasService = {
     getCardTextureFor: (suit: number, rankIndex: number) => PIXI.Texture;
@@ -10,7 +9,7 @@ export type AtlasService = {
 };
 
 export class PixiRendererService {
-    private gameId: string | null = null;
+    private gameId: string = '';
 
     // external
     private container: HTMLElement;

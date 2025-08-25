@@ -41,7 +41,7 @@ export const defaultGameConfig: GameConfig = {
     DECK_ACTIVE_GAP: 12,
     DECK_SHIFT_LEFT: 20,
     POSITIONS_COUNT: 8,
-    BARRIER_COUNT: 6,
+    BARRIER_COUNT: 5,
     STEP_SCALE: 0.7,
     EVENT_DELAY: 220,
     FLIP_STEP: 0.18,
@@ -54,5 +54,5 @@ export const defaultGameConfig: GameConfig = {
     BOTTOM_PADDING: 12,
     MAX_DEVICE_PIXEL_RATIO: 2,
     DESIGN_WIDTH: 360,
-    DESIGN_HEIGHT: 800
+    DESIGN_HEIGHT: 800,
 };

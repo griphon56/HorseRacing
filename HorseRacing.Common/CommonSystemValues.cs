@@ -12,7 +12,7 @@
         /// <summary>
         /// Количество преград
         /// </summary>
-        public const int NumberOfObstacles = 6;
+        public const int NumberOfObstacles = 5;
         /// <summary>
         /// Количество игроков
         /// </summary>

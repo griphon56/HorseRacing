@@ -31,15 +31,15 @@ onMounted(async () => {
 
     let gameData: any = { InitialDeck: [], HorseBets: [], Events: [] };
     try {
-        const resultGameSimulation = signalRService.onGameSimulationResult();
-        await signalRService.registerReadyToStart(String(route.params.id));
-        const playResult = await resultGameSimulation;
-        console.log('Simulation result received', playResult);
+        // const resultGameSimulation = signalRService.onGameSimulationResult();
+        // await signalRService.registerReadyToStart(String(route.params.id));
+        // const playResult = (await resultGameSimulation) as PlayGameResponse;
+        // console.log('Simulation result received', playResult);
 
-        gameData = playResult?.Data ?? playResult;
+        // gameData = playResult.Data ?? playResult;
 
-        // const parsed = (await loadMockGame('/mock/game.json')) as PlayGameResponse;
-        // gameData = parsed.Data ?? parsed;
+        const parsed = (await loadMockGame('/mock/game.json')) as PlayGameResponse;
+        gameData = parsed.Data ?? parsed;
     } catch (e) {
         console.warn(e);
     }
@@ -52,7 +52,7 @@ onMounted(async () => {
         pixiContainer.value,
         defaultGameConfig,
         atlasProvider,
-        gameData.Id
+        String(gameData.GameId)
     );
     await renderer.init();
     renderer.drawInitial(gameData);
