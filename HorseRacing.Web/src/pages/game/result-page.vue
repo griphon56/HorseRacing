@@ -19,7 +19,9 @@
                         <template v-else>{{ player.Place }}</template>
                     </td>
                     <td class="name-cell">{{ player.FullName ?? '—' }}</td>
-                    <td class="suit-cell">{{ suitName(player.BetSuit) }}</td>
+                    <td class="suit-cell">
+                        {{ suitName(player.BetSuit) }} {{ suitIcon(player.BetSuit) }}
+                    </td>
                 </tr>
             </tbody>
         </n-table>
@@ -35,9 +37,10 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { NButton, NSpace, NH1, NTable } from 'naive-ui';
 import { useGamesStore } from '~/stores/games-store';
-import { suitName } from '~/utils/game-utils';
+import { suitIcon, suitName } from '~/utils/game-utils';
 import { RouteName } from '~/interfaces/app/routes';
 import type { GetGameResultResponseDto } from '~/interfaces/api/contracts/model/game/responses/get-game-result/get-game-result-response-dto';
+import type { SuitType } from '~/interfaces/api/contracts/model/game/enums/suit-type-enum';
 
 const router = useRouter();
 const route = useRoute();

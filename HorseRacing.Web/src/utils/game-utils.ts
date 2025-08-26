@@ -26,8 +26,25 @@ export const SuitOptions = [
 /**
  * Преобразует масть (число enum или строку) в читаемое название.
  */
-export function suitName(suit: number | string | null | undefined): string {
+export function suitName(suit: SuitType | number | string | null | undefined): string {
     if (suit === null || suit === undefined) return '—';
+
+    if (typeof suit === 'string') {
+        const normalized = suit.toLowerCase();
+        switch (normalized) {
+            case 'diamonds':
+                return 'Бубны';
+            case 'hearts':
+                return 'Черви';
+            case 'spades':
+                return 'Пики';
+            case 'clubs':
+                return 'Трефы';
+            default:
+                return suit;
+        }
+    }
+
     switch (suit) {
         case SuitType.Diamonds:
             return 'Бубны';
@@ -39,5 +56,38 @@ export function suitName(suit: number | string | null | undefined): string {
             return 'Трефы';
         default:
             return String(suit);
+    }
+}
+
+export function suitIcon(suit: SuitType | number | string | null | undefined): string {
+    if (suit === null || suit === undefined) return '—';
+
+    if (typeof suit === 'string') {
+        const normalized = suit.toLowerCase();
+        switch (normalized) {
+            case 'diamonds':
+                return '♦';
+            case 'hearts':
+                return '♥';
+            case 'spades':
+                return '♠';
+            case 'clubs':
+                return '♣';
+            default:
+                return '❓';
+        }
+    }
+
+    switch (suit) {
+        case SuitType.Diamonds:
+            return '♦';
+        case SuitType.Hearts:
+            return '♥';
+        case SuitType.Spades:
+            return '♠';
+        case SuitType.Clubs:
+            return '♣';
+        default:
+            return '❓';
     }
 }
