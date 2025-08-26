@@ -52,7 +52,7 @@ onMounted(async () => {
         pixiContainer.value,
         defaultGameConfig,
         atlasProvider,
-        String(gameData.GameId)
+        String(route.params.id)
     );
     await renderer.init();
     renderer.drawInitial(gameData);
