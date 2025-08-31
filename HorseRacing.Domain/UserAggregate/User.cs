@@ -54,13 +54,13 @@ namespace HorseRacing.Domain.UserAggregate
             , string email, string phone, EntityChangeInfo changeInfo, bool isRemoved)
             : base(id ?? UserId.CreateUnique(), changeInfo)
         {
-            UserName = userName;
-            Password = password;
+            UserName = userName.Trim();
+            Password = password.Trim();
             IsRemoved = isRemoved;
-            FirstName = firstName;
-            LastName = lastName;
-            Email = email;
-            Phone = phone;
+            FirstName = firstName.Trim();
+            LastName = lastName.Trim();
+            Email = email.Trim();
+            Phone = phone.Trim();
         }
 
         public static User Create(UserId id, string userName, string password, string firstName
@@ -71,6 +71,20 @@ namespace HorseRacing.Domain.UserAggregate
             user._account = Account.Create(AccountId.CreateUnique(), 10, id);
 
             return user;
+        }
+
+        public void Update(string userName, string firstName, string lastName, string email, string phone
+            , string password , EntityChangeInfo changeInfo, bool isRemoved = false)
+        {
+            UserName = userName.Trim();
+            FirstName = firstName.Trim();
+            LastName = lastName.Trim();
+            Email = email.Trim();
+            Phone = phone.Trim();
+            Password = password.Trim();
+
+            SetDateChanged(changeInfo.DateChanged);
+            SetChangedUserId(changeInfo.ChangedUserId);
         }
     }
 }

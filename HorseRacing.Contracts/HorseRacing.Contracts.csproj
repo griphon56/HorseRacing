@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Folder Include="Models\Authentication\Dtos\" />
+    <Folder Include="Models\User\Dtos\" />
   </ItemGroup>
 
 </Project>
