@@ -13,7 +13,8 @@ namespace HorseRacing.Domain.UserAggregate
                     Id = UserId.Create(User.DefaultSystemAdministrator),
                     UserName = "admin",
 				    // Хэш пароля "qwerty_123"
-				    Password = "82E3B4B3D57F6D4112A02310EA2E8F9517BC19BD6EBF1EC95E0C7AA961B3B3F2AE24BB2CA278CB190D24B55241AC893C9E590717106F3FB18070",
+				    HashPassword = "82E3B4B3D57F6D4112A02310EA2E8F9517BC19BD6EBF1EC95E0C7AA961B3B3F2AE24BB2CA278CB190D24B55241AC893C9E590717106F3FB18070",
+                    Password = new byte[] { 0x01 },
                     FirstName = "Администратор",
                     LastName = "Системы",
                     Email = "admin@race.ru",
@@ -26,7 +27,8 @@ namespace HorseRacing.Domain.UserAggregate
                     Id = UserId.Create(User.TestUserIvan),
                     UserName = "ivan",
 				    // Хэш пароля "1"
-				    Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+				    HashPassword = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+                    Password = new byte[] { 0x01 },
                     FirstName = "Иван",
                     LastName = "Пика",
                     Email = "ivan@race.ru",
@@ -39,7 +41,8 @@ namespace HorseRacing.Domain.UserAggregate
                     Id = UserId.Create(User.TestUserPetr),
                     UserName = "petr",
 				    // Хэш пароля "1"
-				    Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+				    HashPassword = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+                    Password = new byte[] { 0x01 },
                     FirstName = "Петр",
                     LastName = "Крести",
                     Email = "petr@race.ru",
@@ -52,7 +55,8 @@ namespace HorseRacing.Domain.UserAggregate
                     Id = UserId.Create(User.TestUserJohn),
                     UserName = "john",
 				    // Хэш пароля "1"
-				    Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+				    HashPassword = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+                    Password = new byte[] { 0x01 },
                     FirstName = "Джонни",
                     LastName = "Черва",
                     Email = "john@race.ru",
@@ -65,7 +69,8 @@ namespace HorseRacing.Domain.UserAggregate
                     Id = UserId.Create(User.TestUserAlex),
                     UserName = "alex",
 				    // Хэш пароля "1"
-				    Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+				    HashPassword = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+                    Password = new byte[] { 0x01 },
                     FirstName = "Алексей",
                     LastName = "Бубна",
                     Email = "alex@race.ru",

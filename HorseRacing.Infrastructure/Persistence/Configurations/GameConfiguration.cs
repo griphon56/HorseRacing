@@ -36,6 +36,7 @@ namespace HorseRacing.Infrastructure.Persistence.Configurations
             builder.Property(m => m.Id).ValueGeneratedNever().HasConversion(id => id.Value,
                 value => GameId.Create(value));
 
+            builder.Property(m => m.DefaultBet).HasPrecision(18, 2);
             builder.Property<byte[]>("_versionRow").HasColumnName("VersionRow").IsRowVersion();
 
             builder.Property(m => m.Name).HasMaxLength(100);
@@ -121,6 +122,8 @@ namespace HorseRacing.Infrastructure.Persistence.Configurations
                 a.Property(m => m.Id).ValueGeneratedNever().HasConversion(id => id.Value, value => GamePlayerId.Create(value));
                 a.Property(m => m.UserId).HasConversion(id => id.Value, value => UserId.Create(value));
                 a.Property(m => m.GameId).HasConversion(id => id.Value, value => GameId.Create(value));
+
+                a.Property(m => m.BetAmount).HasPrecision(18, 2);
 
                 a.HasOne<User>().WithMany().HasForeignKey(m => m.UserId);
             });

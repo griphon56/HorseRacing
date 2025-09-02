@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HorseRacing.Migrations.MSSQL.Migrations
 {
     [DbContext(typeof(HRDbContext))]
-    [Migration("20250824171109_InitialCreate")]
+    [Migration("20250902204329_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -104,6 +104,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal?>("DefaultBet")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Mode")
@@ -160,6 +161,11 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("HashPassword")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<bool>("IsRemoved")
                         .HasColumnType("bit");
 
@@ -168,10 +174,9 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Password")
+                    b.Property<byte[]>("Password")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -205,9 +210,10 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                             DateCreated = new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@race.ru",
                             FirstName = "Администратор",
+                            HashPassword = "82E3B4B3D57F6D4112A02310EA2E8F9517BC19BD6EBF1EC95E0C7AA961B3B3F2AE24BB2CA278CB190D24B55241AC893C9E590717106F3FB18070",
                             IsRemoved = false,
                             LastName = "Системы",
-                            Password = "82E3B4B3D57F6D4112A02310EA2E8F9517BC19BD6EBF1EC95E0C7AA961B3B3F2AE24BB2CA278CB190D24B55241AC893C9E590717106F3FB18070",
+                            Password = new byte[] { 1 },
                             Phone = "79001112233",
                             UserName = "admin",
                             _versionRow = new byte[] { 1 }
@@ -218,9 +224,10 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                             DateCreated = new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc),
                             Email = "ivan@race.ru",
                             FirstName = "Иван",
+                            HashPassword = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
                             IsRemoved = false,
                             LastName = "Пика",
-                            Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+                            Password = new byte[] { 1 },
                             Phone = "79001112211",
                             UserName = "ivan",
                             _versionRow = new byte[] { 1 }
@@ -231,9 +238,10 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                             DateCreated = new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc),
                             Email = "petr@race.ru",
                             FirstName = "Петр",
+                            HashPassword = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
                             IsRemoved = false,
                             LastName = "Крести",
-                            Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+                            Password = new byte[] { 1 },
                             Phone = "79001112222",
                             UserName = "petr",
                             _versionRow = new byte[] { 1 }
@@ -244,9 +252,10 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                             DateCreated = new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc),
                             Email = "john@race.ru",
                             FirstName = "Джонни",
+                            HashPassword = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
                             IsRemoved = false,
                             LastName = "Черва",
-                            Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+                            Password = new byte[] { 1 },
                             Phone = "79001112233",
                             UserName = "john",
                             _versionRow = new byte[] { 1 }
@@ -257,9 +266,10 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                             DateCreated = new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc),
                             Email = "alex@race.ru",
                             FirstName = "Алексей",
+                            HashPassword = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
                             IsRemoved = false,
                             LastName = "Бубна",
-                            Password = "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F",
+                            Password = new byte[] { 1 },
                             Phone = "79001112244",
                             UserName = "alex",
                             _versionRow = new byte[] { 1 }
@@ -391,6 +401,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<decimal>("BetAmount")
+                                .HasPrecision(18, 2)
                                 .HasColumnType("decimal(18,2)");
 
                             b1.Property<int>("BetSuit")
@@ -485,6 +496,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<decimal>("Balance")
+                                .HasPrecision(18, 2)
                                 .HasColumnType("decimal(18,2)");
 
                             b1.Property<Guid>("UserId")

@@ -38,7 +38,7 @@ namespace HorseRacing.Infrastructure.Persistence.Configurations
             builder.Property(m => m.LastName).HasMaxLength(100);
             builder.Property(m => m.Email).HasMaxLength(150);
             builder.Property(m => m.Phone).HasMaxLength(50);
-            builder.Property(m => m.Password).HasMaxLength(1000);
+            builder.Property(m => m.HashPassword).HasMaxLength(1000);
 
             BaseChangeInfoConfigurationUtilities.AttachChangeInfoForConfiguration<User, UserId>(builder);
 
@@ -55,6 +55,9 @@ namespace HorseRacing.Infrastructure.Persistence.Configurations
                 a.WithOwner().HasForeignKey(m => m.UserId);
                 a.Property(m => m.Id).ValueGeneratedNever().HasConversion(id => id.Value, value => AccountId.Create(value));
                 a.Property(m => m.UserId).HasConversion(id => id.Value, value => UserId.Create(value));
+
+                a.Property(m=> m.Balance).HasPrecision(18, 2);
+
                 a.HasData(Account.GetDefaultAccounts());
             });
 

@@ -41,7 +41,7 @@ namespace HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Queries
             {
                 return Errors.Authentication.UserNotFound;
             }
-            if (!_hashPasswordService.VerifyPassword(query.Password, user.Password))
+            if (!_hashPasswordService.VerifyPassword(query.Password, user.HashPassword))
             {
                 return Errors.Authentication.PasswordIncorrect;
             }

@@ -58,8 +58,11 @@ namespace HorseRacing.Application.RequestHandlers.AuthenticationHandlers.Command
         /// </summary>
         public static User PrepareUserForRegistrationCommand(RegistrationCommand command, IHashPasswordService hashPasswordService, UserId? createdUser)
         {
-            return User.Create(UserId.CreateUnique(), command.UserName, hashPasswordService.HashPassword(command.Password), command.FirstName, command.LastName, command.Email ?? "", command.Phone ?? ""
-                , new EntityChangeInfo(DateTime.UtcNow, createdUser));
+            string hashPassword = hashPasswordService.HashPassword(command.Password);
+            byte[] password = hashPasswordService.Encrypt(command.Password);
+
+            return User.Create(UserId.CreateUnique(), command.UserName, hashPassword, password, command.FirstName, command.LastName
+                , command.Email ?? "", command.Phone ?? "", new EntityChangeInfo(DateTime.UtcNow, createdUser));
         }
     }
 }

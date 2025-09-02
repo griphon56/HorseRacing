@@ -4,6 +4,7 @@ using HorseRacing.Application.Common.Interfaces.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using HorseRacing.Domain.Common.Errors;
+using HorseRacing.Domain.Common.Models.Base;
 
 namespace HorseRacing.Application.RequestHandlers.UserHandlers.Commands.UpdateUser
 {
@@ -38,8 +39,23 @@ namespace HorseRacing.Application.RequestHandlers.UserHandlers.Commands.UpdateUs
 
             if(request.UserId == userView.Value!.UserId)
             {
+                var userToUpdate = await _userRepository.GetById(request.UserId);
 
+                if (!string.IsNullOrEmpty(request.Password))
+                {
+                    string hashPass = _hashPasswordService.HashPassword(request.Password);
+                    byte[] pass = _hashPasswordService.Encrypt(request.Password);
+
+                    userToUpdate.UpdatePassword(hashPass, pass);
+                }
+                
+                userToUpdate.Update(request.FirstName, request.LastName, request.Email, request.Phone
+                    , new EntityChangeInfo(userToUpdate.GetEntityChangeInfo(), DateTime.UtcNow, userView.Value.UserId));
+
+               await _userRepository.Update(userToUpdate);
             }
+
+            return Unit.Value;
         }
     }
 }

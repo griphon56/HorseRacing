@@ -19,7 +19,8 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    HashPassword = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Password = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     IsRemoved = table.Column<bool>(type: "bit", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
@@ -51,7 +52,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Balance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Balance = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -101,7 +102,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Mode = table.Column<int>(type: "int", nullable: false),
-                    DefaultBet = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    DefaultBet = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     DateStart = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DateEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -201,7 +202,7 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    BetAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    BetAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     BetSuit = table.Column<int>(type: "int", nullable: false),
                     GameId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
@@ -253,14 +254,14 @@ namespace HorseRacing.Migrations.MSSQL.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "ChangedUserId", "CreatedUserId", "DateChanged", "DateCreated", "Email", "FirstName", "IsRemoved", "LastName", "Password", "Phone", "UserName" },
+                columns: new[] { "Id", "ChangedUserId", "CreatedUserId", "DateChanged", "DateCreated", "Email", "FirstName", "HashPassword", "IsRemoved", "LastName", "Password", "Phone", "UserName" },
                 values: new object[,]
                 {
-                    { new Guid("141fcb82-6639-4932-a68d-af84f09ef42d"), null, null, null, new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc), "petr@race.ru", "Петр", false, "Крести", "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F", "79001112222", "petr" },
-                    { new Guid("17b6f19e-56b1-485c-a16a-c60cec5cdaa6"), null, null, null, new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc), "alex@race.ru", "Алексей", false, "Бубна", "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F", "79001112244", "alex" },
-                    { new Guid("8223998a-318f-460c-9464-1164ee56cb46"), null, null, null, new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc), "admin@race.ru", "Администратор", false, "Системы", "82E3B4B3D57F6D4112A02310EA2E8F9517BC19BD6EBF1EC95E0C7AA961B3B3F2AE24BB2CA278CB190D24B55241AC893C9E590717106F3FB18070", "79001112233", "admin" },
-                    { new Guid("8f2facbc-2ef4-4fe1-b9e0-e3f877edb3c3"), null, null, null, new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc), "ivan@race.ru", "Иван", false, "Пика", "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F", "79001112211", "ivan" },
-                    { new Guid("a1f52f7e-6dd6-4ff9-bded-78305b42c81e"), null, null, null, new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc), "john@race.ru", "Джонни", false, "Черва", "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F", "79001112233", "john" }
+                    { new Guid("141fcb82-6639-4932-a68d-af84f09ef42d"), null, null, null, new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc), "petr@race.ru", "Петр", "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F", false, "Крести", new byte[] { 1 }, "79001112222", "petr" },
+                    { new Guid("17b6f19e-56b1-485c-a16a-c60cec5cdaa6"), null, null, null, new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc), "alex@race.ru", "Алексей", "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F", false, "Бубна", new byte[] { 1 }, "79001112244", "alex" },
+                    { new Guid("8223998a-318f-460c-9464-1164ee56cb46"), null, null, null, new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc), "admin@race.ru", "Администратор", "82E3B4B3D57F6D4112A02310EA2E8F9517BC19BD6EBF1EC95E0C7AA961B3B3F2AE24BB2CA278CB190D24B55241AC893C9E590717106F3FB18070", false, "Системы", new byte[] { 1 }, "79001112233", "admin" },
+                    { new Guid("8f2facbc-2ef4-4fe1-b9e0-e3f877edb3c3"), null, null, null, new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc), "ivan@race.ru", "Иван", "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F", false, "Пика", new byte[] { 1 }, "79001112211", "ivan" },
+                    { new Guid("a1f52f7e-6dd6-4ff9-bded-78305b42c81e"), null, null, null, new DateTime(2024, 12, 31, 21, 0, 0, 0, DateTimeKind.Utc), "john@race.ru", "Джонни", "A44DC50E7693F034C1C6032F04E7E5152729DF8891D15DD1F485F7C98FE62AA0113FCB77745A024BF3573AD54837D6D8D0DDD61E27E06B1DC18F", false, "Черва", new byte[] { 1 }, "79001112233", "john" }
                 });
 
             migrationBuilder.InsertData(
