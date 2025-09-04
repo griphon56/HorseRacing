@@ -1,9 +1,12 @@
 ﻿using Asp.Versioning;
 using HorseRacing.Api.Controllers.Base;
 using HorseRacing.Application.RequestHandlers.UserHandlers.Commands.UpdateUser;
+using HorseRacing.Application.RequestHandlers.UserHandlers.Queries.GetAccountBalance;
 using HorseRacing.Application.RequestHandlers.UserHandlers.Queries.GetUser;
+using HorseRacing.Contracts.Models.User.Requests.GetAccountBalance;
 using HorseRacing.Contracts.Models.User.Requests.GetUser;
 using HorseRacing.Contracts.Models.User.Requests.UpdateUser;
+using HorseRacing.Contracts.Models.User.Responses.GetAccountBalance;
 using HorseRacing.Contracts.Models.User.Responses.GetUser;
 using HorseRacing.Domain.UserAggregate.ValueObjects;
 using MapsterMapper;
@@ -25,7 +28,7 @@ namespace HorseRacing.Api.Controllers.v1
             _mapper = mapper;
         }
 
-        [HttpPost("get-game")]
+        [HttpPost("get-user")]
         public async Task<IActionResult> GetUser([FromBody] GetUserRequest request)
         {
             var getUserResult = await _mediator.Send(new GetUserQuery()
@@ -38,13 +41,26 @@ namespace HorseRacing.Api.Controllers.v1
                 errors => Problem(errors));
         }
 
-        [HttpPost("update-game")]
+        [HttpPost("update-user")]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request)
         {
             var getUserResult = await _mediator.Send(_mapper.Map<UpdateUserCommand>(request));
 
             return getUserResult.Match(
                 res => Ok(),
+                errors => Problem(errors));
+        }
+
+        [HttpPost("get-account-balance")]
+        public async Task<IActionResult> GetAccountBalance([FromBody] GetAccountBalanceRequest request)
+        {
+            var geResult = await _mediator.Send(new GetAccountBalanceQuery()
+            {
+                UserId = UserId.Create(request.Data.UserId)
+            });
+
+            return geResult.Match(
+                res => Ok(_mapper.Map<GetAccountBalanceResponse>(res)),
                 errors => Problem(errors));
         }
     }

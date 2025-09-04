@@ -1,5 +1,4 @@
 ﻿using HorseRacing.Domain.UserAggregate.ValueObjects;
-using System;
 
 namespace HorseRacing.Domain.UserAggregate
 {

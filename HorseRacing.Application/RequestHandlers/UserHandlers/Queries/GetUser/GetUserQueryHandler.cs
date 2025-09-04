@@ -4,6 +4,7 @@ using HorseRacing.Application.RequestHandlers.UserHandlers.Common;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using HorseRacing.Domain.Common.Errors;
+using HorseRacing.Domain.UserAggregate;
 
 namespace HorseRacing.Application.RequestHandlers.UserHandlers.Queries.GetUser
 {
@@ -20,17 +21,18 @@ namespace HorseRacing.Application.RequestHandlers.UserHandlers.Queries.GetUser
 
         public async Task<ErrorOr<GetUserResult>> Handle(GetUserQuery request, CancellationToken cancellationToken)
         {
-            var userResult = await _userRepository.GetById(request.UserId);
-            if(userResult is null)
+            if (await _userRepository.GetById(request.UserId, cancellationToken) is not User user)
+            {
                 return Errors.User.UserNotFound;
+            }
 
             return new GetUserResult()
             {
-                UserName = userResult.UserName,
-                FirstName = userResult.FirstName,
-                LastName = userResult.LastName,
-                Email = userResult.Email,
-                Phone = userResult.Phone,
+                UserName = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Phone = user.Phone,
             };
         }
     }

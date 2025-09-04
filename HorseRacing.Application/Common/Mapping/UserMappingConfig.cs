@@ -1,6 +1,7 @@
 ﻿using HorseRacing.Application.RequestHandlers.UserHandlers.Commands.UpdateUser;
 using HorseRacing.Application.RequestHandlers.UserHandlers.Common;
 using HorseRacing.Contracts.Models.User.Requests.UpdateUser;
+using HorseRacing.Contracts.Models.User.Responses.GetAccountBalance;
 using HorseRacing.Contracts.Models.User.Responses.GetUser;
 using HorseRacing.Domain.UserAggregate.ValueObjects;
 using Mapster;
@@ -26,6 +27,10 @@ namespace HorseRacing.Application.Common.Mapping
                 .Map(dest => dest.LastName, src => src.Data.LastName)
                 .Map(dest => dest.Email, src => src.Data.Email)
                 .Map(dest => dest.Phone, src => src.Data.Phone);
+
+            config.NewConfig<GetAccountBalanceResult, GetAccountBalanceResponse>()
+                .Map(dest => dest.Data.UserId, src => src.UserId.Value)
+                .Map(dest => dest.Data.Balance, src => src.Balance);
         }
     }
 }
