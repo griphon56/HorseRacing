@@ -26,7 +26,7 @@ namespace HorseRacing.Api.Controllers.v1
             _mapper = mapper;
         }
 
-        [HttpPost("registration")]
+        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegistrationRequest request)
         {
             var command = _mapper.Map<RegistrationCommand>(request.Data);

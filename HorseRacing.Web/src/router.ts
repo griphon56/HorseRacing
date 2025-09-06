@@ -13,6 +13,12 @@ export const router = createRouter({
             meta: { guest: true },
         },
         {
+            path: '/register',
+            name: RouteName.Register,
+            component: () => import('~/pages/auth/register-page.vue'),
+            meta: { guest: true },
+        },
+        {
             path: '/',
             redirect: '/games',
             component: MainLayout,
